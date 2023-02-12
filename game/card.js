@@ -3,6 +3,10 @@ class Card {
       this.score = score;
       this.cardType = cardType;
     }
+  
+    play() {
+      return { score: this.score, cardType: this.cardType };
+    }
   }
   
   exports.Card = Card;

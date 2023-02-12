@@ -25,8 +25,9 @@ class Player {
 
     // Take the first card from the player's deck
     const card = this.deck.shift();
-    this.points += turnNumber * card.score;
-    return card;
+    const points = turnNumber * card.score;
+    this.points += points;
+    return { card: card.play(), points: points };
   }
 }
 
