@@ -1,15 +1,17 @@
+const { Card } = require("./card");
+
 class Player {
-constructor(name) {
+  constructor(name) {
     this.name = name;
-    this.points = 0;
     this.deck = [];
-}
+    this.points = 0;
+  }
 
-setCards(cards) {
+  setCards(cards) {
     this.deck = cards;
-}
+  }
 
-playTurn(turnNumber) {
+  playTurn(turnNumber, playedDeck) {
     // Check if the player has a card in their deck
     if (this.deck.length === 0) {
     console.log(`${this.name} has no more cards in their deck.`);
@@ -17,12 +19,15 @@ playTurn(turnNumber) {
     }
 
     // Take the first card from the player's deck
-    const card = this.deck.shift();
-    const points = turnNumber * card.score;
-    this.points += points;
-    return { card: card.play(), points: points };
+    const card = this.deck.pop();
+    this.points += turnNumber * card.score;
+    playedDeck.addCard(card);
+
+    return {
+      card: card,
+      points: turnNumber * card.score
+    };
+  }
 }
-}
-  
-exports.Player = Player;
-  
+
+module.exports = { Player };
