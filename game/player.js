@@ -1,4 +1,5 @@
 const { Card } = require("./card");
+const prompt = require("prompt-sync")();
 
 class Player {
   constructor(name) {
@@ -18,13 +19,26 @@ class Player {
     return null;
     }
 
-    // Take the first card from the player's deck
-    const card = this.deck.pop();
+    console.log(`Which card would you like to play?`);
+    this.deck.forEach((card, index) => {
+      console.log(`${index}: ${card.cardType} ${card.score}`);
+    });
+
+    let selectedIndex = prompt("Enter the card index: ");
+    selectedIndex = parseInt(selectedIndex);
+    while (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= this.deck.length) {
+      console.log(`Invalid index. Please enter a valid index.`);
+      selectedIndex = prompt("Enter the card index: ");
+      selectedIndex = parseInt(selectedIndex);
+    }
+
+    const card = this.deck[selectedIndex];
+    this.deck.splice(selectedIndex, 1);
     this.points += turnNumber * card.score;
     playedDeck.addCard(card);
 
     return {
-      card: card,
+      card,
       points: turnNumber * card.score
     };
   }
