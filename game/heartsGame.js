@@ -6,9 +6,10 @@ const { Client } = require("./client");
 async function playGame() {
   const cardEngine = new CardEngine();
 
-  const client = new Client();
-  const player1 = new Player("Player 1", client);
-  const player2 = new Player("Player 2", client);
+  const client1 = new Client(1, "Client 1");
+  const client2 = new Client(2, "Client 2");
+  const player1 = new Player("Player 1", client1);
+  const player2 = new Player("Player 2", client2);
   const playedDeck = new PlayedDeck();
 
   player1.setCards(cardEngine.getNextCards());
