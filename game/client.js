@@ -2,13 +2,25 @@ class Client {
     constructor(id, name) {
       this.id = id;
       this.name = name;
+      this.isWaiting = true;
+    }
+  
+    acceptInput(cardIndex) {
+      this.isWaiting = false;
+      this.cardIndex = cardIndex;
     }
   
     async waitForAnswer(deck, playedDeck) {
-      console.log(`Client ${this.id} (${this.name}) is thinking...`);
-      console.log(`Available deck: ${JSON.stringify(deck)}`);
-      console.log(`Client ${this.id} (${this.name}) is going to play ${deck[0].cardType} ${deck[0].score}`);
-      return 0;
+      console.log(`${this.name} is thinking...`);
+      console.log(`${this.name}'s current deck:`, deck);
+      while (this.isWaiting) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      return deck[this.cardIndex];
+    }
+  
+    getDeck() {
+      return this.deck;
     }
   }
   
