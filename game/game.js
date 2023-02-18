@@ -1,7 +1,7 @@
-const heartsGame = require("./heartsGame");
+const { playGame } = require("./heartsGame");
 
-function run() {
-  heartsGame.playGame();
+function runGame(clients) {
+  playGame(clients);
 }
 
-module.exports = { run };
+module.exports = { runGame };

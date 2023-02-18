@@ -1,15 +1,12 @@
 const { Player } = require("./player");
 const { CardEngine } = require("./cardEngine");
 const { PlayedDeck } = require("./playedDeck");
-const { Client } = require("./client");
 
-async function playGame() {
+async function playGame(clients) {
   const cardEngine = new CardEngine();
 
-  const client1 = new Client(1, "Client 1");
-  const client2 = new Client(2, "Client 2");
-  const player1 = new Player("Player 1", client1);
-  const player2 = new Player("Player 2", client2);
+  const player1 = new Player("Player 1", clients[0]);
+  const player2 = new Player("Player 2", clients[1]);
   const playedDeck = new PlayedDeck();
 
   player1.setCards(cardEngine.getNextCards());
@@ -39,3 +36,4 @@ async function playGame() {
 }
 
 module.exports = { playGame };
+
