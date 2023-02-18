@@ -18,7 +18,8 @@ class Client {
       while (this.isWaiting) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      return deck[this.cardIndex];
+      this.isWaiting = true;
+      return this.cardIndex;
     }
   
     getDeck() {
