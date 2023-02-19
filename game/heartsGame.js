@@ -12,6 +12,9 @@ async function playGame(clients) {
   player1.setCards(cardEngine.getNextCards());
   player2.setCards(cardEngine.getNextCards());
 
+  clients[0].updateDeck(player1.deck);
+  clients[1].updateDeck(player2.deck);
+
   let turnNumber = 1;
   while (player1.deck.length > 0 || player2.deck.length > 0) {
     console.log(`Turn ${turnNumber}:`);

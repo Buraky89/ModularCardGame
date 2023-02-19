@@ -10,7 +10,11 @@ class Client {
       this.isWaiting = false;
       this.cardIndex = cardIndex;
     }
-  
+    
+    updateDeck(deck) {
+        this.deck = deck;
+    }
+    
     async waitForAnswer(deck, playedDeck) {
       this.deck = deck;
       console.log(`${this.name} is thinking...`);
