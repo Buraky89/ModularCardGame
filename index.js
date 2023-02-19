@@ -46,6 +46,9 @@ app.get("/client1", (req, res) => {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({ cardIndex })
+            })
+            .then(() => {
+                setTimeout(() => { window.location.reload(); }, 200);
             });
           }
         </script>
@@ -79,6 +82,9 @@ app.get("/client2", (req, res) => {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({ cardIndex })
+            })
+            .then(() => {
+                setTimeout(() => { window.location.reload(); }, 200);
             });
           }
         </script>
