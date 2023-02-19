@@ -11,11 +11,20 @@ const client2 = new Client(2, "Client 2");
 
 app.use(express.json());
 
-app.get("/", function(req, res) {
-  //res.send(myModule.greet());
+app.get("/", (req, res) => {
   runGame([client1, client2]);
-  
-  res.send("ok");
+  res.send(`
+    <html>
+    <head>
+        <title>Card Game</title>
+    </head>
+    <body>
+        <h1>Card Game</h1>
+        <iframe src="http://localhost:3001/client1" width="320" height="240" frameborder="0" scrolling="no"></iframe>
+        <iframe src="http://localhost:3001/client2" width="320" height="240" frameborder="0" scrolling="no"></iframe>
+    </body>
+    </html>
+  `);
 });
 
 app.get("/client1", (req, res) => {
