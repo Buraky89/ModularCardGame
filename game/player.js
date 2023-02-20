@@ -10,6 +10,7 @@ class Player {
 
   setCards(cards) {
     this.deck = cards;
+    this.client.updateDeck(this.deck);
   }
 
   async playTurn(turnNumber, playedDeck) {
@@ -25,7 +26,7 @@ class Player {
     this.deck.splice(selectedIndex, 1);
     this.points += turnNumber * card.score;
     playedDeck.addCard(card);
-
+    this.client.updateDeck(this.deck);
     return {
       card,
       points: turnNumber * card.score
