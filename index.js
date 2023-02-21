@@ -57,8 +57,8 @@ app.get("/client1", (req, res) => {
   `);
 });
 
-app.post("/client1/submit", (req, res) => {
-    const deck = client1.acceptInput(req.body.cardIndex);
+app.post("/client1/submit", async (req, res) => {
+    const deck = await client1.acceptInput(req.body.cardIndex);
     res.json({ deck });
 });
 
@@ -92,8 +92,8 @@ app.get("/client2", (req, res) => {
   `);
 });
 
-app.post("/client2/submit", (req, res) => {
-    const deck = client2.acceptInput(req.body.cardIndex);
+app.post("/client2/submit", async (req, res) => {
+    const deck = await client2.acceptInput(req.body.cardIndex);
     res.json({ deck });
 });
 
