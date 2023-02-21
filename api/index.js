@@ -6,6 +6,11 @@ const { Client } = require("./game/client");
 const express = require("express");
 const app = express();
 
+const cors = require('cors');
+
+// Enable CORS for all routes
+app.use(cors());
+
 const client1 = new Client(1, "Client 1");
 const client2 = new Client(2, "Client 2");
 
@@ -95,6 +100,16 @@ app.get("/client2", (req, res) => {
 app.post("/client2/submit", async (req, res) => {
     const deck = await client2.acceptInput(req.body.cardIndex);
     res.json({ deck });
+});
+
+app.get("/client1/deck", (req, res) => {
+  const deck = client1.getDeck();
+  res.json({ deck });
+});
+
+app.get("/client2/deck", (req, res) => {
+  const deck = client1.getDeck();
+  res.json({ deck });
 });
 
 app.listen(3001, () => {
