@@ -58,9 +58,8 @@ app.get("/client1", (req, res) => {
 });
 
 app.post("/client1/submit", (req, res) => {
-  client1.acceptInput(req.body.cardIndex);
-  
-  res.sendStatus(200);
+    const deck = client1.acceptInput(req.body.cardIndex);
+    res.json({ deck });
 });
 
 app.get("/client2", (req, res) => {
@@ -94,8 +93,8 @@ app.get("/client2", (req, res) => {
 });
 
 app.post("/client2/submit", (req, res) => {
-  client2.acceptInput(req.body.cardIndex);
-  res.sendStatus(200);
+    const deck = client2.acceptInput(req.body.cardIndex);
+    res.json({ deck });
 });
 
 app.listen(3001, () => {

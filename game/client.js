@@ -9,6 +9,7 @@ class Client {
     acceptInput(cardIndex) {
       this.isWaiting = false;
       this.cardIndex = cardIndex;
+      return this.getDeck();
     }
     
     updateDeck(deck) {
