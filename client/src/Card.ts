@@ -19,3 +19,10 @@ export class Card {
     CLUBS = "Clubs",
   }
   
+
+export interface ApiResponse {
+  deck: Card[];
+  playedDeck: {
+    deck: Card[];
+  };
+}
