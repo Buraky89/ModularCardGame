@@ -26,7 +26,7 @@ class Player {
     this.deck.splice(selectedIndex, 1);
     this.points += turnNumber * card.score;
     playedDeck.addCard(card);
-    this.client.updateDeck(this.deck, playedDeck);
+    this.client.updateDeck(this.deck);
     return {
       card,
       points: turnNumber * card.score

@@ -20,8 +20,11 @@ class Client {
       return this.getDeck();
     }
     
-    updateDeck(deck, playedDeck) {
+    updateDeck(deck) {
       this.deck = deck;
+    }
+
+    updatePlayedDeck(playedDeck) {
       this.playedDeck = playedDeck;
     }
     

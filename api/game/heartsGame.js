@@ -16,7 +16,18 @@ async function playGame(clients) {
   while (player1.deck.length > 0 || player2.deck.length > 0) {
     console.log(`Turn ${turnNumber}:`);
     const result1 = await player1.playTurn(turnNumber, playedDeck);
+
+    // TODO: make this better by event distribution.
+    clients[0].updatePlayedDeck(playedDeck);
+    clients[1].updatePlayedDeck(playedDeck);
+
+
     const result2 = await player2.playTurn(turnNumber, playedDeck);
+
+    // TODO: make this better by event distribution.
+    clients[0].updatePlayedDeck(playedDeck);
+    clients[1].updatePlayedDeck(playedDeck);
+    
     if (result1) {
       console.log(`${player1.name} played ${result1.card.cardType} and earned ${result1.points} points`);
     } else {
