@@ -29,7 +29,7 @@ function CardsList() {
       })
     })
     .then((response) => response.json())
-    .then((data) => console.log(data))
+    .then((data: ApiResponse) => setCards(data.deck))
     .catch((error) => console.log(error));
   };
 
