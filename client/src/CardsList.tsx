@@ -18,11 +18,30 @@ function CardsList() {
       .catch((error) => console.log(error));
   }, []);
 
+  const handleCardClick = (cardIndex: number) => {
+    fetch("http://localhost:3001/client1/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        cardIndex
+      })
+    })
+    .then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.log(error));
+  };
+
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
       {cards.map((card, index) => (
         <div key={`${card.score}-${card.cardType}`} style={{ marginRight: 10 }}>
-          <MySVG cardType={card.cardType} score={card.score} index={index} />  
+          <MySVG
+            cardType={card.cardType}
+            score={card.score}
+            handleClick={() => handleCardClick(index)}
+          />
         </div>
       ))}
     </div>
