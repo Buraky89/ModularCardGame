@@ -1,16 +1,30 @@
 import React from 'react';
 import './App.css';
 import CardsList from "./CardsList";
+import { FunctionComponent } from "react";
+import { Route, Router, useRoute } from "wouter";
 
-function App() {
+
+const CardsListWrapper: FunctionComponent = () => {
+  const [match, params] = useRoute("/:clientName");
+
+  if (match) {
+    const clientName = params.clientName || "client1";
+    return <CardsList clientName={clientName} />;
+  }
+
+  return <div>Invalid client name</div>;
+};
+
+
+const App: FunctionComponent = () => {
   return (
-    <div className="App">
-      <div>
-        <h1>Cards List</h1>
-        <CardsList />
-      </div>
-    </div>
+    <Router>
+      <Route path="/:clientName">
+        <CardsListWrapper />
+      </Route>
+    </Router>
   );
-}
+};
 
 export default App;

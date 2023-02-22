@@ -2,24 +2,26 @@ import { useEffect, useState } from "react";
 import { Card, CardType } from "./Card";
 import MySVG from "./MySVG";
 
+interface CardsListProps {
+  clientName: string;
+}
 
 interface ApiResponse {
   deck: Card[];
 }
 
-
-function CardsList() {
+function CardsList({ clientName }: CardsListProps) {
   const [cards, setCards] = useState<Card[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/client1/deck")
+    fetch(`http://localhost:3001/${clientName}/deck`)
       .then((response) => response.json())
       .then((data: ApiResponse) => setCards(data.deck))
       .catch((error) => console.log(error));
-  }, []);
+  }, [clientName]);
 
   const handleCardClick = (cardIndex: number) => {
-    fetch("http://localhost:3001/client1/submit", {
+    fetch(`http://localhost:3001/${clientName}/submit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
