@@ -104,12 +104,15 @@ app.post("/client2/submit", async (req, res) => {
 
 app.get("/client1/deck", (req, res) => {
   const deck = client1.getDeck();
-  res.json({ deck });
+  const playedDeck = client1.getPlayedDeck();
+  res.json({ deck, playedDeck });
 });
+
 
 app.get("/client2/deck", (req, res) => {
   const deck = client2.getDeck();
-  res.json({ deck });
+  const playedDeck = client2.getPlayedDeck();
+  res.json({ deck, playedDeck });
 });
 
 app.listen(3001, () => {

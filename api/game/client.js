@@ -4,6 +4,7 @@ class Client {
       this.name = name;
       this.isWaiting = true;
       this.deck = [];
+      this.playedDeck = [];
     }
   
     async acceptInput(cardIndex) {
@@ -19,8 +20,9 @@ class Client {
       return this.getDeck();
     }
     
-    updateDeck(deck) {
-        this.deck = deck;
+    updateDeck(deck, playedDeck) {
+      this.deck = deck;
+      this.playedDeck = playedDeck;
     }
     
     async waitForAnswer(deck, playedDeck) {
@@ -36,6 +38,10 @@ class Client {
   
     getDeck() {
       return this.deck;
+    }
+
+    getPlayedDeck() {
+      return this.playedDeck;
     }
   }
   
