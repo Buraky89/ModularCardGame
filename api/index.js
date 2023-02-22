@@ -108,7 +108,7 @@ app.get("/client1/deck", (req, res) => {
 });
 
 app.get("/client2/deck", (req, res) => {
-  const deck = client1.getDeck();
+  const deck = client2.getDeck();
   res.json({ deck });
 });
 
