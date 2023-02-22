@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Card } from "./Card";
-
+import { Card, CardType } from "./Card";
+import MySVG from "./MySVG";
 
 
 interface ApiResponse {
@@ -19,13 +19,13 @@ function CardsList() {
   }, []);
 
   return (
-    <ul>
+    <div style={{ display: "flex", flexWrap: "wrap" }}>
       {cards.map((card) => (
-        <li key={`${card.score}-${card.cardType}`}>
-          {card.score} of {card.cardType}
-        </li>
+        <div key={`${card.score}-${card.cardType}`}>
+          <MySVG cardType={card.cardType} score={card.score} />  
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
 
