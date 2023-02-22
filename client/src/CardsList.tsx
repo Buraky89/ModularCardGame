@@ -33,7 +33,7 @@ function CardsList({ clientName }: CardsListProps) {
       .then((response) => response.json())
       .then((data: ApiResponse) => {
         setDeck(data.deck);
-        setPlayedDeck(data.playedDeck.deck);
+        setPlayedDeck(data.playedDeck?.deck);
       })
       .catch((error) => console.log(error));
   };
@@ -50,12 +50,16 @@ function CardsList({ clientName }: CardsListProps) {
         </div>
       ))}
       <div>
-        <h3>Played Cards:</h3>
-        {playedDeck.map((card, index) => (
-          <div key={`played-${index}`}>
-            <MySVG cardType={card.cardType} score={card.score} handleClick={() => {}} />
-          </div>
-        ))}
+        {playedDeck != null && playedDeck.length > 0 && (
+          <>
+            <h3>Played Cards:</h3>
+            {playedDeck.map((card, index) => (
+              <div key={`played-${index}`}>
+                <MySVG cardType={card.cardType} score={card.score} handleClick={() => {}} />
+              </div>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
