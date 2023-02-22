@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { CardType } from "./Card";
+
 
 interface MySVGProps {
   cardType: CardType;
   score: number;
+  index: number;
 }
 
 function MySVG(props: MySVGProps) {
@@ -20,6 +22,25 @@ function MySVG(props: MySVGProps) {
       default:
         return "";
     }
+  };
+
+  const [isSelected, setIsSelected] = useState(false);
+
+  const handleClick = () => {
+    setIsSelected(true);
+
+    fetch("http://localhost:3001/client1/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        cardIndex: props.index
+      })
+    })
+    .then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.log(error));
   };
 
   const { cardType, score } = props;
@@ -59,9 +80,13 @@ function MySVG(props: MySVGProps) {
 
   return (
     <svg
-      
+      width="169.075"
+      height="244.640"
+      viewBox="0 0 169.075 244.640"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
+      style={{ cursor: "pointer", border: isSelected ? "1px solid red" : "" }}
+      onClick={handleClick}
     >
       <use href={`/svg-cards.svg#${cardTypeToSvgName(cardType)}_${scoreToSvgName(score)}`} x="0" y="0" />
     </svg>

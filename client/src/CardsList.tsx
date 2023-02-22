@@ -20,9 +20,9 @@ function CardsList() {
 
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
-      {cards.map((card) => (
-        <div key={`${card.score}-${card.cardType}`}>
-          <MySVG cardType={card.cardType} score={card.score} />  
+      {cards.map((card, index) => (
+        <div key={`${card.score}-${card.cardType}`} style={{ marginRight: 10 }}>
+          <MySVG cardType={card.cardType} score={card.score} index={index} />  
         </div>
       ))}
     </div>
