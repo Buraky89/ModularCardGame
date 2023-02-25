@@ -25,6 +25,14 @@ class PlayerManager {
       }
     }
   }
+
+  getPlayerInfo() {
+    return this.players.map(player => ({
+      name: player.name,
+      deckCount: player.deck.length,
+      isTheirTurn: player.isTheirTurn
+    }));
+  }
 }
 
 module.exports = { PlayerManager };
