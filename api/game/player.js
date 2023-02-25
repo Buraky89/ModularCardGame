@@ -6,6 +6,7 @@ class Player {
     this.deck = [];
     this.points = 0;
     this.client = client;
+    this.isTheirTurn = false;
   }
 
   setCards(cards) {
@@ -20,8 +21,10 @@ class Player {
     return null;
     }
 
+    this.isTheirTurn = true;
     console.log(`Which card would you like to play?`);
     const selectedIndex = await this.client.waitForAnswer(this.deck, playedDeck);
+    this.isTheirTurn = false;
     const card = this.deck[selectedIndex];
     this.deck.splice(selectedIndex, 1);
     this.points += turnNumber * card.score;

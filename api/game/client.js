@@ -3,6 +3,7 @@ class Client {
       this.id = id;
       this.name = name;
       this.isWaiting = true;
+      this.isTheirTurn = false;
       this.deck = [];
       this.playedDeck = [];
     }
@@ -10,6 +11,7 @@ class Client {
     async acceptInput(cardIndex) {
       let currentDeckLength = this.getDeck().length;
       this.isWaiting = false;
+      this.isTheirTurn = false;
       this.cardIndex = cardIndex;
       
       // TODO: fix this later. make this optional, so that we can decide whether the client should wait for the deck immediately or not.
@@ -30,6 +32,7 @@ class Client {
     
     async waitForAnswer(deck, playedDeck) {
       this.deck = deck;
+      this.isTheirTurn = true;
       console.log(`${this.name} is thinking...`);
       console.log(`${this.name}'s current deck:`, this.deck);
       while (this.isWaiting) {
@@ -46,7 +49,10 @@ class Client {
     getPlayedDeck() {
       return this.playedDeck;
     }
+
+    getIsTheirTurn() {
+      return this.isTheirTurn;
+    }
   }
   
   module.exports = { Client };
-  
