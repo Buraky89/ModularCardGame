@@ -6,6 +6,7 @@ class Client {
       this.isTheirTurn = false;
       this.deck = [];
       this.playedDeck = [];
+      this.playerInfo = [];
     }
   
     async acceptInput(cardIndex) {
@@ -41,6 +42,10 @@ class Client {
       this.isWaiting = true;
       return this.cardIndex;
     }
+
+    updatePlayerInfo(playerInfo) {
+      this.playerInfo = playerInfo;
+    }
   
     getDeck() {
       return this.deck;
@@ -50,8 +55,8 @@ class Client {
       return this.playedDeck;
     }
 
-    getIsTheirTurn() {
-      return this.isTheirTurn;
+    getPlayerInfo() {
+      return this.playerInfo;
     }
   }
   

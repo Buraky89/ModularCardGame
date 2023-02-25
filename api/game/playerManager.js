@@ -3,9 +3,11 @@ const { Player } = require("./player");
 class PlayerManager {
   constructor() {
     this.players = [];
+    this.clients = [];
   }
 
   createAllPlayers(clients) {
+    this.clients = clients;
     this.players = clients.map((client, index) => {
       return new Player(`Player ${index + 1}`, client);
     });
@@ -17,12 +19,20 @@ class PlayerManager {
   }
 
   giveTurn(player) {
-    for (const currentPlayer of this.players) {
-      if (currentPlayer === player) {
-        currentPlayer.setIsTheirTurn(true);
-      } else {
-        currentPlayer.setIsTheirTurn(false);
+    player.setIsTheirTurn(true);
+    const playerInfo = [];
+    for (const p of this.players) {
+      if (p !== player) {
+        p.setIsTheirTurn(false);
       }
+      playerInfo.push({
+        name: p.name,
+        deckCount: p.deck.length,
+        isTheirTurn: p.isTheirTurn
+      });
+    }
+    for (const client of this.clients) {
+      client.updatePlayerInfo(playerInfo);
     }
   }
 
