@@ -21,6 +21,8 @@ async function playGame(clients) {
       if (player.deck.length === 0) {
         continue;
       }
+      
+      playerManager.giveTurn(player);
       const result = await player.playTurn(turnNumber, playedDeck);
       if (result) {
         console.log(`${player.name} played ${result.card.cardType} and earned ${result.points} points`);

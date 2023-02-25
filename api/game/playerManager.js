@@ -15,6 +15,16 @@ class PlayerManager {
   getClient(player) {
     return this.players.find(p => p.name === player.name).client;
   }
+
+  giveTurn(player) {
+    for (const currentPlayer of this.players) {
+      if (currentPlayer === player) {
+        currentPlayer.setIsTheirTurn(true);
+      } else {
+        currentPlayer.setIsTheirTurn(false);
+      }
+    }
+  }
 }
 
 module.exports = { PlayerManager };
