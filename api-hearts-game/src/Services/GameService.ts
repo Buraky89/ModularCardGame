@@ -1,5 +1,6 @@
 import { connect, Connection, ConsumeMessage } from "amqplib";
 import { v4 as uuidv4 } from "uuid";
+import { PlayerService } from "./PlayerService";
 
 enum Events {
   NewPlayerWantsToJoin = "NewPlayerWantsToJoin",
@@ -17,23 +18,13 @@ interface PlayerPlayedPayload {
   selectedIndex: number;
 }
 
-class PlayerService {
-  private players: string[] = [];
-
-  addPlayer(uuid: string) {
-    this.players.push(uuid);
-  }
-
-  getPlayers() {
-    return this.players;
-  }
-}
-
 class GameService {
-  private playerService: PlayerService = new PlayerService();
+  private playerService: PlayerService;
   private connection: Connection | null = null;
 
-  constructor() {}
+  constructor() {
+    this.playerService = new PlayerService();
+  }
 
   async start(): Promise<void> {
     this.connection = await connect("amqp://localhost");
@@ -76,7 +67,6 @@ class GameService {
     payload: NewPlayerWantsToJoinPayload
   ): void {
     const { date, ip, uuid } = payload;
-    console.log(`New player wants to join: ${uuid} (${ip}), joined at ${date}`);
     this.playerService.addPlayer(uuid);
   }
 
@@ -86,4 +76,4 @@ class GameService {
   }
 }
 
-export { GameService, PlayerService };
+export { GameService };
