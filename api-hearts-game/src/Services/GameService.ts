@@ -17,8 +17,20 @@ interface PlayerPlayedPayload {
   selectedIndex: number;
 }
 
-class GameService {
+class PlayerService {
   private players: string[] = [];
+
+  addPlayer(uuid: string) {
+    this.players.push(uuid);
+  }
+
+  getPlayers() {
+    return this.players;
+  }
+}
+
+class GameService {
+  private playerService: PlayerService = new PlayerService();
   private connection: Connection | null = null;
 
   constructor() {}
@@ -65,7 +77,7 @@ class GameService {
   ): void {
     const { date, ip, uuid } = payload;
     console.log(`New player wants to join: ${uuid} (${ip}), joined at ${date}`);
-    this.players.push(uuid);
+    this.playerService.addPlayer(uuid);
   }
 
   private handlePlayerPlayed(payload: PlayerPlayedPayload): void {
@@ -74,4 +86,4 @@ class GameService {
   }
 }
 
-export { GameService };
+export { GameService, PlayerService };
