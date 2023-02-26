@@ -35,6 +35,10 @@ class GameService {
     this.connection = await connect("amqp://localhost");
     const channel = await this.connection.createChannel();
     await channel.assertQueue("game-events");
+
+    // Pass channel object to PlayerService instance
+    await this.playerService.start(channel);
+
     await channel.consume("game-events", this.handleMessage.bind(this), {
       noAck: true,
     });
