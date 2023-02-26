@@ -5,6 +5,7 @@ import { PlayerService } from "./PlayerService";
 enum Events {
   NewPlayerWantsToJoin = "NewPlayerWantsToJoin",
   PlayerPlayed = "PlayerPlayed",
+  NewPlayerApprovedToJoin = "NewPlayerApprovedToJoin",
 }
 
 interface NewPlayerWantsToJoinPayload {
@@ -16,6 +17,10 @@ interface NewPlayerWantsToJoinPayload {
 interface PlayerPlayedPayload {
   uuid: string;
   selectedIndex: number;
+}
+
+interface NewPlayerApprovedToJoinPayload {
+  uuid: string;
 }
 
 class GameService {
@@ -53,10 +58,15 @@ class GameService {
 
     switch (event) {
       case Events.NewPlayerWantsToJoin:
-        this.handleNewPlayerWantsToJoin(payload);
+        this.handleNewPlayerWantsToJoin(payload as NewPlayerWantsToJoinPayload);
         break;
       case Events.PlayerPlayed:
-        this.handlePlayerPlayed(payload);
+        this.handlePlayerPlayed(payload as PlayerPlayedPayload);
+        break;
+      case Events.NewPlayerApprovedToJoin:
+        this.handleNewPlayerApprovedToJoin(
+          payload as NewPlayerApprovedToJoinPayload
+        );
         break;
       default:
         throw new Error(`Invalid event: ${event}`);
@@ -73,6 +83,14 @@ class GameService {
   private handlePlayerPlayed(payload: PlayerPlayedPayload): void {
     const { uuid, selectedIndex } = payload;
     console.log(`Player ${uuid} played card ${selectedIndex}`);
+  }
+
+  private handleNewPlayerApprovedToJoin(
+    payload: NewPlayerApprovedToJoinPayload
+  ): void {
+    const { uuid } = payload;
+    console.log(`New player ${uuid} approved to join`);
+    // Do something with the approved player
   }
 }
 
