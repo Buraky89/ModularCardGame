@@ -19,7 +19,7 @@ interface PlayerPlayedPayload {
 
 class GameService {
   private players: string[] = [];
-  private connection: Connection;
+  private connection: Connection | null = null;
 
   constructor() {}
 
@@ -33,27 +33,27 @@ class GameService {
   }
 
   async stop(): Promise<void> {
-    await this.connection.close();
-  }
-
-  handleMessage(message: ConsumeMessage | null): void {
-    if (message) {
-      const event = message.properties.headers.event;
-      const payload = JSON.parse(message.content.toString());
-      this.handleEvent(event, payload);
+    if (this.connection) {
+      await this.connection.close();
+      this.connection = null;
     }
   }
 
-  handleEvent(
-    event: Events,
-    payload: NewPlayerWantsToJoinPayload | PlayerPlayedPayload
-  ): void {
+  async handleMessage(msg: any): Promise<void> {
+    const message = JSON.parse(msg.content.toString());
+    console.log(`Received message: ${JSON.stringify(message)}`);
+    this.handleEvent(message);
+  }
+
+  handleEvent(message: any): void {
+    const { event, payload } = message;
+
     switch (event) {
       case Events.NewPlayerWantsToJoin:
-        this.handleNewPlayerWantsToJoin(payload as NewPlayerWantsToJoinPayload);
+        this.handleNewPlayerWantsToJoin(payload);
         break;
       case Events.PlayerPlayed:
-        this.handlePlayerPlayed(payload as PlayerPlayedPayload);
+        this.handlePlayerPlayed(payload);
         break;
       default:
         throw new Error(`Invalid event: ${event}`);
