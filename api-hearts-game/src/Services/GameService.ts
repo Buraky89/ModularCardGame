@@ -1,27 +1,12 @@
 import { connect, Connection, ConsumeMessage } from "amqplib";
 import { v4 as uuidv4 } from "uuid";
 import { PlayerService } from "./PlayerService";
-
-enum Events {
-  NewPlayerWantsToJoin = "NewPlayerWantsToJoin",
-  PlayerPlayed = "PlayerPlayed",
-  NewPlayerApprovedToJoin = "NewPlayerApprovedToJoin",
-}
-
-interface NewPlayerWantsToJoinPayload {
-  date: Date;
-  ip: string;
-  uuid: string;
-}
-
-interface PlayerPlayedPayload {
-  uuid: string;
-  selectedIndex: number;
-}
-
-interface NewPlayerApprovedToJoinPayload {
-  uuid: string;
-}
+import Events from "../Common/Events";
+import {
+  NewPlayerWantsToJoinPayload,
+  PlayerPlayedPayload,
+  NewPlayerApprovedToJoinPayload,
+} from "../Common/Payloads";
 
 class GameService {
   private playerService: PlayerService;

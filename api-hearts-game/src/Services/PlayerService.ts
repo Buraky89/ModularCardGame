@@ -1,4 +1,5 @@
 import { Channel } from "amqplib";
+import Events from "../Common/Events";
 
 class PlayerService {
   private players: string[] = [];
@@ -17,7 +18,7 @@ class PlayerService {
     // Publish NewPlayerApprovedToJoin event
     if (this.channel) {
       const message = {
-        event: "NewPlayerApprovedToJoin",
+        event: Events.NewPlayerApprovedToJoin,
         payload: {
           uuid: uuid,
         },
