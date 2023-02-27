@@ -5,7 +5,7 @@ import { Player } from "../Common/Player";
 import { CardService } from "./CardService";
 
 class PlayerService {
-  private players: Player[] = [];
+  public players: Player[] = [];
   private channel: Channel | null = null;
   private cardService: CardService;
 
@@ -55,6 +55,10 @@ class PlayerService {
     this.players.forEach((player) => {
       player.setCards(this.cardService.getNextCards());
     });
+  }
+
+  public haveAnyPlayersCards(): boolean {
+    return this.players.some((player) => player.deck.length > 0);
   }
 }
 

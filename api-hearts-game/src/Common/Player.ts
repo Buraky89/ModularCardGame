@@ -30,11 +30,11 @@ class Player {
       return null;
     }
 
-    console.log(`Which card would you like to play?`);
+    console.log(`Which card would you like to play?`, selectedIndex);
     const card = this.deck[selectedIndex];
     this.deck.splice(selectedIndex, 1);
     this.points += turnNumber * card.score;
-    playedDeck.addCard(card);
+    playedDeck.push(card);
     return {
       card,
       points: turnNumber * card.score,

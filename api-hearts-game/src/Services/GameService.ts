@@ -7,10 +7,12 @@ import {
   PlayerPlayedPayload,
   NewPlayerApprovedToJoinPayload,
 } from "../Common/Payloads";
+import { Card } from "../Common/Card";
 
 class GameService {
   private playerService: PlayerService;
   private connection: Connection | null = null;
+  private playedDeck: Card[] = [];
 
   constructor() {
     this.playerService = new PlayerService();
@@ -62,11 +64,53 @@ class GameService {
           `It seems cards are ready to distribute. Adding players' cards`
         );
         this.playerService.distributeCards();
+        this.playGame();
 
         break;
       default:
         throw new Error(`Invalid event: ${event}`);
     }
+  }
+
+  async playGame(): Promise<void> {
+    let turnNumber = 1;
+
+    while (this.playerService.haveAnyPlayersCards()) {
+      console.log(`Turn ${turnNumber}:`);
+
+      for (const player of this.playerService.players) {
+        if (player.deck.length === 0) {
+          continue;
+        }
+
+        //this.playerService.giveTurn(player);
+        const result = await player.playTurn(turnNumber, this.playedDeck, 0);
+
+        if (result) {
+          console.log(
+            `${player.name} played ${result.card.cardType} and earned ${result.points} points`
+          );
+        } else {
+          console.log(`${player.name} has no more cards in their deck.`);
+        }
+      }
+
+      //console.log("Last two cards played:", playedDeck.showLastCards());
+      turnNumber++;
+    }
+
+    console.log(
+      `${this.playerService.players[0].name}: ${this.playerService.players[0].points} points`
+    );
+    console.log(
+      `${this.playerService.players[1].name}: ${this.playerService.players[1].points} points`
+    );
+    console.log(
+      `${this.playerService.players[2].name}: ${this.playerService.players[2].points} points`
+    );
+    console.log(
+      `${this.playerService.players[3].name}: ${this.playerService.players[3].points} points`
+    );
   }
 
   private handleNewPlayerWantsToJoin(
