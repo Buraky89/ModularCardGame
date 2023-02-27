@@ -13,8 +13,8 @@ class CardService {
     }
   }
 
-  getNextCards(): Card[] {
-    const cards: Card[] = [];
+  getNextCards() {
+    const cards = [];
     for (let i = 0; i < 13; i++) {
       // Get a random card from the deck
       const randomIndex = Math.floor(Math.random() * this.deck.length);
