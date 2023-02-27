@@ -23,6 +23,9 @@ class PlayerService {
     this.channel.consume(
       Events.CardsAreReadyToBeDistributed,
       () => {
+        console.log(
+          `It seems cards are ready to distribute. Adding players' cards`
+        );
         this.players.forEach((player) => {
           player.setCards(this.cardService.getNextCards());
         });
@@ -46,6 +49,16 @@ class PlayerService {
       };
       const buffer = Buffer.from(JSON.stringify(message));
       await this.channel.publish("", "game-events", buffer);
+    }
+
+    if (this.players.length === 4) {
+      // Publish CardsAreReadyToBeDistributed event
+      const message = {
+        event: Events.CardsAreReadyToBeDistributed,
+        payload: {},
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+      await this.channel?.publish("", "game-events", buffer);
     }
   }
 }
