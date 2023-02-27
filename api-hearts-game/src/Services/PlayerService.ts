@@ -20,23 +20,13 @@ class PlayerService {
     this.channel.assertQueue(Events.CardsAreReadyToBeDistributed, {
       durable: false,
     });
-    this.channel.consume(
-      Events.CardsAreReadyToBeDistributed,
-      () => {
-        console.log(
-          `It seems cards are ready to distribute. Adding players' cards`
-        );
-        this.players.forEach((player) => {
-          player.setCards(this.cardService.getNextCards());
-        });
-      },
-      { noAck: true }
-    );
   }
 
   async addPlayer(playerName: string, uuid: string): Promise<void> {
+    var playerLengthIsMax = false;
     const player = new Player(playerName, uuid);
     this.players.push(player);
+    if (this.players.length == 4) playerLengthIsMax = true;
     console.log(`Player added: ${uuid}`);
 
     // Publish NewPlayerApprovedToJoin event
@@ -51,15 +41,20 @@ class PlayerService {
       await this.channel.publish("", "game-events", buffer);
     }
 
-    if (this.players.length === 4) {
+    if (playerLengthIsMax) {
       // Publish CardsAreReadyToBeDistributed event
       const message = {
         event: Events.CardsAreReadyToBeDistributed,
-        payload: {},
       };
       const buffer = Buffer.from(JSON.stringify(message));
       await this.channel?.publish("", "game-events", buffer);
     }
+  }
+
+  public distributeCards(): void {
+    this.players.forEach((player) => {
+      player.setCards(this.cardService.getNextCards());
+    });
   }
 }
 

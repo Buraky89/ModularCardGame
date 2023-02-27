@@ -57,6 +57,13 @@ class GameService {
           payload as NewPlayerApprovedToJoinPayload
         );
         break;
+      case Events.CardsAreReadyToBeDistributed:
+        console.log(
+          `It seems cards are ready to distribute. Adding players' cards`
+        );
+        this.playerService.distributeCards();
+
+        break;
       default:
         throw new Error(`Invalid event: ${event}`);
     }
