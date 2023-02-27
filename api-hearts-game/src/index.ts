@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import { GameService } from "./Services/Gameservice";
 import { connect, Channel } from "amqplib";
+import Events from "./Common/Events";
 
 const app = express();
 
@@ -41,12 +42,32 @@ async function sendNewPlayerWantsToJoin(channel: Channel) {
 
   for (const player of players) {
     const message = {
-      event: "NewPlayerWantsToJoin",
+      event: Events.NewPlayerWantsToJoin,
       payload: player,
     };
     const buffer = Buffer.from(JSON.stringify(message));
     await channel.publish("", "game-events", buffer);
   }
+
+  var message = {
+    event: Events.PlayerAttemptsToPlay,
+    payload: {
+      uuid: players[0].uuid,
+      selectedIndex: 0,
+    },
+  };
+  var buffer = Buffer.from(JSON.stringify(message));
+  await channel.publish("", "game-events", buffer);
+
+  message = {
+    event: Events.PlayerAttemptsToPlay,
+    payload: {
+      uuid: players[1].uuid,
+      selectedIndex: 0,
+    },
+  };
+  buffer = Buffer.from(JSON.stringify(message));
+  await channel.publish("", "game-events", buffer);
 }
 
 async function main() {
