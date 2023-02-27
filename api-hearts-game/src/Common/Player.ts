@@ -2,12 +2,14 @@ import { Card } from "./Card";
 
 class Player {
   name: string;
+  uuid: string;
   deck: Card[];
   points: number;
   isTheirTurn: boolean;
 
-  constructor(name: string) {
+  constructor(name: string, uuid: string) {
     this.name = name;
+    this.uuid = uuid;
     this.deck = [];
     this.points = 0;
     this.isTheirTurn = false;
