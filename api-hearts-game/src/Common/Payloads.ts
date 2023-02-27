@@ -15,8 +15,14 @@ interface NewPlayerApprovedToJoinPayload {
   approvedAt: Date;
 }
 
+interface PlayerAttemptsToPlayPayload {
+  uuid: string;
+  selectedIndex: number;
+}
+
 export {
   NewPlayerWantsToJoinPayload,
   PlayerPlayedPayload,
   NewPlayerApprovedToJoinPayload,
+  PlayerAttemptsToPlayPayload,
 };

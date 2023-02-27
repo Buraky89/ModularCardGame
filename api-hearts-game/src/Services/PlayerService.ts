@@ -60,6 +60,13 @@ class PlayerService {
   public haveAnyPlayersCards(): boolean {
     return this.players.some((player) => player.deck.length > 0);
   }
+
+  public isThisAValidCardToPlay(
+    player: Player,
+    selectedIndex: number
+  ): boolean {
+    return true;
+  }
 }
 
 export { PlayerService };
