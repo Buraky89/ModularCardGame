@@ -17,21 +17,25 @@ async function sendNewPlayerWantsToJoin(channel: Channel) {
       date: "2023-02-28T12:00:00Z",
       ip: "192.168.0.1",
       uuid: "123e4567-e89b-12d3-a456-426655440000",
+      playerName: "Player 1",
     },
     {
       date: "2023-02-28T12:05:00Z",
       ip: "192.168.0.2",
       uuid: "223e4567-e89b-12d3-a456-426655440000",
+      playerName: "Player 2",
     },
     {
       date: "2023-02-28T12:10:00Z",
       ip: "192.168.0.3",
       uuid: "323e4567-e89b-12d3-a456-426655440000",
+      playerName: "Player 3",
     },
     {
       date: "2023-02-28T12:15:00Z",
       ip: "192.168.0.4",
       uuid: "423e4567-e89b-12d3-a456-426655440000",
+      playerName: "Player 4",
     },
   ];
 
