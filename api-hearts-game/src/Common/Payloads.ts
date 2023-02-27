@@ -2,6 +2,7 @@ interface NewPlayerWantsToJoinPayload {
   date: Date;
   ip: string;
   uuid: string;
+  playerName: string;
 }
 
 interface PlayerPlayedPayload {

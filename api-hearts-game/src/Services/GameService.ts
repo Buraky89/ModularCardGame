@@ -65,8 +65,8 @@ class GameService {
   private handleNewPlayerWantsToJoin(
     payload: NewPlayerWantsToJoinPayload
   ): void {
-    const { date, ip, uuid } = payload;
-    this.playerService.addPlayer(uuid);
+    const { date, ip, uuid, playerName } = payload;
+    this.playerService.addPlayer(playerName, uuid);
   }
 
   private handlePlayerPlayed(payload: PlayerPlayedPayload): void {

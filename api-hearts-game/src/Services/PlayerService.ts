@@ -1,8 +1,10 @@
 import { Channel } from "amqplib";
 import Events from "../Common/Events";
+import { v4 as uuidv4 } from "uuid";
+import { Player } from "../Common/Player";
 
 class PlayerService {
-  private players: string[] = [];
+  private players: Player[] = [];
   private channel: Channel | null = null;
 
   constructor() {}
@@ -11,8 +13,9 @@ class PlayerService {
     this.channel = channel;
   }
 
-  async addPlayer(uuid: string): Promise<void> {
-    this.players.push(uuid);
+  async addPlayer(playerName: string, uuid: string): Promise<void> {
+    const player = new Player(playerName, uuid);
+    this.players.push(player);
     console.log(`Player added: ${uuid}`);
 
     // Publish NewPlayerApprovedToJoin event
@@ -20,7 +23,7 @@ class PlayerService {
       const message = {
         event: Events.NewPlayerApprovedToJoin,
         payload: {
-          uuid: uuid,
+          uuid,
         },
       };
       const buffer = Buffer.from(JSON.stringify(message));
