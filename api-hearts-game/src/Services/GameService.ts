@@ -70,22 +70,7 @@ class GameService {
         this.playerService.distributeCards();
         break;
       case Events.PlayerAttemptsToPlay:
-        const { playerId, cardIndex } = payload;
-
-        if (this.playerService.isThisAValidCardToPlay(playerId, cardIndex)) {
-          const message = {
-            event: Events.PlayerPlayed,
-            payload: {
-              uuid: playerId,
-              selectedIndex: cardIndex,
-            },
-          };
-          const buffer = Buffer.from(JSON.stringify(message));
-          this.channel?.sendToQueue("game-events", buffer);
-        } else {
-          console.log("Invalid card to play.");
-        }
-
+        this.handlePlayerAttemptsToPlay(payload as PlayerAttemptsToPlayPayload);
         break;
       default:
         throw new Error(`Invalid event: ${event}`);
@@ -93,11 +78,11 @@ class GameService {
   }
 
   async playGame(player: Player, selectedIndex: number): Promise<void> {
-    while (this.playerService.haveAnyPlayersCards()) {
+    if (this.playerService.haveAnyPlayersCards()) {
       console.log(`Turn ${this.turnNumber}:`);
 
       if (player.deck.length === 0) {
-        continue;
+        // TODO: no more cards to play
       }
 
       //this.playerService.giveTurn(player);
@@ -117,20 +102,20 @@ class GameService {
 
       //console.log("Last two cards played:", playedDeck.showLastCards());
       this.turnNumber++;
+    } else {
+      console.log(
+        `${this.playerService.players[0].name}: ${this.playerService.players[0].points} points`
+      );
+      console.log(
+        `${this.playerService.players[1].name}: ${this.playerService.players[1].points} points`
+      );
+      console.log(
+        `${this.playerService.players[2].name}: ${this.playerService.players[2].points} points`
+      );
+      console.log(
+        `${this.playerService.players[3].name}: ${this.playerService.players[3].points} points`
+      );
     }
-
-    console.log(
-      `${this.playerService.players[0].name}: ${this.playerService.players[0].points} points`
-    );
-    console.log(
-      `${this.playerService.players[1].name}: ${this.playerService.players[1].points} points`
-    );
-    console.log(
-      `${this.playerService.players[2].name}: ${this.playerService.players[2].points} points`
-    );
-    console.log(
-      `${this.playerService.players[3].name}: ${this.playerService.players[3].points} points`
-    );
   }
 
   private handleNewPlayerWantsToJoin(
@@ -166,7 +151,7 @@ class GameService {
     payload: PlayerAttemptsToPlayPayload
   ): Promise<void> {
     const { uuid, selectedIndex } = payload;
-
+    console.log("payload", payload);
     const player = this.playerService.players.find((p) => p.uuid === uuid);
 
     if (player) {
@@ -183,6 +168,7 @@ class GameService {
             selectedIndex,
           },
         };
+        console.log("message", message);
         const buffer = Buffer.from(JSON.stringify(message));
         await this.channel?.publish("", "game-events", buffer);
       } else {
