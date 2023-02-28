@@ -12,6 +12,16 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, world!");
 });
 
+app.get("/players/:uuid", async (req: Request, res: Response) => {
+  const { uuid } = req.params;
+  try {
+    const data = await gameService.getPlayerData(uuid);
+    res.json(data);
+  } catch (error) {
+    res.status(404).send(error);
+  }
+});
+
 async function sendNewPlayerWantsToJoin(channel: Channel) {
   const players = [
     {

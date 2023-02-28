@@ -81,7 +81,7 @@ class GameService {
     if (this.playerService.haveAnyPlayersCards()) {
       console.log(`Turn ${this.turnNumber}:`);
 
-      if (player.deck.length === 0) {
+      if (player.getDeck().length === 0) {
         // TODO: no more cards to play
       }
 
@@ -177,6 +177,17 @@ class GameService {
     } else {
       console.log(`Player ${uuid} not found`);
     }
+  }
+
+  async getPlayerData(uuid: string): Promise<any> {
+    const player = this.playerService.players.find((p) => p.uuid === uuid);
+    if (!player) throw new Error(`Player ${uuid} not found`);
+
+    return {
+      deck: player.getDeck(),
+      players: this.playerService.players,
+      playedDeck: this.playedDeck,
+    };
   }
 }
 

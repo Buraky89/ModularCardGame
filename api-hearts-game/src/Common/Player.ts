@@ -3,7 +3,7 @@ import { Card } from "./Card";
 class Player {
   name: string;
   uuid: string;
-  deck: Card[];
+  private deck: Card[];
   points: number;
   isTheirTurn: boolean;
 
@@ -17,6 +17,10 @@ class Player {
 
   setCards(cards: Card[]) {
     this.deck = cards;
+  }
+
+  getDeck(): Card[] {
+    return this.deck;
   }
 
   setIsTheirTurn(isTheirTurn: boolean) {

@@ -58,7 +58,7 @@ class PlayerService {
   }
 
   public haveAnyPlayersCards(): boolean {
-    return this.players.some((player) => player.deck.length > 0);
+    return this.players.some((player) => player.getDeck().length > 0);
   }
 
   public isThisAValidCardToPlay(
