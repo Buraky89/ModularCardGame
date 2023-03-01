@@ -12,6 +12,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, world!");
 });
 
+let channel: Channel;
+
 app.get("/players/:uuid", async (req: Request, res: Response) => {
   const { uuid } = req.params;
   try {
@@ -22,7 +24,7 @@ app.get("/players/:uuid", async (req: Request, res: Response) => {
   }
 });
 
-async function sendNewPlayerWantsToJoin(channel: Channel) {
+async function sendNewPlayerWantsToJoin() {
   const players = [
     {
       date: "2023-02-28T12:00:00Z",
@@ -82,11 +84,11 @@ async function sendNewPlayerWantsToJoin(channel: Channel) {
 
 async function main() {
   const connection = await connect("amqp://localhost");
-  const channel = await connection.createChannel();
+  channel = await connection.createChannel();
   await channel.assertQueue("game-events");
-  await sendNewPlayerWantsToJoin(channel);
-  await channel.close();
-  await connection.close();
+  await sendNewPlayerWantsToJoin();
+  //await channel.close(); // TODO: do it when service ends
+  //await connection.close();
 }
 
 const port = 3001;
@@ -105,3 +107,21 @@ gameService
   .catch((error) => {
     console.error("Error starting GameService", error);
   });
+
+app.post("/players/:uuid/play", async (req: Request, res: Response) => {
+  const { uuid } = req.params;
+  const { selectedIndex } = req.body;
+
+  const message = {
+    event: Events.PlayerAttemptsToPlay,
+    payload: {
+      uuid,
+      selectedIndex,
+    },
+  };
+  console.log("msggg", message);
+  const buffer = Buffer.from(JSON.stringify(message));
+  await channel.publish("", "game-events", buffer);
+
+  res.send("OK");
+});
