@@ -3,25 +3,25 @@ import { Card, CardType, ApiResponse } from "./Card";
 import MySVG from "./MySVG";
 
 interface CardsListProps {
-  clientName: string;
+  uuid: string;
 }
 
-function CardsList({ clientName }: CardsListProps) {
+function CardsList({ uuid }: CardsListProps) {
   const [deck, setDeck] = useState<Card[]>([]);
   const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/${clientName}/deck`)
+    fetch(`http://localhost:3001/players/${uuid}`)
       .then((response) => response.json())
       .then((data: ApiResponse) => {
         setDeck(data.deck);
         setPlayedDeck(data.playedDeck.deck);
       })
       .catch((error) => console.log(error));
-  }, [clientName]);
+  }, [uuid]);
 
   const handleCardClick = (cardIndex: number) => {
-    fetch(`http://localhost:3001/${clientName}/submit`, {
+    fetch(`http://localhost:3001/players/${uuid}/play`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

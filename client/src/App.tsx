@@ -6,21 +6,21 @@ import { Route, Router, useRoute } from "wouter";
 
 
 const CardsListWrapper: FunctionComponent = () => {
-  const [match, params] = useRoute("/:clientName");
+  const [match, params] = useRoute("/:uuid");
 
   if (match) {
-    const clientName = params.clientName || "client1";
-    return <CardsList clientName={clientName} />;
+    const uuid = params.uuid || "client1";
+    return <CardsList uuid={uuid} />;
   }
 
-  return <div>Invalid client name</div>;
+  return <div>Invalid player uuid</div>;
 };
 
 
 const App: FunctionComponent = () => {
   return (
     <Router>
-      <Route path="/:clientName">
+      <Route path="/:uuid">
         <CardsListWrapper />
       </Route>
     </Router>
