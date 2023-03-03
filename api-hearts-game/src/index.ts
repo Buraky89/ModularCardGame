@@ -3,9 +3,11 @@ import bodyParser from "body-parser";
 import { GameService } from "./Services/Gameservice";
 import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
+import cors from "cors";
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 app.get("/", (req: Request, res: Response) => {
