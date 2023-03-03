@@ -112,13 +112,13 @@ gameService
 
 app.post("/players/:uuid/play", async (req: Request, res: Response) => {
   const { uuid } = req.params;
-  const { selectedIndex } = req.body;
+  const { cardIndex } = req.body;
 
   const message = {
     event: Events.PlayerAttemptsToPlay,
     payload: {
       uuid,
-      selectedIndex,
+      selectedIndex: cardIndex,
     },
   };
   console.log("msggg", message);
