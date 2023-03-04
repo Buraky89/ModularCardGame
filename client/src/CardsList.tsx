@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardType, ApiResponse } from "./Card";
+import { Card, CardType, ApiResponse, Player } from "./Card";
 import MySVG from "./MySVG";
 
 interface CardsListProps {
@@ -9,6 +9,7 @@ interface CardsListProps {
 function CardsList({ uuid }: CardsListProps) {
   const [deck, setDeck] = useState<Card[]>([]);
   const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -17,6 +18,7 @@ function CardsList({ uuid }: CardsListProps) {
         .then((data: ApiResponse) => {
           setDeck(data.deck);
           setPlayedDeck(data.playedDeck.deck);
+          setPlayers(data.players || []);
         })
         .catch((error) => console.log(error));
     }, 5000);
@@ -38,6 +40,7 @@ function CardsList({ uuid }: CardsListProps) {
       .then((data: ApiResponse) => {
         setDeck(data.deck || []);
         setPlayedDeck(data.playedDeck?.deck);
+        setPlayers(data.players || []);
       })
       .catch((error) => console.log(error));
   };

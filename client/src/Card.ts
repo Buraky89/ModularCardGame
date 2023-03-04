@@ -27,7 +27,7 @@ export interface ApiResponse {
   players: Player[];
 }
 
-interface Player {
+export interface Player {
   name: string;
   uuid: string;
   deck: Card[];
