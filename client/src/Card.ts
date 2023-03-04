@@ -27,9 +27,7 @@ export enum CardType {
 
 export interface ApiResponse {
   deck: Card[];
-  playedDeck: {
-    deck: Card[];
-  };
+  playedDeck: Card[];
   players: Player[];
 }
 

@@ -17,7 +17,7 @@ function CardsList({ uuid }: CardsListProps) {
         .then((response) => response.json())
         .then((data: ApiResponse) => {
           setDeck(data.deck);
-          setPlayedDeck(data.playedDeck.deck);
+          setPlayedDeck(data.playedDeck);
           setPlayers(data.players || []);
         })
         .catch((error) => console.log(error));
@@ -39,7 +39,7 @@ function CardsList({ uuid }: CardsListProps) {
       .then((response) => response.json())
       .then((data: ApiResponse) => {
         setDeck(data.deck || []);
-        setPlayedDeck(data.playedDeck?.deck);
+        setPlayedDeck(data.playedDeck);
         setPlayers(data.players || []);
       })
       .catch((error) => console.log(error));
