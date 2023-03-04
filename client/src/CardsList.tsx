@@ -73,6 +73,22 @@ function CardsList({ uuid }: CardsListProps) {
           </>
         )}
       </div>
+      <div style={{ border: "5px solid #ccc" }}>
+        <h3>Player's Cards:</h3>
+        <div style={{ marginBottom: 20 }}>
+          {players.map((player) => (
+            <div key={player.uuid}>
+              <h2 style={{ color: player.isTheirTurn ? "red" : "black", fontWeight: player.isTheirTurn ? "bold" : "normal" }}>{player.name}</h2>
+                {
+                player.deck.map((card, index) => (
+                  <div key={`player-card-${player.uuid}-${index}`} style={{ display: "inline-block", marginRight: 10 }}>
+                    <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => {}} />
+                  </div>
+                ))}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

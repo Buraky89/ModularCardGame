@@ -66,8 +66,8 @@ function MySVG(props: MySVGProps) {
 
   return (
     <svg
-      width="169.075"
-      height="244.640"
+      width="69.075"
+      height="144.640"
       viewBox="0 0 169.075 244.640"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
