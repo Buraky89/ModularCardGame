@@ -25,6 +25,7 @@ class PlayerService {
   async addPlayer(playerName: string, uuid: string): Promise<void> {
     var playerLengthIsMax = false;
     const player = new Player(playerName, uuid);
+    if (playerName == "Player 1") player.isTheirTurn = true;
     this.players.push(player);
     if (this.players.length == 4) playerLengthIsMax = true;
     console.log(`Player added: ${uuid}`);
@@ -66,6 +67,17 @@ class PlayerService {
     selectedIndex: number
   ): boolean {
     return true;
+  }
+
+  public setWhoseTurn(): void {
+    const currentPlayer = this.players.find((player) => player.isTheirTurn);
+    if (currentPlayer) {
+      currentPlayer.isTheirTurn = false;
+      const currentIndex = this.players.indexOf(currentPlayer);
+      const nextIndex = (currentIndex + 1) % this.players.length;
+      const nextPlayer = this.players[nextIndex];
+      nextPlayer.isTheirTurn = true;
+    }
   }
 }
 

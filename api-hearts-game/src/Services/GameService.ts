@@ -125,15 +125,16 @@ class GameService {
     this.playerService.addPlayer(playerName, uuid);
   }
 
-  private async handlePlayerPlayed(
-    payload: PlayerPlayedPayload
-  ): Promise<void> {
+  async handlePlayerPlayed(payload: PlayerPlayedPayload): Promise<void> {
     const { uuid, selectedIndex } = payload;
 
     const player = this.playerService.players.find((p) => p.uuid === uuid);
 
     if (player) {
       await this.playGame(player, selectedIndex);
+
+      // Set the next player's isTheirTurn property to true
+      this.playerService.setWhoseTurn();
     } else {
       console.log(`Player ${uuid} not found`);
     }
