@@ -45,6 +45,8 @@ function CardsList({ uuid }: CardsListProps) {
       .catch((error) => console.log(error));
   };
 
+  const isYourTurn = players.find((player) => player.uuid === uuid && player.isTheirTurn);
+
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
       {deck.length > 0 &&
@@ -57,6 +59,7 @@ function CardsList({ uuid }: CardsListProps) {
             />
           </div>
         ))}
+      {isYourTurn && <h1>Your Turn</h1>}
       <div>
         {playedDeck != null && playedDeck.length > 0 && (
           <>
