@@ -1,30 +1,59 @@
-import React from 'react';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
 import CardsList from "./CardsList";
-import { FunctionComponent } from "react";
-import { Route, Router, useRoute } from "wouter";
 
+function App() {
+  const [playerName, setPlayerName] = useState("");
+  const [uuid, setUuid] = useState("");
+  const [joined, setJoined] = useState(false);
 
-const CardsListWrapper: FunctionComponent = () => {
-  const [match, params] = useRoute("/:uuid");
+  const handleJoin = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/join", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ playerName, uuid }),
+      });
 
-  if (match) {
-    const uuid = params.uuid || "client1";
-    return <CardsList uuid={uuid} />;
-  }
+      const data = await response.json();
 
-  return <div>Invalid player uuid</div>;
-};
+      if (response.ok) {
+        console.log(data.message);
+        setJoined(true);
+      } else {
+        console.error(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-
-const App: FunctionComponent = () => {
   return (
-    <Router>
-      <Route path="/:uuid">
-        <CardsListWrapper />
-      </Route>
-    </Router>
+    <div className="App">
+      <div>
+        <label>
+          Player Name:
+          <input
+            type="text"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+          />
+        </label>
+        <label>
+          UUID:
+          <input
+            type="text"
+            value={uuid}
+            onChange={(e) => setUuid(e.target.value)}
+          />
+        </label>
+        <button onClick={handleJoin}>Join Game</button>
+      </div>
+      {joined && <CardsList uuid={uuid} />}
+    </div>
   );
-};
+}
 
 export default App;
