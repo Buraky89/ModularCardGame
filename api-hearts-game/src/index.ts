@@ -88,7 +88,7 @@ async function main() {
   const connection = await connect("amqp://localhost");
   channel = await connection.createChannel();
   await channel.assertQueue("game-events");
-  await sendNewPlayerWantsToJoin();
+  //await sendNewPlayerWantsToJoin();
   //await channel.close(); // TODO: do it when service ends
   //await connection.close();
 }
