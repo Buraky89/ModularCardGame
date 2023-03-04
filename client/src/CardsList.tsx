@@ -11,13 +11,17 @@ function CardsList({ uuid }: CardsListProps) {
   const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/players/${uuid}`)
-      .then((response) => response.json())
-      .then((data: ApiResponse) => {
-        setDeck(data.deck || []);
-        setPlayedDeck(data.playedDeck.deck);
-      })
-      .catch((error) => console.log(error));
+    const intervalId = setInterval(() => {
+      fetch(`http://localhost:3001/players/${uuid}`)
+        .then((response) => response.json())
+        .then((data: ApiResponse) => {
+          setDeck(data.deck);
+          setPlayedDeck(data.playedDeck.deck);
+        })
+        .catch((error) => console.log(error));
+    }, 5000);
+
+    return () => clearInterval(intervalId);
   }, [uuid]);
 
   const handleCardClick = (cardIndex: number) => {
