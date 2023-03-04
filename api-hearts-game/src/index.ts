@@ -127,3 +127,28 @@ app.post("/players/:uuid/play", async (req: Request, res: Response) => {
 
   res.send("OK");
 });
+
+app.post("/join", async (req, res) => {
+  const { playerName, uuid } = req.body;
+  const date = new Date();
+  const ip = req.ip;
+
+  const message = {
+    event: Events.NewPlayerWantsToJoin,
+    payload: {
+      date,
+      ip,
+      uuid,
+      playerName,
+    },
+  };
+  const buffer = Buffer.from(JSON.stringify(message));
+
+  try {
+    await channel.publish("", "game-events", buffer);
+    res.status(200).json({ message: "Player joined the game" });
+  } catch (err) {
+    console.error("Error publishing message", err);
+    res.status(500).json({ message: "Error joining the game" });
+  }
+});
