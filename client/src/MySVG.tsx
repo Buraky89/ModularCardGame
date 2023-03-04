@@ -1,8 +1,9 @@
 import { CardType } from "./Card";
 
 interface MySVGProps {
-  cardType: CardType;
-  score: number;
+  cardType?: CardType;
+  score?: number;
+  hidden: boolean;
   handleClick: () => void;
 }
 
@@ -55,6 +56,14 @@ function MySVG(props: MySVGProps) {
     }
   };
 
+  const getHref = (): string => {
+    if (props.hidden) {
+      return "/svg-cards.svg#back";
+    }
+
+    return `/svg-cards.svg#${cardTypeToSvgName(props.cardType!)}_${scoreToSvgName(props.score!)}`;
+  };
+
   return (
     <svg
       width="169.075"
@@ -65,7 +74,7 @@ function MySVG(props: MySVGProps) {
       style={{ cursor: "pointer" }}
       onClick={props.handleClick}
     >
-      <use href={`/svg-cards.svg#${cardTypeToSvgName(props.cardType)}_${scoreToSvgName(props.score)}`} x="0" y="0" />
+      <use href={getHref()} x="0" y="0" />
     </svg>
   );
 }

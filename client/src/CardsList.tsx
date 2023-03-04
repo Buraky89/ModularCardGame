@@ -55,6 +55,7 @@ function CardsList({ uuid }: CardsListProps) {
             <MySVG
               cardType={card.cardType}
               score={card.score}
+              hidden={card.hidden}
               handleClick={() => handleCardClick(index)}
             />
           </div>
@@ -66,7 +67,7 @@ function CardsList({ uuid }: CardsListProps) {
             <h3>Played Cards:</h3>
             {playedDeck.map((card, index) => (
               <div key={`played-${index}`}>
-                <MySVG cardType={card.cardType} score={card.score} handleClick={() => {}} />
+                <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => {}} />
               </div>
             ))}
           </>

@@ -1,14 +1,20 @@
 export class Card {
-  score: number;
-  cardType: CardType;
+  score?: number;
+  cardType?: CardType;
+  hidden: boolean;
 
-  constructor(score: number, cardType: CardType) {
+  constructor(score?: number, cardType?: CardType, hidden: boolean = false) {
     this.score = score;
     this.cardType = cardType;
+    this.hidden = hidden;
   }
 
-  play() {
-    return { score: this.score, cardType: this.cardType };
+  play(): { score?: number; cardType?: CardType; hidden: boolean } {
+    if (this.hidden) {
+      return { hidden: true };
+    }
+
+    return { score: this.score, cardType: this.cardType, hidden: false };
   }
 }
 
