@@ -3,7 +3,7 @@ import "./App.css";
 import CardsList from "./CardsList";
 
 function App() {
-  const [playerName, setPlayerName] = useState("");
+  const [playerName, setPlayerName] = useState("Player ");
   const [uuid, setUuid] = useState("");
   const [joined, setJoined] = useState(false);
 
