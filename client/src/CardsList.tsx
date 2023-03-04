@@ -14,7 +14,7 @@ function CardsList({ uuid }: CardsListProps) {
     fetch(`http://localhost:3001/players/${uuid}`)
       .then((response) => response.json())
       .then((data: ApiResponse) => {
-        setDeck(data.deck);
+        setDeck(data.deck || []);
         setPlayedDeck(data.playedDeck.deck);
       })
       .catch((error) => console.log(error));
@@ -32,7 +32,7 @@ function CardsList({ uuid }: CardsListProps) {
     })
       .then((response) => response.json())
       .then((data: ApiResponse) => {
-        setDeck(data.deck);
+        setDeck(data.deck || []);
         setPlayedDeck(data.playedDeck?.deck);
       })
       .catch((error) => console.log(error));
@@ -40,15 +40,16 @@ function CardsList({ uuid }: CardsListProps) {
 
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
-      {deck.map((card, index) => (
-        <div key={`${card.score}-${card.cardType}`} style={{ marginRight: 10 }}>
-          <MySVG
-            cardType={card.cardType}
-            score={card.score}
-            handleClick={() => handleCardClick(index)}
-          />
-        </div>
-      ))}
+      {deck.length > 0 &&
+        deck.map((card, index) => (
+          <div key={`${card.score}-${card.cardType}`} style={{ marginRight: 10 }}>
+            <MySVG
+              cardType={card.cardType}
+              score={card.score}
+              handleClick={() => handleCardClick(index)}
+            />
+          </div>
+        ))}
       <div>
         {playedDeck != null && playedDeck.length > 0 && (
           <>
