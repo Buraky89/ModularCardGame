@@ -7,6 +7,7 @@ import {
   PlayerPlayedPayload,
   NewPlayerApprovedToJoinPayload,
   PlayerAttemptsToPlayPayload,
+  GameEndedPayload,
 } from "../Common/Payloads";
 import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
@@ -17,6 +18,7 @@ class GameService {
   private playedDeck: Card[] = [];
   private channel: Channel | null = null;
   private turnNumber = 1;
+  private isGameEnded = false;
 
   constructor() {
     this.playerService = new PlayerService();
@@ -43,12 +45,22 @@ class GameService {
   }
 
   async handleMessage(msg: any): Promise<void> {
+    if (this.isGameEnded) {
+      console.log("Game is ended, ignoring message");
+      return;
+    }
+
     const message = JSON.parse(msg.content.toString());
     console.log(`Received message: ${JSON.stringify(message)}`);
     this.handleEvent(message);
   }
 
   handleEvent(message: any): void {
+    if (this.isGameEnded) {
+      console.log("Game is ended, ignoring event");
+      return;
+    }
+
     const { event, payload } = message;
 
     switch (event) {
@@ -72,13 +84,26 @@ class GameService {
       case Events.PlayerAttemptsToPlay:
         this.handlePlayerAttemptsToPlay(payload as PlayerAttemptsToPlayPayload);
         break;
+      case Events.GameEnded:
+        this.handleGameEnded(payload as GameEndedPayload);
+        break;
       default:
         throw new Error(`Invalid event: ${event}`);
     }
   }
 
   async playGame(player: Player, selectedIndex: number): Promise<void> {
+    if (this.isGameEnded) {
+      console.log("Game is ended, cannot play game");
+      return;
+    }
+
     if (this.playerService.haveAnyPlayersCards()) {
+      if (!player.isTheirTurn) {
+        console.log(`It is not ${player.name}'s turn`);
+        return;
+      }
+
       console.log(`Turn ${this.turnNumber}:`);
 
       if (player.getDeck().length === 0) {
@@ -117,7 +142,24 @@ class GameService {
       console.log(
         `${this.playerService.players[3].name}: ${this.playerService.players[3].points} points`
       );
+
+      console.log("Game has ended");
+      const message = {
+        event: Events.GameEnded,
+        payload: {
+          winner: this.playerService.getWinner(),
+        },
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+      await this.channel?.publish("", "game-events", buffer);
+      this.isGameEnded = true;
+      return;
     }
+  }
+
+  private handleGameEnded(payload: GameEndedPayload): void {
+    console.log("Game has ended!");
+    this.isGameEnded = true;
   }
 
   private handleNewPlayerWantsToJoin(

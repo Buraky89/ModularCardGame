@@ -1,3 +1,5 @@
+import { Player } from "./Player";
+
 interface NewPlayerWantsToJoinPayload {
   date: Date;
   ip: string;
@@ -20,9 +22,14 @@ interface PlayerAttemptsToPlayPayload {
   selectedIndex: number;
 }
 
+interface GameEndedPayload {
+  winner: Player;
+}
+
 export {
   NewPlayerWantsToJoinPayload,
   PlayerPlayedPayload,
   NewPlayerApprovedToJoinPayload,
   PlayerAttemptsToPlayPayload,
+  GameEndedPayload,
 };

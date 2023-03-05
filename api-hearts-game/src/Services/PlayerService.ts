@@ -79,6 +79,18 @@ class PlayerService {
       nextPlayer.isTheirTurn = true;
     }
   }
+
+  getWinner(): Player | null {
+    let maxPoints = -1;
+    let winner: Player | null = null;
+    for (const player of this.players) {
+      if (player.points > maxPoints) {
+        maxPoints = player.points;
+        winner = player;
+      }
+    }
+    return winner;
+  }
 }
 
 export { PlayerService };
