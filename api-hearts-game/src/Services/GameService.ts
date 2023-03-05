@@ -156,6 +156,11 @@ class GameService {
     const player = this.playerService.players.find((p) => p.uuid === uuid);
 
     if (player) {
+      if (!player.isTheirTurn) {
+        console.log(`Player ${player.name} cannot play at this time.`);
+        return;
+      }
+
       const isValidCard = await this.playerService.isThisAValidCardToPlay(
         player,
         selectedIndex
