@@ -102,7 +102,9 @@ class GameService {
 
       //console.log("Last two cards played:", playedDeck.showLastCards());
       this.turnNumber++;
-    } else {
+    }
+
+    if (!this.playerService.haveAnyPlayersCards()) {
       console.log(
         `${this.playerService.players[0].name}: ${this.playerService.players[0].points} points`
       );
