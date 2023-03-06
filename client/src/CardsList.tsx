@@ -48,46 +48,41 @@ function CardsList({ uuid }: CardsListProps) {
   const isYourTurn = players.find((player) => player.uuid === uuid && player.isTheirTurn);
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap" }}>
-      {deck.length > 0 &&
-        deck.map((card, index) => (
-          <div key={`${card.score}-${card.cardType}`} style={{ marginRight: 10 }}>
-            <MySVG
-              cardType={card.cardType}
-              score={card.score}
-              hidden={card.hidden}
-              handleClick={() => handleCardClick(index)}
-            />
-          </div>
-        ))}
-      {isYourTurn && <h1>Your Turn</h1>}
-      <div>
-        {playedDeck != null && playedDeck.length > 0 && (
-          <>
-            <h3>Played Cards:</h3>
-            {playedDeck.map((card, index) => (
-              <div key={`played-${index}`}>
-                <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => {}} />
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ height: "20%", display: "flex" }}>
+        <div style={{ width: "33.33%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
+          {players[0]?.name || "Player A"}
+        </div>
+      </div>
+      <div style={{ height: "50%", display: "flex" }}>
+        <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
+          {players[1]?.name || "Player B"}
+        </div>
+        <div style={{ width: "77.78%", backgroundColor: "#007f00", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          {playedDeck.length > 0 &&
+            playedDeck.map((card, index) => (
+              <div style={{ position: "absolute", top: index * -10, left: index * 10, zIndex: playedDeck.length - index }}>
+                <MySVG
+                  key={`played-card-${index}`}
+                  cardType={card.cardType}
+                  score={card.score}
+                  hidden={card.hidden}
+                  handleClick={() => {}}
+                />
               </div>
             ))}
-          </>
-        )}
-      </div>
-      <div style={{ border: "5px solid #ccc" }}>
-        <h3>Player's Cards:</h3>
-        <div style={{ marginBottom: 20 }}>
-          {players.map((player) => (
-            <div key={player.uuid}>
-              <h2 style={{ color: player.isTheirTurn ? "red" : "black", fontWeight: player.isTheirTurn ? "bold" : "normal" }}>{player.name}</h2>
-                {
-                player.deck.map((card, index) => (
-                  <div key={`player-card-${player.uuid}-${index}`} style={{ display: "inline-block", marginRight: 10 }}>
-                    <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => {}} />
-                  </div>
-                ))}
-            </div>
-          ))}
+          <div style={{ width: "80%", height: 0, paddingBottom: "80%", borderRadius: "50%", backgroundColor: "#8cff8c", display: "flex", justifyContent: "center", alignItems: "center" }}></div>
         </div>
+        <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
+          {players[2]?.name || "Player C"}
+        </div>
+      </div>
+      <div style={{ height: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#222" }}>
+        {deck.map((card, index) => (
+          <div key={`card-${index}`} style={{ marginRight: 10 }}>
+            <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => handleCardClick(index)} />
+          </div>
+        ))}
       </div>
     </div>
   );
