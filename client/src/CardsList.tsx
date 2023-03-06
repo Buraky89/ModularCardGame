@@ -61,7 +61,7 @@ function CardsList({ uuid }: CardsListProps) {
         <div style={{ width: "77.78%", backgroundColor: "#007f00", display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}>
           {playedDeck.length > 0 &&
             playedDeck.map((card, index) => (
-                <div style={{ position: "absolute", top: "40%", left: "40%", zIndex: playedDeck.length - index, transform: `rotate(${index * 30}deg)` }}>
+                <div style={{ position: "absolute", top: "40%", left: "40%", zIndex: 1000 + index - playedDeck.length - index, transform: `rotate(${index * 30}deg)` }}>
                   <MySVG
                     key={`played-card-${index}`}
                     cardType={card.cardType}
