@@ -1,11 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import CardsList from "./CardsList";
+import { playerNames } from "./Names";
 
 function App() {
-  const [playerName, setPlayerName] = useState("Player ");
+  const randomPlayerName = playerNames[Math.floor(Math.random() * playerNames.length)];
+  const [playerName, setPlayerName] = useState(randomPlayerName);
   const [uuid, setUuid] = useState("");
   const [joined, setJoined] = useState(false);
+
+  useEffect(() => {
+    setUuid(uuidv4());
+  }, []);
 
   const handleJoin = async () => {
     try {
