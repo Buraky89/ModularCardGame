@@ -58,18 +58,19 @@ function CardsList({ uuid }: CardsListProps) {
         <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
           {players[1]?.name || "Player B"}
         </div>
-        <div style={{ width: "77.78%", backgroundColor: "#007f00", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div style={{ width: "77.78%", backgroundColor: "#007f00", display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}>
           {playedDeck.length > 0 &&
             playedDeck.map((card, index) => (
-              <div style={{ position: "absolute", top: index * -10, left: index * 10, zIndex: playedDeck.length - index }}>
-                <MySVG
-                  key={`played-card-${index}`}
-                  cardType={card.cardType}
-                  score={card.score}
-                  hidden={card.hidden}
-                  handleClick={() => {}}
-                />
-              </div>
+                <div style={{ position: "absolute", top: "40%", left: "40%", zIndex: playedDeck.length - index, transform: `rotate(${index * 30}deg)` }}>
+                  <MySVG
+                    key={`played-card-${index}`}
+                    cardType={card.cardType}
+                    score={card.score}
+                    hidden={card.hidden}
+                    
+                    handleClick={() => {}}
+                  />
+                </div>
             ))}
           <div style={{ width: "80%", height: 0, paddingBottom: "80%", borderRadius: "50%", backgroundColor: "#8cff8c", display: "flex", justifyContent: "center", alignItems: "center" }}></div>
         </div>
