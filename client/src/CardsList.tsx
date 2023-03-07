@@ -7,6 +7,15 @@ interface CardsListProps {
   uuid: string;
 }
 
+function moveLastPlayerToBeginningUntilMe(players: Player[], myUuid: string): Player[] {
+  players.sort((a, b) => a.uuid.localeCompare(b.uuid));
+  while (players[players.length - 1].uuid !== myUuid) {
+    const lastPlayer = players.pop()!;
+    players.unshift(lastPlayer);
+  }
+  return players;
+}
+
 function CardsList({ uuid }: CardsListProps) {
   const [deck, setDeck] = useState<Card[]>([]);
   const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
@@ -19,7 +28,7 @@ function CardsList({ uuid }: CardsListProps) {
         .then((data: ApiResponse) => {
           setDeck(data.deck);
           setPlayedDeck(data.playedDeck);
-          setPlayers(data.players || []);
+          setPlayers(moveLastPlayerToBeginningUntilMe(data.players, uuid) || []);
         })
         .catch((error) => console.log(error));
     }, 5000);
@@ -52,12 +61,12 @@ function CardsList({ uuid }: CardsListProps) {
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <div style={{ height: "20%", display: "flex" }}>
         <div style={{ width: "33.33%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
-          <span className={players[0]?.isTheirTurn ? "active-player" : undefined}>{players[0]?.name || "Player A"}</span>
+          <span className={players[1]?.isTheirTurn ? "active-player" : undefined}>{players[1]?.name || "Player B"}</span>
         </div>
       </div>
       <div style={{ height: "50%", display: "flex" }}>
         <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
-          <span className={players[1]?.isTheirTurn ? "active-player" : undefined}>{players[1]?.name || "Player B"}</span>
+          <span className={players[0]?.isTheirTurn ? "active-player" : undefined}>{players[0]?.name || "Player A"}</span>
         </div>
         <div style={{ width: "77.78%", backgroundColor: "#007f00", display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}>
           {playedDeck.length > 0 &&
