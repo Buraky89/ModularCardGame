@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardType, ApiResponse, Player } from "./Card";
 import MySVG from "./MySVG";
+import "./CardsList.css";
 
 interface CardsListProps {
   uuid: string;
@@ -51,12 +52,12 @@ function CardsList({ uuid }: CardsListProps) {
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <div style={{ height: "20%", display: "flex" }}>
         <div style={{ width: "33.33%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
-          {players[0]?.name || "Player A"}
+          <span className={players[0]?.isTheirTurn ? "active-player" : undefined}>{players[0]?.name || "Player A"}</span>
         </div>
       </div>
       <div style={{ height: "50%", display: "flex" }}>
         <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
-          {players[1]?.name || "Player B"}
+          <span className={players[1]?.isTheirTurn ? "active-player" : undefined}>{players[1]?.name || "Player B"}</span>
         </div>
         <div style={{ width: "77.78%", backgroundColor: "#007f00", display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}>
           {playedDeck.length > 0 &&
@@ -75,7 +76,7 @@ function CardsList({ uuid }: CardsListProps) {
           <div style={{ width: "80%", height: 0, paddingBottom: "80%", borderRadius: "50%", backgroundColor: "#8cff8c", display: "flex", justifyContent: "center", alignItems: "center" }}></div>
         </div>
         <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
-          {players[2]?.name || "Player C"}
+          <span className={players[2]?.isTheirTurn ? "active-player" : undefined}>{players[2]?.name || "Player C"}</span>
         </div>
       </div>
       <div style={{ height: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#222" }}>
