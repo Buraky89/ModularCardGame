@@ -75,17 +75,17 @@ function CardsList({ uuid }: CardsListProps) {
   const isYourTurn = players.find((player) => player.uuid === uuid && player.isTheirTurn);
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ height: "20%", display: "flex", alignItems: "center" }}>
-        <div style={{ width: "33.33%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold", margin: "0 auto" }}>
-          <span className={players[1]?.isTheirTurn ? "active-player" : undefined}>{players[1]?.name || "Player B"}</span>
+    <div className="cards-list">
+      <div className="player-row">
+        <div className={`player-box ${players[1]?.isTheirTurn ? "active-player" : ""}`}>
+          <span>{players[1]?.name || "Player B"}</span>
         </div>
       </div>
-      <div style={{ height: "50%", display: "flex" }}>
-        <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
-          <span className={players[0]?.isTheirTurn ? "active-player" : undefined}>{players[0]?.name || "Player A"}</span>
+      <div className="main-row">
+        <div className={`player-box ${players[0]?.isTheirTurn ? "active-player" : ""}`}>
+          <span>{players[0]?.name || "Player A"}</span>
         </div>
-        <div style={{ width: "77.78%", backgroundColor: "#007f00", display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}>
+        <div className="played-cards-container">
           {playedDeck.length > 0 &&
             playedDeck.map((card, index) => (
                 <div style={{ position: "absolute", top: "40%", left: "40%", zIndex: 1000 + index - playedDeck.length - index, transform: `rotate(${index * 30}deg)` }}>
@@ -94,31 +94,30 @@ function CardsList({ uuid }: CardsListProps) {
                     cardType={card.cardType}
                     score={card.score}
                     hidden={card.hidden}
-                    
                     handleClick={() => {}}
-                  />
-                </div>
-            ))}
-          <div style={{ width: "80%", height: 0, paddingBottom: "80%", borderRadius: "50%", backgroundColor: "#8cff8c", display: "flex", justifyContent: "center", alignItems: "center" }}></div>
-        </div>
-        <div style={{ width: "11.11%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
-          <span className={players[2]?.isTheirTurn ? "active-player" : undefined}>{players[2]?.name || "Player C"}</span>
-        </div>
-      </div>
-      <div style={{ height: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#222" }}>
-        {deck.map((card, index) => (
-          <div key={`card-${index}`} style={{ marginRight: 10 }}>
-            <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => handleCardClick(index)} />
+                    />
+                    </div>
+                ))}
+              <div className="center-card"></div>
+            </div>
+            <div className={`player-box ${players[2]?.isTheirTurn ? "active-player" : ""}`}>
+              <span>{players[2]?.name || "Player C"}</span>
+            </div>
           </div>
-        ))}
-      </div>
-      <div>
-        <label>
-          <input type="checkbox" checked={autoPlay} onChange={() => setAutoPlay(!autoPlay)} />
-          Auto Play
-        </label>
-      </div>
-    </div>
+          <div className="deck-row">
+            {deck.map((card, index) => (
+              <div key={`card-${index}`} className="deck-card" onClick={() => handleCardClick(index)}>
+                <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => handleCardClick(index)} />
+              </div>
+            ))}
+          </div>
+          <div className="auto-play-row">
+            <label>
+              <input type="checkbox" checked={autoPlay} onChange={() => setAutoPlay(!autoPlay)} />
+              Auto Play
+            </label>
+          </div>
+        </div>
   );
 }
 
