@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Card, CardType, ApiResponse, Player } from "./Card";
 import MySVG from "./MySVG";
+import { PlayerBox } from "./PlayerBox";
 import "./CardsList.css";
 
 interface CardsListProps {
@@ -77,14 +78,10 @@ function CardsList({ uuid }: CardsListProps) {
   return (
     <div className="cards-list">
       <div className="player-row">
-        <div className={`player-box ${players[1]?.isTheirTurn ? "active-player" : ""}`}>
-          <span>{players[1]?.name || "Player B"}</span>
-        </div>
+        <PlayerBox player={players[1]} isActive={players[1]?.isTheirTurn} />
       </div>
       <div className="main-row">
-        <div className={`player-box ${players[0]?.isTheirTurn ? "active-player" : ""}`}>
-          <span>{players[0]?.name || "Player A"}</span>
-        </div>
+        <PlayerBox player={players[0]} isActive={players[0]?.isTheirTurn} />
         <div className="played-cards-container">
           {playedDeck.length > 0 &&
             playedDeck.map((card, index) => (
@@ -100,9 +97,7 @@ function CardsList({ uuid }: CardsListProps) {
                 ))}
               <div className="center-card"></div>
             </div>
-            <div className={`player-box ${players[2]?.isTheirTurn ? "active-player" : ""}`}>
-              <span>{players[2]?.name || "Player C"}</span>
-            </div>
+            <PlayerBox player={players[2]} isActive={players[2]?.isTheirTurn} />
           </div>
           <div className="deck-row">
             {deck.map((card, index) => (
