@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardType, ApiResponse, Player } from "./Card";
 import MySVG from "./MySVG";
 import "./CardsList.css";
@@ -20,6 +20,9 @@ function CardsList({ uuid }: CardsListProps) {
   const [deck, setDeck] = useState<Card[]>([]);
   const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
+  const [autoPlay, setAutoPlay] = useState<boolean>(false);
+
+  const timerIdRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -35,6 +38,20 @@ function CardsList({ uuid }: CardsListProps) {
 
     return () => clearInterval(intervalId);
   }, [uuid]);
+
+  useEffect(() => {
+    if (autoPlay) {
+      timerIdRef.current = setInterval(() => {
+        if (deck.length > 0) {
+          handleCardClick(0);
+        }
+      }, 500);
+    } else {
+      clearInterval(timerIdRef.current!);
+    }
+
+    return () => clearInterval(timerIdRef.current!);
+  }, [autoPlay, deck]);
 
   const handleCardClick = (cardIndex: number) => {
     fetch(`http://localhost:3001/players/${uuid}/play`, {
@@ -94,6 +111,12 @@ function CardsList({ uuid }: CardsListProps) {
             <MySVG cardType={card.cardType} score={card.score} hidden={card.hidden} handleClick={() => handleCardClick(index)} />
           </div>
         ))}
+      </div>
+      <div>
+        <label>
+          <input type="checkbox" checked={autoPlay} onChange={() => setAutoPlay(!autoPlay)} />
+          Auto Play
+        </label>
       </div>
     </div>
   );
