@@ -59,8 +59,8 @@ function CardsList({ uuid }: CardsListProps) {
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ height: "20%", display: "flex" }}>
-        <div style={{ width: "33.33%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold" }}>
+      <div style={{ height: "20%", display: "flex", alignItems: "center" }}>
+        <div style={{ width: "33.33%", backgroundColor: "#fff", boxShadow: "0 0 10px rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 24, fontWeight: "bold", margin: "0 auto" }}>
           <span className={players[1]?.isTheirTurn ? "active-player" : undefined}>{players[1]?.name || "Player B"}</span>
         </div>
       </div>
