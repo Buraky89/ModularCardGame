@@ -139,15 +139,17 @@ function CardsList({ uuid }: CardsListProps) {
         </>
       )}
       {gameState === GameState.ENDED && (
-      <div>
-        <h1>Game ended</h1>
-        <p>Final scores:</p>
-        {players.map((player, index) => (
-          <div key={player.uuid}>
-            Player {index + 1}: {player.points}
+        <div className="overlay">
+          <div className="game-ended">
+            <h1>Game ended</h1>
+            <p>Final scores:</p>
+            {players.map((player, index) => (
+              <div key={player.uuid}>
+                Player {index + 1}: {player.points}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
     )}
     </div>
   );  
