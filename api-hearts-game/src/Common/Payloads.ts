@@ -24,6 +24,7 @@ interface PlayerAttemptsToPlayPayload {
 
 interface GameEndedPayload {
   winner: Player;
+  players: Player[];
 }
 
 export {

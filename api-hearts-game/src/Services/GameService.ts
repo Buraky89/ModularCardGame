@@ -151,10 +151,15 @@ class GameService {
       );
 
       console.log("Game has ended");
+      const players = this.playerService.players.map((p) => ({
+        name: p.name,
+        score: p.points,
+      }));
       const message = {
         event: Events.GameEnded,
         payload: {
           winner: this.playerService.getWinner(),
+          players,
         },
       };
       const buffer = Buffer.from(JSON.stringify(message));
