@@ -72,3 +72,10 @@ align-items: center;
 .deck-card {
 margin-right: 10px;
 }
+
+.score-box {
+  background-color: #eee;
+  border-radius: 5px;
+  padding: 5px;
+  margin-top: 5px;
+}
