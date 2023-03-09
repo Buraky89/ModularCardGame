@@ -249,6 +249,7 @@ class GameService {
       deck: player.getDeck(),
       players: this.playerService.players,
       playedDeck: this.playedDeck,
+      gameState: this.gameState,
     };
   }
 }
