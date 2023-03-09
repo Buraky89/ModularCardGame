@@ -145,7 +145,7 @@ function CardsList({ uuid }: CardsListProps) {
             <p>Final scores:</p>
             {players.map((player, index) => (
               <div key={player.uuid}>
-                Player {index + 1}: {player.points}
+                {player.name}: {player.points}
               </div>
             ))}
           </div>
