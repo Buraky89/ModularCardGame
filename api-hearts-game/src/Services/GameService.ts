@@ -12,13 +12,19 @@ import {
 import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
 
+enum GameState {
+  NOT_STARTED,
+  STARTED,
+  ENDED,
+}
+
 class GameService {
   private playerService: PlayerService;
   private connection: Connection | null = null;
   private playedDeck: Card[] = [];
   private channel: Channel | null = null;
   private turnNumber = 1;
-  private isGameEnded = false;
+  private gameState: GameState = GameState.NOT_STARTED;
 
   constructor() {
     this.playerService = new PlayerService();
@@ -45,7 +51,7 @@ class GameService {
   }
 
   async handleMessage(msg: any): Promise<void> {
-    if (this.isGameEnded) {
+    if (this.gameState == GameState.ENDED) {
       console.log("Game is ended, ignoring message");
       return;
     }
@@ -56,7 +62,7 @@ class GameService {
   }
 
   handleEvent(message: any): void {
-    if (this.isGameEnded) {
+    if (this.gameState == GameState.ENDED) {
       console.log("Game is ended, ignoring event");
       return;
     }
@@ -80,6 +86,7 @@ class GameService {
           `It seems cards are ready to distribute. Adding players' cards`
         );
         this.playerService.distributeCards();
+        this.gameState = GameState.STARTED;
         break;
       case Events.PlayerAttemptsToPlay:
         this.handlePlayerAttemptsToPlay(payload as PlayerAttemptsToPlayPayload);
@@ -93,7 +100,7 @@ class GameService {
   }
 
   async playGame(player: Player, selectedIndex: number): Promise<void> {
-    if (this.isGameEnded) {
+    if (this.gameState == GameState.ENDED) {
       console.log("Game is ended, cannot play game");
       return;
     }
@@ -152,14 +159,14 @@ class GameService {
       };
       const buffer = Buffer.from(JSON.stringify(message));
       await this.channel?.publish("", "game-events", buffer);
-      this.isGameEnded = true;
+      this.gameState = GameState.ENDED;
       return;
     }
   }
 
   private handleGameEnded(payload: GameEndedPayload): void {
     console.log("Game has ended!");
-    this.isGameEnded = true;
+    this.gameState = GameState.ENDED;
   }
 
   private handleNewPlayerWantsToJoin(
