@@ -152,3 +152,15 @@ app.post("/join", async (req, res) => {
     res.status(500).json({ message: "Error joining the game" });
   }
 });
+
+app.post("/players/:uuid/start", async (req: Request, res: Response) => {
+  const { uuid } = req.params;
+
+  const message = {
+    event: Events.GameStartRequested,
+    payload: {},
+  };
+  const buffer = Buffer.from(JSON.stringify(message));
+  await channel.publish("", "game-events", buffer);
+  res.send("OK");
+});

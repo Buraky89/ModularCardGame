@@ -8,6 +8,8 @@ import {
   NewPlayerApprovedToJoinPayload,
   PlayerAttemptsToPlayPayload,
   GameEndedPayload,
+  GameStartRequestedPayload,
+  GameStartApprovedPayload,
 } from "../Common/Payloads";
 import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
@@ -86,7 +88,6 @@ class GameService {
           `It seems cards are ready to distribute. Adding players' cards`
         );
         this.playerService.distributeCards();
-        this.gameState = GameState.STARTED;
         break;
       case Events.PlayerAttemptsToPlay:
         this.handlePlayerAttemptsToPlay(payload as PlayerAttemptsToPlayPayload);
@@ -94,9 +95,39 @@ class GameService {
       case Events.GameEnded:
         this.handleGameEnded(payload as GameEndedPayload);
         break;
+      case Events.GameStartRequested:
+        this.handleGameStartRequested(payload as GameStartRequestedPayload);
+        break;
+      case Events.GameStartApproved:
+        this.handleGameStartApproved(payload as GameStartApprovedPayload);
+        break;
       default:
         throw new Error(`Invalid event: ${event}`);
     }
+  }
+
+  private async handleGameStartRequested(
+    payload: GameStartRequestedPayload
+  ): Promise<void> {
+    const { uuid } = payload;
+    const player = this.playerService.players.find((p) => p.uuid === uuid);
+
+    if (player && player.isFirstPlayer) {
+      console.log("Game start requested by first player");
+      const message = {
+        event: Events.GameStartApproved,
+        payload: {},
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+      await this.channel?.publish("", "game-events", buffer);
+    } else {
+      console.log(`Player ${uuid} cannot request game start`);
+    }
+  }
+
+  private handleGameStartApproved(payload: GameStartApprovedPayload): void {
+    console.log("Game start approved");
+    this.gameState = GameState.STARTED;
   }
 
   async playGame(player: Player, selectedIndex: number): Promise<void> {

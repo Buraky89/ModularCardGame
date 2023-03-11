@@ -22,6 +22,14 @@ interface PlayerAttemptsToPlayPayload {
   selectedIndex: number;
 }
 
+interface GameStartRequestedPayload {
+  uuid: string;
+}
+
+interface GameStartApprovedPayload {
+  uuid: string;
+}
+
 interface GameEndedPayload {
   winner: Player;
   players: Player[];
@@ -33,4 +41,6 @@ export {
   NewPlayerApprovedToJoinPayload,
   PlayerAttemptsToPlayPayload,
   GameEndedPayload,
+  GameStartRequestedPayload,
+  GameStartApprovedPayload,
 };

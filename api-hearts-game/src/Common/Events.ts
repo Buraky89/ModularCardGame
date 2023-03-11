@@ -5,6 +5,8 @@ enum Events {
   CardsAreReadyToBeDistributed = "CardsAreReadyToBeDistributed",
   PlayerAttemptsToPlay = "PlayerAttemptsToPlay",
   GameEnded = "GameEnded",
+  GameStartRequested = "GameStartRequested",
+  GameStartApproved = "GameStartApproved",
 }
 
 export default Events;
