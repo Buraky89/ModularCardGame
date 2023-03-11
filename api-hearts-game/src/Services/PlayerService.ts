@@ -25,7 +25,10 @@ class PlayerService {
   async addPlayer(playerName: string, uuid: string): Promise<void> {
     var playerLengthIsMax = false;
     const player = new Player(playerName, uuid);
-    if (this.players.length == 1) player.isTheirTurn = true;
+    if (this.players.length == 1) {
+      player.isTheirTurn = true;
+      player.isFirstPlayer = true;
+    }
     this.players.push(player);
     if (this.players.length == 4) playerLengthIsMax = true;
     console.log(`Player added: ${uuid}`);

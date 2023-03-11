@@ -8,6 +8,7 @@ class Player {
   points: number;
   isTheirTurn: boolean;
   deck: RepresentedCard[];
+  isFirstPlayer: boolean;
 
   constructor(name: string, uuid: string) {
     this.name = name;
@@ -16,6 +17,7 @@ class Player {
     this.points = 0;
     this.isTheirTurn = false;
     this.deck = [];
+    this.isFirstPlayer = false;
   }
 
   setCards(cards: Card[]) {
