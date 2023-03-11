@@ -102,3 +102,7 @@ margin-right: 10px;
   font-size: 24px;
   font-weight: bold;
 }
+
+.not-started {
+opacity: 0.5;
+}

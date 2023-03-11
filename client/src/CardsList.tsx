@@ -83,9 +83,23 @@ function CardsList({ uuid }: CardsListProps) {
 
   const isYourTurn = players.find((player) => player.uuid === uuid && player.isTheirTurn);
 
+  const startGame = () => {
+    fetch(`http://localhost:3001/players/${uuid}/start`, {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      //.then(() => setGameState(GameState.STARTED))
+      .catch((error) => console.log(error));
+  };
+
   return (
     <div className="cards-list">
-      {gameState === GameState.NOT_STARTED && <h1>Game is not started yet</h1>}
+      {gameState === GameState.NOT_STARTED && (
+        <div className="not-started">
+          <h1>Game is not started yet</h1>
+          <button onClick={startGame}>Start</button>
+        </div>
+      )}
       {gameState !== GameState.NOT_STARTED && (
         <>
           <div className="player-row">
