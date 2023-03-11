@@ -158,7 +158,9 @@ app.post("/players/:uuid/start", async (req: Request, res: Response) => {
 
   const message = {
     event: Events.GameStartRequested,
-    payload: {},
+    payload: {
+      uuid,
+    },
   };
   const buffer = Buffer.from(JSON.stringify(message));
   await channel.publish("", "game-events", buffer);
