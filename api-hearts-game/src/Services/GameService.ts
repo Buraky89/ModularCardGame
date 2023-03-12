@@ -112,7 +112,11 @@ class GameService {
     const { uuid } = payload;
     const player = this.playerService.players.find((p) => p.uuid === uuid);
 
-    if (player && player.isFirstPlayer) {
+    if (
+      player &&
+      player.isFirstPlayer &&
+      this.playerService.players.length == 4
+    ) {
       console.log("Game start requested by first player");
       const message = {
         event: Events.GameStartApproved,
