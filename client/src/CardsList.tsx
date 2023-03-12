@@ -9,6 +9,11 @@ interface CardsListProps {
 }
 
 function moveLastPlayerToBeginningUntilMe(players: Player[], myUuid: string): Player[] {
+  const index = players.findIndex(player => player.uuid === myUuid);
+  if (index === -1) {
+    // myUuid is not among the players
+    return players;
+  }
   players.sort((a, b) => a.uuid.localeCompare(b.uuid));
   while (players[players.length - 1].uuid !== myUuid) {
     const lastPlayer = players.pop()!;
@@ -37,7 +42,7 @@ function CardsList({ uuid }: CardsListProps) {
       fetch(`http://localhost:3001/players/${uuid}`)
         .then((response) => response.json())
         .then((data: ApiResponse & { gameState: GameState }) => {
-          setDeck(data.deck);
+          if(data.deck) setDeck(data.deck);
           setPlayedDeck(data.playedDeck);
           setPlayers(moveLastPlayerToBeginningUntilMe(data.players, uuid) || []);
           setGameState(data.gameState);
