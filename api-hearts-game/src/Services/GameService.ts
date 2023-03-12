@@ -213,7 +213,11 @@ class GameService {
     payload: NewPlayerWantsToJoinPayload
   ): void {
     const { date, ip, uuid, playerName } = payload;
-    this.playerService.addPlayer(playerName, uuid);
+    if (this.playerService.players.length < 4) {
+      this.playerService.addPlayer(playerName, uuid);
+    } else {
+      console.log("Game has already maximum number of players!");
+    }
   }
 
   async handlePlayerPlayed(payload: PlayerPlayedPayload): Promise<void> {
@@ -276,9 +280,15 @@ class GameService {
     }
   }
 
-  async getPlayerData(uuid: string): Promise<any> {
+  async getGameData(uuid: string): Promise<any> {
     const player = this.playerService.players.find((p) => p.uuid === uuid);
-    if (!player) throw new Error(`Player ${uuid} not found`);
+    if (!player) {
+      return {
+        players: this.playerService.players,
+        playedDeck: this.playedDeck,
+        gameState: this.gameState,
+      };
+    }
 
     return {
       deck: player.getDeck(),

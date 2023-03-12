@@ -19,7 +19,7 @@ let channel: Channel;
 app.get("/players/:uuid", async (req: Request, res: Response) => {
   const { uuid } = req.params;
   try {
-    const data = await gameService.getPlayerData(uuid);
+    const data = await gameService.getGameData(uuid);
     res.json(data);
   } catch (error) {
     res.status(404).send(error);
