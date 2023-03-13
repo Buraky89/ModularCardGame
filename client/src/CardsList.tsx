@@ -167,6 +167,7 @@ function CardsList({ uuid }: CardsListProps) {
                 {player.name}: {player.points}
               </div>
             ))}
+            <button onClick={startGame}>Start Again</button>
           </div>
         </div>
     )}
