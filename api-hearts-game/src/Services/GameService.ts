@@ -124,6 +124,8 @@ class GameService {
       };
       const buffer = Buffer.from(JSON.stringify(message));
       await this.channel?.publish("", "game-events", buffer);
+    } else if (this.playerService.players.length < 4) {
+      console.log("There are not enough players to start yet");
     } else {
       console.log(`Player ${uuid} cannot request game start`);
     }
