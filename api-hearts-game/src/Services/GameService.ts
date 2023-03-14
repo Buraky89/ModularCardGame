@@ -26,7 +26,7 @@ class GameService {
   private playedDeck: Card[] = [];
   private channel: Channel | null = null;
   private turnNumber = 1;
-  private gameState: GameState = GameState.NOT_STARTED;
+  public gameState: GameState = GameState.NOT_STARTED;
 
   constructor() {
     this.playerService = new PlayerService();

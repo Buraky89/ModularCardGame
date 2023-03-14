@@ -4,6 +4,13 @@ import { GameService } from "./Services/Gameservice";
 import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
 import cors from "cors";
+import { getNameOfJSDocTypedef } from "typescript";
+
+enum GameState {
+  NOT_STARTED,
+  STARTED,
+  ENDED,
+}
 
 const app = express();
 
@@ -95,7 +102,7 @@ async function main() {
 
 const port = 3001;
 
-const gameService = new GameService();
+var gameService = new GameService();
 gameService
   .start()
   .then(() => {
@@ -156,13 +163,27 @@ app.post("/join", async (req, res) => {
 app.post("/players/:uuid/start", async (req: Request, res: Response) => {
   const { uuid } = req.params;
 
-  const message = {
-    event: Events.GameStartRequested,
-    payload: {
-      uuid,
-    },
-  };
-  const buffer = Buffer.from(JSON.stringify(message));
-  await channel.publish("", "game-events", buffer);
-  res.send("OK");
+  if (gameService.gameState == GameState.ENDED) {
+    gameService.stop();
+    gameService = new GameService();
+    gameService
+      .start()
+      .then(() => {
+        console.log("GameService started");
+      })
+      .catch((error) => {
+        console.error("Error starting GameService", error);
+      });
+    res.send("OK");
+  } else {
+    const message = {
+      event: Events.GameStartRequested,
+      payload: {
+        uuid,
+      },
+    };
+    const buffer = Buffer.from(JSON.stringify(message));
+    await channel.publish("", "game-events", buffer);
+    res.send("OK");
+  }
 });
