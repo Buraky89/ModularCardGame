@@ -1,4 +1,4 @@
-import { connect, Connection, ConsumeMessage, Channel } from "amqplib";
+import { AmqpService } from "./AmqpService";
 import { v4 as uuidv4 } from "uuid";
 import { PlayerService } from "./PlayerService";
 import Events from "../Common/Events";
@@ -22,34 +22,29 @@ enum GameState {
 
 class GameService {
   private playerService: PlayerService;
-  private connection: Connection | null = null;
+  private amqpService: AmqpService;
   private playedDeck: Card[] = [];
-  private channel: Channel | null = null;
   private turnNumber = 1;
   public gameState: GameState = GameState.NOT_STARTED;
 
   constructor() {
     this.playerService = new PlayerService();
+    this.amqpService = new AmqpService();
   }
 
   async start(): Promise<void> {
-    this.connection = await connect("amqp://localhost");
-    this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue("game-events");
+    const channel = await this.amqpService.start();
 
     // Pass channel object to PlayerService instance
-    await this.playerService.start(this.channel);
+    await this.playerService.start(channel);
 
-    await this.channel.consume("game-events", this.handleMessage.bind(this), {
+    await channel.consume("game-events", this.handleMessage.bind(this), {
       noAck: true,
     });
   }
 
   async stop(): Promise<void> {
-    if (this.connection) {
-      await this.connection.close();
-      this.connection = null;
-    }
+    await this.amqpService.stop();
   }
 
   async handleMessage(msg: any): Promise<void> {
@@ -123,7 +118,7 @@ class GameService {
         payload: {},
       };
       const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel?.publish("", "game-events", buffer);
+      await this.amqpService.publish("", "game-events", buffer);
     } else if (this.playerService.players.length < 4) {
       console.log("There are not enough players to start yet");
     } else {
@@ -200,7 +195,7 @@ class GameService {
         },
       };
       const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel?.publish("", "game-events", buffer);
+      await this.amqpService.publish("", "game-events", buffer);
       this.gameState = GameState.ENDED;
       return;
     }
@@ -273,7 +268,7 @@ class GameService {
         };
         console.log("message", message);
         const buffer = Buffer.from(JSON.stringify(message));
-        await this.channel?.publish("", "game-events", buffer);
+        await this.amqpService.publish("", "game-events", buffer);
       } else {
         console.log("Invalid card played");
       }
