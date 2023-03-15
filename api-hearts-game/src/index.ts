@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import { GameService } from "./Services/Gameservice";
+import { EventManager } from "./Services/EventManager";
 import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
 import cors from "cors";
@@ -26,7 +27,7 @@ let channel: Channel;
 app.get("/players/:uuid", async (req: Request, res: Response) => {
   const { uuid } = req.params;
   try {
-    const data = await gameService.getGameData(uuid);
+    const data = await eventManager.gameService.getGameData(uuid);
     res.json(data);
   } catch (error) {
     res.status(404).send(error);
@@ -102,11 +103,11 @@ async function main() {
 
 const port = 3001;
 
-var gameService = new GameService();
-gameService
+var eventManager = new EventManager();
+eventManager
   .start()
   .then(() => {
-    console.log("GameService started");
+    console.log("EventManager started");
     app.listen(port, () => {
       console.log(`Server is listening on port ${port}.`);
 
@@ -114,7 +115,7 @@ gameService
     });
   })
   .catch((error) => {
-    console.error("Error starting GameService", error);
+    console.error("Error starting EventManager", error);
   });
 
 app.post("/players/:uuid/play", async (req: Request, res: Response) => {
@@ -163,10 +164,10 @@ app.post("/join", async (req, res) => {
 app.post("/players/:uuid/start", async (req: Request, res: Response) => {
   const { uuid } = req.params;
 
-  if (gameService.gameState == GameState.ENDED) {
-    gameService.stop();
-    gameService = new GameService();
-    gameService
+  if (eventManager.gameService.gameState == GameState.ENDED) {
+    eventManager.stop();
+    eventManager.gameService = new GameService();
+    eventManager
       .start()
       .then(() => {
         console.log("GameService started");
