@@ -137,6 +137,9 @@ function CardsList({ uuid }: CardsListProps) {
             </div>
             <PlayerBox player={players[2]} isActive={players[2]?.isTheirTurn} />
           </div>
+          <div className="player-row">
+            <PlayerBox player={players[3]} isActive={players[3]?.isTheirTurn} />
+          </div>
           <div className="deck-row">
             {deck.map((card, index) => (
               <div key={`card-${index}`} className="deck-card" onClick={() => handleCardClick(index)}>
