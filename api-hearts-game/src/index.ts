@@ -1,10 +1,17 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import { EventManager } from "./Services/EventManager";
 import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
 import cors from "cors";
-import { getNameOfJSDocTypedef } from "typescript";
+import { UserManager } from "./Services/UserManager";
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    username: string;
+    avatar: string;
+  };
+}
 
 enum GameState {
   NOT_STARTED,
@@ -16,6 +23,41 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+
+const userManager = new UserManager("my-secret");
+
+// Login endpoint
+app.post("/login", (req: Request, res: Response) => {
+  const { username, avatar } = req.body;
+  const user = userManager.createUser(username, avatar);
+  const token = userManager.issueToken(user);
+  res.json({ token });
+});
+
+function authenticateToken(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const user = userManager.validateToken(token);
+  if (!user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  req.user = user;
+  next();
+}
+
+// Protected endpoint
+app.get("/protected", authenticateToken, (req: Request, res: Response) => {
+  res.json({ message: "Welcome to the protected area!" });
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, world!");
