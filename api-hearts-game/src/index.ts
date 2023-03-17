@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
-import { GameService } from "./Services/Gameservice";
 import { EventManager } from "./Services/EventManager";
 import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
@@ -27,7 +26,7 @@ let channel: Channel;
 app.get("/players/:uuid", async (req: Request, res: Response) => {
   const { uuid } = req.params;
   try {
-    const data = await eventManager.gameService.getGameData(uuid);
+    const data = await eventManager.getGameData(uuid);
     res.json(data);
   } catch (error) {
     res.status(404).send(error);
@@ -106,17 +105,9 @@ app.post("/join", async (req, res) => {
 app.post("/players/:uuid/start", async (req: Request, res: Response) => {
   const { uuid } = req.params;
 
-  if (eventManager.gameService.gameState == GameState.ENDED) {
+  if (eventManager.isGameEnded()) {
     eventManager.stop();
-    eventManager.gameService = new GameService();
-    eventManager
-      .start()
-      .then(() => {
-        console.log("GameService started");
-      })
-      .catch((error) => {
-        console.error("Error starting GameService", error);
-      });
+    eventManager.restartGame();
     res.send("OK");
   } else {
     const message = {

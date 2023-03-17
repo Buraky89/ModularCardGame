@@ -207,6 +207,25 @@ class EventManager {
       console.log(`Player ${uuid} not found`);
     }
   }
+
+  async getGameData(uuid: string): Promise<any> {
+    return this.gameService.getGameData(uuid);
+  }
+
+  public isGameEnded(): boolean {
+    return this.gameService.gameState == GameState.ENDED;
+  }
+
+  async restartGame(): Promise<any> {
+    this.gameService = new GameService();
+    this.start()
+      .then(() => {
+        console.log("GameService started");
+      })
+      .catch((error) => {
+        console.error("Error starting GameService", error);
+      });
+  }
 }
 
 export { EventManager };
