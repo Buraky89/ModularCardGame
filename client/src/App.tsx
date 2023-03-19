@@ -4,38 +4,74 @@ import "./App.css";
 import CardsList from "./CardsList";
 import { playerNames } from "./Names";
 
+interface LoginResponse {
+  token: string;
+}
+
+interface JoinResponse {
+  message: string;
+}
+
 function App() {
   const randomPlayerName = playerNames[Math.floor(Math.random() * playerNames.length)];
   const [playerName, setPlayerName] = useState(randomPlayerName);
   const [uuid, setUuid] = useState("");
   const [joined, setJoined] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    setUuid(uuidv4());
-  }, []);
-
-  const handleJoin = async () => {
+  const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:3001/join", {
+      const response = await fetch("http://localhost:3001/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ playerName, uuid }),
+        body: JSON.stringify({ username: playerName }),
       });
 
-      const data = await response.json();
+      const data: LoginResponse = await response.json();
 
       if (response.ok) {
-        console.log(data.message);
+        console.log("Logged in successfully");
+        setToken(data.token);
         setJoined(true);
       } else {
-        console.error(data.message);
+        console.error(data);
       }
     } catch (err) {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    const joinGame = async () => {
+      if (joined && token) {
+        try {
+          const response = await fetch("http://localhost:3001/join", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`, // add Authorization header with JWT token
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          const data: JoinResponse = await response.json();
+
+          if (response.ok) {
+            console.log(data.message);
+            setUuid(uuidv4());
+          } else {
+            console.error(data.message);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    joinGame();
+  }, [joined, token]);
 
   return (
     <div className="App">
@@ -48,17 +84,9 @@ function App() {
             onChange={(e) => setPlayerName(e.target.value)}
           />
         </label>
-        <label>
-          UUID:
-          <input
-            type="text"
-            value={uuid}
-            onChange={(e) => setUuid(e.target.value)}
-          />
-        </label>
-        <button onClick={handleJoin}>Join Game</button>
+        <button onClick={handleLogin}>Login</button>
       </div>
-      {joined && <CardsList uuid={uuid} />}
+      {joined && token && <CardsList uuid={uuid} />}
     </div>
   );
 }
