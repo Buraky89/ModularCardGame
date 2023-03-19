@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
-import { EventManager } from "./Services/EventManager";
+import { RealmService } from "./Services/RealmService";
 import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
 import cors from "cors";
@@ -84,7 +84,7 @@ app.get(
     }
     const { uuid } = req.user;
     try {
-      const data = await eventManager.getGameData(uuid);
+      const data = await realmService.getGameData(uuid);
       res.json(data);
     } catch (error) {
       res.status(404).send(error);
@@ -103,11 +103,12 @@ async function main() {
 
 const port = 3001;
 
-var eventManager = new EventManager();
-eventManager
+var realmService = new RealmService();
+realmService.addEventManager();
+realmService
   .start()
   .then(() => {
-    console.log("EventManager started");
+    console.log("RealmService started");
     app.listen(port, () => {
       console.log(`Server is listening on port ${port}.`);
 
@@ -115,7 +116,7 @@ eventManager
     });
   })
   .catch((error) => {
-    console.error("Error starting EventManager", error);
+    console.error("Error starting RealmService", error);
   });
 
 app.post(
@@ -179,9 +180,9 @@ app.post(
     }
     const { uuid } = req.user;
 
-    if (eventManager.isGameEnded()) {
-      eventManager.stop();
-      eventManager.restartGame();
+    if (realmService.isGameEnded()) {
+      realmService.stop();
+      realmService.restartGame();
       res.send("OK");
     } else {
       const message = {

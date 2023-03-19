@@ -10,6 +10,7 @@ import {
   GameStartRequestedPayload,
   GameStartApprovedPayload,
 } from "../Common/Payloads";
+import { v4 as uuidv4 } from "uuid";
 
 enum GameState {
   NOT_STARTED,
@@ -18,10 +19,12 @@ enum GameState {
 }
 
 class EventManager {
-  private amqpService: AmqpService;
+  public amqpService: AmqpService;
   public gameService: GameService;
+  public uuid: string = uuidv4();
 
   constructor() {
+    this.uuid = uuidv4();
     this.amqpService = new AmqpService();
     this.gameService = new GameService();
   }
