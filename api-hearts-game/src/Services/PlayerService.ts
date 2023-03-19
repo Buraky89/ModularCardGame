@@ -15,11 +15,6 @@ class PlayerService {
 
   async start(channel: Channel): Promise<void> {
     this.channel = channel;
-
-    // Listen to the event that the cards are ready to be distributed
-    this.channel.assertQueue(Events.CardsAreReadyToBeDistributed, {
-      durable: false,
-    });
   }
 
   async addPlayer(
