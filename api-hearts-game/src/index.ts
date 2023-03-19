@@ -5,9 +5,11 @@ import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
 import cors from "cors";
 import { UserManager } from "./Services/UserManager";
+import jwt from "jsonwebtoken";
 
 interface AuthenticatedRequest extends Request {
   user?: {
+    uuid: string;
     username: string;
     avatar: string;
   };
@@ -34,25 +36,34 @@ app.post("/login", (req: Request, res: Response) => {
   res.json({ token });
 });
 
-function authenticateToken(
+interface TokenPayload {
+  uuid: string;
+  username: string;
+}
+
+export const authenticateToken = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "Unauthorized" });
+) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.sendStatus(401);
   }
 
-  const token = authHeader.split(" ")[1];
-  const user = userManager.validateToken(token);
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  jwt.verify(token, "my-secret", (err, decoded) => {
+    if (err) {
+      return res.sendStatus(403);
+    }
 
-  req.user = user;
-  next();
-}
+    const { uuid, username } = decoded as TokenPayload;
+    if (req.user) req.user.uuid = uuid; // attach uuid to the req object
+    if (req.user) req.user.username = username; // attach player name to the req object
+    next();
+  });
+};
 
 // Protected endpoint
 app.get("/protected", authenticateToken, (req: Request, res: Response) => {
@@ -119,28 +130,30 @@ app.post("/players/:uuid/play", async (req: Request, res: Response) => {
   res.send("OK");
 });
 
-app.post("/join", async (req, res) => {
-  const { playerName, uuid } = req.body;
-  const date = new Date();
-  const ip = req.ip;
+app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
+  if (req.user) {
+    const { uuid, username } = req.user;
+    const date = new Date();
+    const ip = req.ip;
 
-  const message = {
-    event: Events.NewPlayerWantsToJoin,
-    payload: {
-      date,
-      ip,
-      uuid,
-      playerName,
-    },
-  };
-  const buffer = Buffer.from(JSON.stringify(message));
+    const message = {
+      event: Events.NewPlayerWantsToJoin,
+      payload: {
+        date,
+        ip,
+        uuid,
+        playerName: username,
+      },
+    };
+    const buffer = Buffer.from(JSON.stringify(message));
 
-  try {
-    await channel.publish("", "game-events", buffer);
-    res.status(200).json({ message: "Player joined the game" });
-  } catch (err) {
-    console.error("Error publishing message", err);
-    res.status(500).json({ message: "Error joining the game" });
+    try {
+      await channel.publish("", "game-events", buffer);
+      res.status(200).json({ message: "Player joined the game" });
+    } catch (err) {
+      console.error("Error publishing message", err);
+      res.status(500).json({ message: "Error joining the game" });
+    }
   }
 });
 
