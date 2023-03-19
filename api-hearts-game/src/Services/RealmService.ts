@@ -15,9 +15,12 @@ class RealmService {
     }
   }
 
-  addEventManager(): EventManager {
+  async addEventManager(): Promise<EventManager> {
     const eventManager = new EventManager();
     this.eventMangers.push(eventManager);
+
+    await this.getEventManager(eventManager.uuid).start();
+
     return eventManager;
   }
 
@@ -25,30 +28,34 @@ class RealmService {
     return this.eventMangers;
   }
 
-  getFirstEventManager(): EventManager {
-    // TODO: fix this and take a uuid from the args
-    console.log("first event maanger", this.eventMangers[0]);
-    return this.eventMangers[0];
+  getEventManager(uuid: string): EventManager {
+    const eventManager = this.eventMangers.find(
+      (eventManager) => eventManager.uuid === uuid
+    );
+    if (!eventManager) {
+      throw new Error(`EventManager with uuid ${uuid} not found.`);
+    }
+    return eventManager;
   }
 
   async start(): Promise<void> {
-    await this.getFirstEventManager().start();
+    //await this.getEventManager(uuid).start();
   }
 
-  async getGameData(uuid: string): Promise<any> {
-    return this.getFirstEventManager().gameService.getGameData(uuid);
+  async getGameData(eventManagerUuid: string, uuid: string): Promise<any> {
+    return this.getEventManager(eventManagerUuid).gameService.getGameData(uuid);
   }
 
-  public isGameEnded(): boolean {
-    return this.getFirstEventManager().gameService.gameState == GameState.ENDED;
+  public isGameEnded(uuid: string): boolean {
+    return this.getEventManager(uuid).gameService.gameState == GameState.ENDED;
   }
 
-  async stop(): Promise<void> {
-    await this.getFirstEventManager().amqpService.stop();
+  async stop(uuid: string): Promise<void> {
+    await this.getEventManager(uuid).amqpService.stop();
   }
 
-  async restartGame(): Promise<any> {
-    await this.getFirstEventManager().restartGame();
+  async restartGame(uuid: string): Promise<any> {
+    await this.getEventManager(uuid).restartGame();
   }
 }
 

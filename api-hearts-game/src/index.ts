@@ -76,15 +76,16 @@ app.get("/", (req: Request, res: Response) => {
 let channel: Channel;
 
 app.get(
-  "/players/:uuid",
+  "/players/:gameUuid/:uuid",
   authenticateToken,
   async (req: AuthenticatedRequest, res) => {
     if (!req.user) {
       return;
     }
     const { uuid } = req.user;
+    const { gameUuid } = req.params;
     try {
-      const data = await realmService.getGameData(uuid);
+      const data = await realmService.getGameData(gameUuid, uuid);
       res.json(data);
     } catch (error) {
       res.status(404).send(error);
@@ -93,9 +94,11 @@ app.get(
 );
 
 async function main() {
+  var eventManager = await realmService.addEventManager();
+
   const connection = await connect("amqp://localhost");
   channel = await connection.createChannel();
-  await channel.assertQueue("game-events");
+  await channel.assertQueue(`game-events-${eventManager.uuid}`);
   //await sendNewPlayerWantsToJoin();
   //await channel.close(); // TODO: do it when service ends
   //await connection.close();
@@ -104,7 +107,6 @@ async function main() {
 const port = 3001;
 
 var realmService = new RealmService();
-realmService.addEventManager();
 realmService
   .start()
   .then(() => {
@@ -127,7 +129,7 @@ app.post(
       return;
     }
     const { uuid } = req.user;
-    const { cardIndex } = req.body;
+    const { cardIndex, gameUuid } = req.body;
 
     const message = {
       event: Events.PlayerAttemptsToPlay,
@@ -138,7 +140,7 @@ app.post(
     };
     console.log("msggg", message);
     const buffer = Buffer.from(JSON.stringify(message));
-    await channel.publish("", "game-events", buffer);
+    await channel.publish("", `game-events-${gameUuid}`, buffer);
 
     res.send("OK");
   }
@@ -147,6 +149,7 @@ app.post(
 app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
   if (req.user) {
     const { uuid, username } = req.user;
+    const { gameUuid } = req.body;
     const date = new Date();
     const ip = req.ip;
 
@@ -162,7 +165,7 @@ app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
     const buffer = Buffer.from(JSON.stringify(message));
 
     try {
-      await channel.publish("", "game-events", buffer);
+      await channel.publish("", `game-events-${gameUuid}`, buffer);
       res.status(200).json({ uuid, message: "Player joined the game" });
     } catch (err) {
       console.error("Error publishing message", err);
@@ -179,10 +182,11 @@ app.post(
       return;
     }
     const { uuid } = req.user;
+    const { gameUuid } = req.body;
 
-    if (realmService.isGameEnded()) {
-      realmService.stop();
-      realmService.restartGame();
+    if (realmService.isGameEnded(gameUuid)) {
+      realmService.stop(gameUuid);
+      realmService.restartGame(gameUuid);
       res.send("OK");
     } else {
       const message = {
@@ -192,8 +196,17 @@ app.post(
         },
       };
       const buffer = Buffer.from(JSON.stringify(message));
-      await channel.publish("", "game-events", buffer);
+      await channel.publish("", `game-events-${gameUuid}`, buffer);
       res.send("OK");
     }
   }
 );
+
+app.get("/getGames", (req: Request, res: Response) => {
+  var eventManagers = realmService.getEventManagers();
+  var uuids = [];
+  for (var i = 0; i < eventManagers.length; i++) {
+    uuids.push(eventManagers[i].uuid);
+  }
+  res.json(uuids);
+});

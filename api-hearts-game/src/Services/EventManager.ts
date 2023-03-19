@@ -30,14 +30,18 @@ class EventManager {
   }
 
   async start(): Promise<void> {
-    const channel = await this.amqpService.start();
+    const channel = await this.amqpService.start(this.uuid);
 
     // Pass channel object to PlayerService instance
     await this.gameService.playerService.start(channel);
 
-    await channel.consume("game-events", this.handleMessage.bind(this), {
-      noAck: true,
-    });
+    await channel.consume(
+      `game-events-${this.uuid}`,
+      this.handleMessage.bind(this),
+      {
+        noAck: true,
+      }
+    );
   }
 
   async stop(): Promise<void> {
@@ -117,7 +121,7 @@ class EventManager {
         payload: {},
       };
       const buffer = Buffer.from(JSON.stringify(message));
-      await this.amqpService.publish("", "game-events", buffer);
+      await this.amqpService.publish("", `game-events-${this.uuid}`, buffer);
     } else if (this.gameService.playerService.players.length < 4) {
       console.log("There are not enough players to start yet");
     } else {
@@ -140,7 +144,7 @@ class EventManager {
   ): void {
     const { date, ip, uuid, playerName } = payload;
     if (this.gameService.playerService.players.length < 4) {
-      this.gameService.playerService.addPlayer(playerName, uuid);
+      this.gameService.playerService.addPlayer(playerName, uuid, this.uuid);
     } else {
       console.log("Game has already maximum number of players!");
     }
@@ -154,7 +158,7 @@ class EventManager {
     );
 
     if (player) {
-      await this.gameService.playGame(player, selectedIndex);
+      await this.gameService.playGame(player, selectedIndex, this.uuid); // TODO: is this the best way? (sending eventManagerUuid to the gameService?)
 
       // Set the next player's isTheirTurn property to true
       this.gameService.playerService.setWhoseTurn();
@@ -202,7 +206,7 @@ class EventManager {
         };
         console.log("message", message);
         const buffer = Buffer.from(JSON.stringify(message));
-        await this.amqpService.publish("", "game-events", buffer);
+        await this.amqpService.publish("", `game-events-${this.uuid}`, buffer);
       } else {
         console.log("Invalid card played");
       }

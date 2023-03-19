@@ -4,10 +4,10 @@ class AmqpService {
   private connection: Connection | null = null;
   private channel: Channel | null = null;
 
-  async start(): Promise<Channel> {
+  async start(eventManagerUuid: string): Promise<Channel> {
     this.connection = await connect("amqp://localhost");
     this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue("game-events");
+    await this.channel.assertQueue(`game-events-${eventManagerUuid}`);
     return this.channel;
   }
 

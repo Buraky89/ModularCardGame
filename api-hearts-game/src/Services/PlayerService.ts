@@ -22,7 +22,11 @@ class PlayerService {
     });
   }
 
-  async addPlayer(playerName: string, uuid: string): Promise<void> {
+  async addPlayer(
+    playerName: string,
+    uuid: string,
+    eventManagerUuid: string
+  ): Promise<void> {
     var playerLengthIsMax = false;
     const player = new Player(playerName, uuid);
     if (this.players.length == 1) {
@@ -42,7 +46,7 @@ class PlayerService {
         },
       };
       const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel.publish("", "game-events", buffer);
+      await this.channel.publish("", `game-events-${eventManagerUuid}`, buffer);
     }
 
     if (playerLengthIsMax) {
@@ -51,7 +55,11 @@ class PlayerService {
         event: Events.CardsAreReadyToBeDistributed,
       };
       const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel?.publish("", "game-events", buffer);
+      await this.channel?.publish(
+        "",
+        `game-events-${eventManagerUuid}`,
+        buffer
+      );
     }
   }
 
