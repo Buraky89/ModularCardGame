@@ -94,11 +94,8 @@ app.get(
 );
 
 async function main() {
-  var eventManager = await realmService.addEventManager();
-
   const connection = await connect("amqp://localhost");
   channel = await connection.createChannel();
-  await channel.assertQueue(`game-events-${eventManager.uuid}`);
   //await sendNewPlayerWantsToJoin();
   //await channel.close(); // TODO: do it when service ends
   //await connection.close();
@@ -209,4 +206,11 @@ app.get("/getGames", (req: Request, res: Response) => {
     uuids.push(eventManagers[i].uuid);
   }
   res.json(uuids);
+});
+
+app.post("/createGame", async (req: Request, res: Response) => {
+  var eventManager = await realmService.addEventManager();
+  await channel.assertQueue(`game-events-${eventManager.uuid}`);
+
+  res.json(eventManager.uuid);
 });
