@@ -147,6 +147,12 @@ app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
   if (req.user) {
     const { uuid, username } = req.user;
     const { gameUuid } = req.body;
+
+    if (!gameUuid) {
+      res.status(500).json({ message: "Please provide a game uuid" });
+      return;
+    }
+
     const date = new Date();
     const ip = req.ip;
 
