@@ -61,7 +61,7 @@ function CardsList({ uuid, token, gameUuid }: CardsListProps) {
   }, [uuid]);
 
   useEffect(() => {
-    if (autoPlay) {
+    if (autoPlay && gameState === GameState.STARTED) {
       timerIdRef.current = setInterval(() => {
         if (deck.length > 0) {
           handleCardClick(0);
