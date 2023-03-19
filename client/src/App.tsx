@@ -10,6 +10,7 @@ interface LoginResponse {
 
 interface JoinResponse {
   message: string;
+  uuid: string;
 }
 
 function App() {
@@ -51,7 +52,7 @@ function App() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`, // add Authorization header with JWT token
+              "Authorization": `Bearer ${token}`,
             },
             body: JSON.stringify({ token }),
           });
@@ -60,7 +61,7 @@ function App() {
 
           if (response.ok) {
             console.log(data.message);
-            setUuid(uuidv4());
+            setUuid(data.uuid);
           } else {
             console.error(data.message);
           }
@@ -86,7 +87,7 @@ function App() {
         </label>
         <button onClick={handleLogin}>Login</button>
       </div>
-      {joined && token && <CardsList uuid={uuid} />}
+      {joined && token && <CardsList uuid={uuid} token={token} />}
     </div>
   );
 }

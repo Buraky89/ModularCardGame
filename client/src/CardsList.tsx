@@ -5,6 +5,7 @@ import { PlayerBox } from "./PlayerBox";
 import "./CardsList.css";
 
 interface CardsListProps {
+  token: string;
   uuid: string;
 }
 
@@ -28,7 +29,7 @@ enum GameState {
   ENDED,
 }
 
-function CardsList({ uuid }: CardsListProps) {
+function CardsList({ uuid, token }: CardsListProps) {
   const [deck, setDeck] = useState<Card[]>([]);
   const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -37,9 +38,14 @@ function CardsList({ uuid }: CardsListProps) {
 
   const timerIdRef = useRef<NodeJS.Timeout>();
 
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
   useEffect(() => {
     const intervalId = setInterval(() => {
-      fetch(`http://localhost:3001/players/${uuid}`)
+      fetch(`http://localhost:3001/players/${uuid}`, { headers })
         .then((response) => response.json())
         .then((data: ApiResponse & { gameState: GameState }) => {
           if(data.deck) setDeck(data.deck);
@@ -70,9 +76,7 @@ function CardsList({ uuid }: CardsListProps) {
   const handleCardClick = (cardIndex: number) => {
     fetch(`http://localhost:3001/players/${uuid}/play`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
         cardIndex,
       }),
@@ -91,6 +95,7 @@ function CardsList({ uuid }: CardsListProps) {
   const startGame = () => {
     fetch(`http://localhost:3001/players/${uuid}/start`, {
       method: "POST",
+      headers
     })
       .then((response) => response.json())
       //.then(() => setGameState(GameState.STARTED))
