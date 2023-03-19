@@ -59,8 +59,7 @@ export const authenticateToken = (
     }
 
     const { uuid, username } = decoded as TokenPayload;
-    if (req.user) req.user.uuid = uuid; // attach uuid to the req object
-    if (req.user) req.user.username = username; // attach player name to the req object
+    req.user = { uuid, username, avatar: "" };
     next();
   });
 };
