@@ -75,15 +75,22 @@ app.get("/", (req: Request, res: Response) => {
 
 let channel: Channel;
 
-app.get("/players/:uuid", async (req: Request, res: Response) => {
-  const { uuid } = req.params;
-  try {
-    const data = await eventManager.getGameData(uuid);
-    res.json(data);
-  } catch (error) {
-    res.status(404).send(error);
+app.get(
+  "/players/:uuid",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+      return;
+    }
+    const { uuid } = req.user;
+    try {
+      const data = await eventManager.getGameData(uuid);
+      res.json(data);
+    } catch (error) {
+      res.status(404).send(error);
+    }
   }
-});
+);
 
 async function main() {
   const connection = await connect("amqp://localhost");
@@ -111,23 +118,30 @@ eventManager
     console.error("Error starting EventManager", error);
   });
 
-app.post("/players/:uuid/play", async (req: Request, res: Response) => {
-  const { uuid } = req.params;
-  const { cardIndex } = req.body;
+app.post(
+  "/players/:uuid/play",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+      return;
+    }
+    const { uuid } = req.user;
+    const { cardIndex } = req.body;
 
-  const message = {
-    event: Events.PlayerAttemptsToPlay,
-    payload: {
-      uuid,
-      selectedIndex: cardIndex,
-    },
-  };
-  console.log("msggg", message);
-  const buffer = Buffer.from(JSON.stringify(message));
-  await channel.publish("", "game-events", buffer);
+    const message = {
+      event: Events.PlayerAttemptsToPlay,
+      payload: {
+        uuid,
+        selectedIndex: cardIndex,
+      },
+    };
+    console.log("msggg", message);
+    const buffer = Buffer.from(JSON.stringify(message));
+    await channel.publish("", "game-events", buffer);
 
-  res.send("OK");
-});
+    res.send("OK");
+  }
+);
 
 app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
   if (req.user) {
@@ -156,22 +170,29 @@ app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
   }
 });
 
-app.post("/players/:uuid/start", async (req: Request, res: Response) => {
-  const { uuid } = req.params;
+app.post(
+  "/players/:uuid/start",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+      return;
+    }
+    const { uuid } = req.user;
 
-  if (eventManager.isGameEnded()) {
-    eventManager.stop();
-    eventManager.restartGame();
-    res.send("OK");
-  } else {
-    const message = {
-      event: Events.GameStartRequested,
-      payload: {
-        uuid,
-      },
-    };
-    const buffer = Buffer.from(JSON.stringify(message));
-    await channel.publish("", "game-events", buffer);
-    res.send("OK");
+    if (eventManager.isGameEnded()) {
+      eventManager.stop();
+      eventManager.restartGame();
+      res.send("OK");
+    } else {
+      const message = {
+        event: Events.GameStartRequested,
+        payload: {
+          uuid,
+        },
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+      await channel.publish("", "game-events", buffer);
+      res.send("OK");
+    }
   }
-});
+);
