@@ -162,7 +162,7 @@ app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
 
     try {
       await channel.publish("", "game-events", buffer);
-      res.status(200).json({ message: "Player joined the game" });
+      res.status(200).json({ uuid, message: "Player joined the game" });
     } catch (err) {
       console.error("Error publishing message", err);
       res.status(500).json({ message: "Error joining the game" });
