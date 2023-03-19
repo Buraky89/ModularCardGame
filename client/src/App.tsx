@@ -19,6 +19,7 @@ function App() {
   const [uuid, setUuid] = useState("");
   const [joined, setJoined] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [lastUuid, setLastUuid] = useState("");
 
   const handleLogin = async () => {
     try {
@@ -54,7 +55,7 @@ function App() {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${token}`,
             },
-            body: JSON.stringify({ token }),
+            body: JSON.stringify({ token, gameUuid: lastUuid }),
           });
 
           const data: JoinResponse = await response.json();
@@ -74,6 +75,24 @@ function App() {
     joinGame();
   }, [joined, token]);
 
+  useEffect(() => {
+    const getLastUuid = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/getGames");
+        const data = await response.json();
+
+        if (response.ok && data.length > 0) {
+          const lastGameUuid = data[data.length - 1];
+          setLastUuid(lastGameUuid);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getLastUuid();
+  }, []);
+
   return (
     <div className="App">
       <div>
@@ -87,7 +106,7 @@ function App() {
         </label>
         <button onClick={handleLogin}>Login</button>
       </div>
-      {joined && token && <CardsList uuid={uuid} token={token} />}
+      {joined && token && <CardsList uuid={uuid} token={token} gameUuid={lastUuid} />}
     </div>
   );
 }

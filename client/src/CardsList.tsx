@@ -7,6 +7,7 @@ import "./CardsList.css";
 interface CardsListProps {
   token: string;
   uuid: string;
+  gameUuid: string
 }
 
 function moveLastPlayerToBeginningUntilMe(players: Player[], myUuid: string): Player[] {
@@ -29,7 +30,7 @@ enum GameState {
   ENDED,
 }
 
-function CardsList({ uuid, token }: CardsListProps) {
+function CardsList({ uuid, token, gameUuid }: CardsListProps) {
   const [deck, setDeck] = useState<Card[]>([]);
   const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -45,7 +46,7 @@ function CardsList({ uuid, token }: CardsListProps) {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      fetch(`http://localhost:3001/players/${uuid}`, { headers })
+      fetch(`http://localhost:3001/players/${gameUuid}/${uuid}`, { headers })
         .then((response) => response.json())
         .then((data: ApiResponse & { gameState: GameState }) => {
           if(data.deck) setDeck(data.deck);
@@ -79,6 +80,7 @@ function CardsList({ uuid, token }: CardsListProps) {
       headers,
       body: JSON.stringify({
         cardIndex,
+        gameUuid
       }),
     })
       .then((response) => response.json())
@@ -95,7 +97,10 @@ function CardsList({ uuid, token }: CardsListProps) {
   const startGame = () => {
     fetch(`http://localhost:3001/players/${uuid}/start`, {
       method: "POST",
-      headers
+      headers,
+      body: JSON.stringify({
+        gameUuid
+      })
     })
       .then((response) => response.json())
       //.then(() => setGameState(GameState.STARTED))
