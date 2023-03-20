@@ -3,18 +3,14 @@ import "./Games.css";
 
 interface Props {
   uuids: string[];
-  setLastUuid: React.Dispatch<React.SetStateAction<string>>;
+  onSelect: (uuid: string) => void;
 }
 
-const Games: React.FC<Props> = ({ uuids, setLastUuid }) => {
-  const handleClick = (uuid: string) => {
-    setLastUuid(uuid);
-  };
-
+const Games: React.FC<Props> = ({ uuids, onSelect }) => {
   return (
     <div className="games-container">
       {uuids.map((uuid) => (
-        <div key={uuid} className="game" onClick={() => handleClick(uuid)}>
+        <div key={uuid} className="game" onClick={() => onSelect(uuid)}>
           {uuid}
         </div>
       ))}

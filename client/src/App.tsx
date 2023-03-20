@@ -20,7 +20,7 @@ function App() {
   const [uuid, setUuid] = useState("");
   const [joined, setJoined] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const [lastUuid, setLastUuid] = useState("");
+  const [gameUuid, setGameUuid] = useState("");
   const [gameUuids, setGameUuids] = useState<string[]>([]);
 
   const handleLogin = async () => {
@@ -47,45 +47,38 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    const joinGame = async () => {
-      if (joined && token) {
-        try {
-          const response = await fetch("http://localhost:3001/join", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ token, gameUuid: lastUuid }),
-          });
+  const handleSelectGame = async (uuid: string) => {
+    try {
+      const response = await fetch("http://localhost:3001/join", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ token, gameUuid: uuid }),
+      });
 
-          const data: JoinResponse = await response.json();
+      const data: JoinResponse = await response.json();
 
-          if (response.ok) {
-            console.log(data.message);
-            setUuid(data.uuid);
-          } else {
-            console.error(data.message);
-          }
-        } catch (err) {
-          console.error(err);
-        }
+      if (response.ok) {
+        console.log(data.message);
+        setUuid(data.uuid);
+        setGameUuid(uuid);
+      } else {
+        console.error(data.message);
       }
-    };
-
-    joinGame();
-  }, [joined, token]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    const getLastUuid = async () => {
+    const getGames = async () => {
       try {
         const response = await fetch("http://localhost:3001/getGames");
         const data = await response.json();
 
         if (response.ok && data.length > 0) {
-          const lastGameUuid = data[data.length - 1];
-          setLastUuid(lastGameUuid);
           setGameUuids(data);
         }
       } catch (err) {
@@ -93,7 +86,7 @@ function App() {
       }
     };
 
-    getLastUuid();
+    getGames();
   }, []);
 
   return (
@@ -109,8 +102,8 @@ function App() {
         </label>
         <button onClick={handleLogin}>Login</button>
       </div>
-      {joined && token && <CardsList uuid={uuid} token={token} gameUuid={lastUuid} />}
-      <Games uuids={gameUuids} setLastUuid={setLastUuid} />
+      {joined && token && <CardsList uuid={uuid} token={token} gameUuid={gameUuid} />}
+      <Games uuids={gameUuids} onSelect={handleSelectGame} />
     </div>
   );
 }
