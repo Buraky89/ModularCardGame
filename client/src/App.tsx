@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import CardsList from "./CardsList";
 import { playerNames } from "./Names";
+import Games from "./Games";
 
 interface LoginResponse {
   token: string;
@@ -20,6 +21,7 @@ function App() {
   const [joined, setJoined] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [lastUuid, setLastUuid] = useState("");
+  const [gameUuids, setGameUuids] = useState<string[]>([]);
 
   const handleLogin = async () => {
     try {
@@ -84,6 +86,7 @@ function App() {
         if (response.ok && data.length > 0) {
           const lastGameUuid = data[data.length - 1];
           setLastUuid(lastGameUuid);
+          setGameUuids(data);
         }
       } catch (err) {
         console.error(err);
@@ -107,6 +110,7 @@ function App() {
         <button onClick={handleLogin}>Login</button>
       </div>
       {joined && token && <CardsList uuid={uuid} token={token} gameUuid={lastUuid} />}
+      <Games uuids={gameUuids} />
     </div>
   );
 }
