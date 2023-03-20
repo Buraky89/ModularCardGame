@@ -110,7 +110,7 @@ function App() {
         <button onClick={handleLogin}>Login</button>
       </div>
       {joined && token && <CardsList uuid={uuid} token={token} gameUuid={lastUuid} />}
-      <Games uuids={gameUuids} />
+      <Games uuids={gameUuids} setLastUuid={setLastUuid} />
     </div>
   );
 }
