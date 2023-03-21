@@ -4,24 +4,17 @@ import "./App.css";
 import CardsList from "./CardsList";
 import { playerNames } from "./Names";
 import Games from "./Games";
-
-interface LoginResponse {
-  token: string;
-}
-
-interface JoinResponse {
-  message: string;
-  uuid: string;
-}
+import { AppStateManager } from "./Common/AppStateManager";
+import { LoginResponse, JoinResponse, ErrorResponse } from "./Common/ResponseTypes";
 
 function App() {
   const randomPlayerName = playerNames[Math.floor(Math.random() * playerNames.length)];
   const [playerName, setPlayerName] = useState(randomPlayerName);
-  const [uuid, setUuid] = useState("");
   const [joined, setJoined] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const [gameUuid, setGameUuid] = useState("");
   const [gameUuids, setGameUuids] = useState<string[]>([]);
+  const [appState, setAppState] = useState({ state: 'notLoggedIn', gameUuid: '' });
+  const appStateManager = new AppStateManager();
 
   const handleLogin = async () => {
     try {
@@ -39,11 +32,38 @@ function App() {
         console.log("Logged in successfully");
         setToken(data.token);
         setJoined(true);
+        
+        const loginResponse: LoginResponse = {
+          token: data.token
+        };
+        const messageEvent = new MessageEvent<LoginResponse>("success", {
+          data: loginResponse
+        });
+
+        appStateManager.handleLoginSuccess(messageEvent);
       } else {
         console.error(data);
+
+        const errorResponse: ErrorResponse = {
+          message: data.toString()
+        };
+        const errorEvent = new MessageEvent<ErrorResponse>("error", {
+          data: errorResponse
+        });
+
+        appStateManager.handleLoginError(errorEvent);
       }
     } catch (err) {
       console.error(err);
+
+      const errorResponse: ErrorResponse = {
+        message: "Network error"
+      };
+      const errorEvent = new MessageEvent<ErrorResponse>("error", {
+        data: errorResponse
+      });
+
+      appStateManager.handleLoginError(errorEvent);
     }
   };
 
@@ -62,8 +82,9 @@ function App() {
 
       if (response.ok) {
         console.log(data.message);
-        setUuid(data.uuid);
-        setGameUuid(uuid);
+        //setUuid(data.uuid);
+        //setGameUuid(uuid);
+        appStateManager.selectGame(uuid);
       } else {
         console.error(data.message);
       }
@@ -89,6 +110,16 @@ function App() {
     getGames();
   }, []);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setAppState(appStateManager.getState());
+    }, 500);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
     <div className="App">
       <div>
@@ -102,8 +133,13 @@ function App() {
         </label>
         <button onClick={handleLogin}>Login</button>
       </div>
-      {joined && token && <CardsList uuid={uuid} token={token} gameUuid={gameUuid} />}
-      <Games uuids={gameUuids} onSelect={handleSelectGame} />
+      {appState.state === 'inGame' && joined && token && <CardsList uuid={uuidv4()} token={token} gameUuid={appState.gameUuid} />}
+      {appState.state === 'connectingToGames' && <div>Connecting to games...</div>}
+      {appState.state === 'notLoggedIn' && <div>Not logged in</div>}
+      {appState.state === 'loginError' && <div>Login error</div>}
+      {appState.state === 'connectionLostWaiting' && <div>Connection lost. Waiting...</div>}
+      {appState.state === 'notLoggedIn' || appState.state === 'loginError' || appState.state === 'connectingToGames' ?
+        <Games uuids={gameUuids} onSelect={handleSelectGame} /> : null}
     </div>
   );
 }
