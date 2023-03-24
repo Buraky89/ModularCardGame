@@ -9,7 +9,7 @@ interface AppState {
   jwtToken: string;
 }
 
-const TestTest: React.FC = () => {
+const App: React.FC = () => {
   const [client] = useState(new GameClient());
   const [loginName, setLoginName] = useState('');
   const [appState, setAppState] = useState<AppState>({
@@ -21,8 +21,7 @@ const TestTest: React.FC = () => {
   });
 
   useEffect(() => {
-
-    client.socket.on("any", (message: any) => {
+    const updateState = () => {
       const newState: AppState = {
         state: State[client.stateManager.state],
         gameUuids: client.stateManager.gameUuids,
@@ -31,7 +30,26 @@ const TestTest: React.FC = () => {
         jwtToken: client.stateManager.jwtToken,
       };
       setAppState(newState);
+    };
+
+    const events = [
+      'loginError',
+      'loginSuccess',
+      'gameListCame',
+      'userSelectedTheGameUuid',
+      'subscribedToGame',
+      'connectionLost',
+    ];
+
+    events.forEach((event) => {
+      client.socket.on(event, updateState);
     });
+
+    return () => {
+      events.forEach((event) => {
+        client.socket.off(event, updateState);
+      });
+    };
   }, [client]);
 
   const handleLogin = () => {
@@ -63,4 +81,4 @@ const TestTest: React.FC = () => {
   );
 };
 
-export default TestTest;
+export default App;
