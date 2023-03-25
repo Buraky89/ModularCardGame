@@ -89,9 +89,10 @@ export class GameClient {
   login(loginName: string) {
     this.socket.emit("login", { loginName });
 
+    var willLoginSuccess = Math.random() > 0.5;
     // Mock loginSuccess or loginError event
     setTimeout(() => {
-      if (Math.random() > 0.5) {
+      if (willLoginSuccess) {
         this.socket.clientMock.emit("loginSuccess", {
           jwtToken: "mockJWTToken",
         });
@@ -99,5 +100,14 @@ export class GameClient {
         this.socket.clientMock.emit("loginError");
       }
     }, 1000);
+
+    if (willLoginSuccess) {
+      // Mock loginSuccess or loginError event
+      setTimeout(() => {
+        this.socket.clientMock.emit("gameListCame", {
+          gameUuids: ["a", "b", "c"],
+        });
+      }, 1000);
+    }
   }
 }
