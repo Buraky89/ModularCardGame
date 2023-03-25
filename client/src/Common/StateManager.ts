@@ -110,4 +110,12 @@ export class GameClient {
       }, 1000);
     }
   }
+
+  selectTheGameUuid(gameUuid: string) {
+    this.stateManager.setState(State.WaitingForGame);
+    this.stateManager.setGameUuid(gameUuid);
+
+    // Optionally, emit an event if needed
+    this.socket.clientMock.emit("userSelectedTheGameUuid", { gameUuid });
+  }
 }

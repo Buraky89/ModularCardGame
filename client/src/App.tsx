@@ -56,6 +56,10 @@ const App: React.FC = () => {
     client.login(loginName);
   };
 
+  const handleGameUuidSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    client.selectTheGameUuid(event.target.value);
+  };
+
   return (
     <div>
       <h1>Game Client</h1>
@@ -77,6 +81,19 @@ const App: React.FC = () => {
         placeholder="Enter login name"
       />
       <button onClick={handleLogin}>Login</button>
+      {appState.state === State[State.GameListLoaded] && (
+        <>
+          <label htmlFor="gameUuidSelection">Select a Game UUID: </label>
+          <select id="gameUuidSelection" onChange={handleGameUuidSelection}>
+            <option value="">--Select a game UUID--</option>
+            {appState.gameUuids.map((gameUuid) => (
+              <option key={gameUuid} value={gameUuid}>
+                {gameUuid}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
     </div>
   );
 };
