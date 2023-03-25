@@ -7,7 +7,6 @@ export enum State {
   LoginError,
   GameListLoading,
   GameListLoaded,
-  WaitingForGame,
   SubscribedToGame,
   ConnectionLostWaiting,
 }
@@ -15,7 +14,7 @@ export enum State {
 export class StateManager {
   state: State;
   gameUuids: string[];
-  gameUuid: string;
+  subscribedGameUuids: string[];
   userUuid: string;
   jwtToken: string;
   private onStateChange: (() => void) | null;
@@ -23,7 +22,7 @@ export class StateManager {
   constructor(onStateChange: () => void) {
     this.state = State.NotLoggedIn;
     this.gameUuids = [];
-    this.gameUuid = "";
+    this.subscribedGameUuids = [];
     this.userUuid = "";
     this.jwtToken = "";
     this.onStateChange = onStateChange;
@@ -38,14 +37,23 @@ export class StateManager {
 
   setJwtToken(jwtToken: string) {
     this.jwtToken = jwtToken;
+    if (this.onStateChange) {
+      this.onStateChange();
+    }
   }
 
   setGameUuids(gameUuids: string[]) {
     this.gameUuids = gameUuids;
+    if (this.onStateChange) {
+      this.onStateChange();
+    }
   }
 
-  setGameUuid(gameUuid: string) {
-    this.gameUuid = gameUuid;
+  subscribeGameUuid(gameUuid: string) {
+    this.subscribedGameUuids.push(gameUuid);
+    if (this.onStateChange) {
+      this.onStateChange();
+    }
   }
 }
 
@@ -75,10 +83,9 @@ export class GameClient {
     });
 
     this.socket.on(
-      "userSelectedTheGameUuid",
+      "userSubscribedAGameUuid",
       (payload: { gameUuid: string }) => {
-        this.stateManager.setState(State.WaitingForGame);
-        this.stateManager.setGameUuid(payload.gameUuid);
+        this.stateManager.subscribeGameUuid(payload.gameUuid);
       }
     );
 
@@ -120,10 +127,6 @@ export class GameClient {
   }
 
   selectTheGameUuid(gameUuid: string) {
-    this.stateManager.setState(State.WaitingForGame);
-    this.stateManager.setGameUuid(gameUuid);
-
-    // Optionally, emit an event if needed
-    this.socket.clientMock.emit("userSelectedTheGameUuid", { gameUuid });
+    this.socket.clientMock.emit("userSubscribedAGameUuid", { gameUuid });
   }
 }

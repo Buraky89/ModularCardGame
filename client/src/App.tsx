@@ -4,7 +4,7 @@ import { GameClient, State } from './Common/StateManager';
 interface AppState {
   state: string;
   gameUuids: string[];
-  gameUuid: string;
+  subscribedGameUuids: string[];
   userUuid: string;
   jwtToken: string;
 }
@@ -14,7 +14,7 @@ const App: React.FC = () => {
     const newState: AppState = {
       state: State[client.stateManager.state],
       gameUuids: client.stateManager.gameUuids,
-      gameUuid: client.stateManager.gameUuid,
+      subscribedGameUuids: client.stateManager.subscribedGameUuids,
       userUuid: client.stateManager.userUuid,
       jwtToken: client.stateManager.jwtToken,
     };
@@ -26,7 +26,7 @@ const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>({
     state: 'NotLoggedIn',
     gameUuids: [],
-    gameUuid: '',
+    subscribedGameUuids: [],
     userUuid: '',
     jwtToken: '',
   });
@@ -50,7 +50,7 @@ const App: React.FC = () => {
         <br />
         Game UUIDs: {appState.gameUuids.join(', ')}
         <br />
-        Game UUID: {appState.gameUuid}
+        Subs Game UUIDs: {appState.subscribedGameUuids.join(', ')}
         <br />
         User UUID: {appState.userUuid}
       </p>
