@@ -10,7 +10,18 @@ interface AppState {
 }
 
 const App: React.FC = () => {
-  const [client] = useState(new GameClient());
+  const updateState = () => {
+    const newState: AppState = {
+      state: State[client.stateManager.state],
+      gameUuids: client.stateManager.gameUuids,
+      gameUuid: client.stateManager.gameUuid,
+      userUuid: client.stateManager.userUuid,
+      jwtToken: client.stateManager.jwtToken,
+    };
+    setAppState(newState);
+  };
+  
+  const [client] = useState(new GameClient(updateState));
   const [loginName, setLoginName] = useState('');
   const [appState, setAppState] = useState<AppState>({
     state: 'NotLoggedIn',
@@ -19,38 +30,7 @@ const App: React.FC = () => {
     userUuid: '',
     jwtToken: '',
   });
-
-  useEffect(() => {
-    const updateState = () => {
-      const newState: AppState = {
-        state: State[client.stateManager.state],
-        gameUuids: client.stateManager.gameUuids,
-        gameUuid: client.stateManager.gameUuid,
-        userUuid: client.stateManager.userUuid,
-        jwtToken: client.stateManager.jwtToken,
-      };
-      setAppState(newState);
-    };
-
-    const events = [
-      'loginError',
-      'loginSuccess',
-      'gameListCame',
-      'userSelectedTheGameUuid',
-      'subscribedToGame',
-      'connectionLost',
-    ];
-
-    events.forEach((event) => {
-      client.socket.on(event, updateState);
-    });
-
-    return () => {
-      events.forEach((event) => {
-        client.socket.off(event, updateState);
-      });
-    };
-  }, [client]);
+  
 
   const handleLogin = () => {
     client.login(loginName);

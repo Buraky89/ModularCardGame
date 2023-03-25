@@ -3,6 +3,7 @@ import { SocketServerMock } from "socket.io-mock-ts";
 
 export enum State {
   NotLoggedIn,
+  LoggingIn, // Add the new state here
   LoginError,
   GameListLoading,
   GameListLoaded,
@@ -17,17 +18,22 @@ export class StateManager {
   gameUuid: string;
   userUuid: string;
   jwtToken: string;
+  private onStateChange: (() => void) | null;
 
-  constructor() {
+  constructor(onStateChange: () => void) {
     this.state = State.NotLoggedIn;
     this.gameUuids = [];
     this.gameUuid = "";
     this.userUuid = "";
     this.jwtToken = "";
+    this.onStateChange = onStateChange;
   }
 
   setState(newState: State) {
     this.state = newState;
+    if (this.onStateChange) {
+      this.onStateChange();
+    }
   }
 
   setJwtToken(jwtToken: string) {
@@ -47,8 +53,8 @@ export class GameClient {
   stateManager: StateManager;
   socket: SocketServerMock;
 
-  constructor() {
-    this.stateManager = new StateManager();
+  constructor(onStateChange: () => void) {
+    this.stateManager = new StateManager(onStateChange);
     this.socket = new SocketServerMock();
     this.init();
   }
@@ -87,6 +93,8 @@ export class GameClient {
   }
 
   login(loginName: string) {
+    this.stateManager.setState(State.LoggingIn);
+
     this.socket.emit("login", { loginName });
 
     var willLoginSuccess = Math.random() > 0.5;
