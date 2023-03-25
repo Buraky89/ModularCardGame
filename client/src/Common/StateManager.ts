@@ -50,9 +50,11 @@ export class StateManager {
   }
 
   subscribeGameUuid(gameUuid: string) {
-    this.subscribedGameUuids.push(gameUuid);
-    if (this.onStateChange) {
-      this.onStateChange();
+    if (!this.subscribedGameUuids.includes(gameUuid)) {
+      this.subscribedGameUuids.push(gameUuid);
+      if (this.onStateChange) {
+        this.onStateChange();
+      }
     }
   }
 }
