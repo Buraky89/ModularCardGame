@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { SocketServerMock } from "socket.io-mock-ts";
+import GameStateManager from "./GameStateManager";
 
 export enum State {
   NotLoggedIn,
@@ -12,12 +13,14 @@ export enum State {
 }
 
 export class StateManager {
+  G;
   state: State;
   gameUuids: string[];
   subscribedGameUuids: string[];
   userUuid: string;
   jwtToken: string;
   private onStateChange: (() => void) | null;
+  gameStateManagers: Map<string, GameStateManager>; // Add a list of GameStateManager instances
 
   constructor(onStateChange: () => void) {
     this.state = State.NotLoggedIn;
@@ -26,6 +29,17 @@ export class StateManager {
     this.userUuid = "";
     this.jwtToken = "";
     this.onStateChange = onStateChange;
+    this.gameStateManagers = new Map(); // Initialize the list of GameStateManager instances
+  }
+
+  createGameStateManager(gameUuid: string) {
+    // Create a new instance of GameStateManager and store it in the list
+    const gameStateManager = new GameStateManager(
+      this.userUuid,
+      this.jwtToken,
+      gameUuid
+    );
+    this.gameStateManagers.set(gameUuid, gameStateManager);
   }
 
   setState(newState: State) {
@@ -91,6 +105,10 @@ export class GameClient {
       }
     );
 
+    this.socket.on("gameEvent", (payload: { gameUuid: string }) => {
+      console.log("game event geldi", payload.gameUuid);
+    });
+
     this.socket.on("subscribedToGame", () => {
       this.stateManager.setState(State.SubscribedToGame);
     });
@@ -126,6 +144,12 @@ export class GameClient {
         });
       }, 1000);
     }
+
+    setTimeout(() => {
+      this.socket.clientMock.emit("gameEvent", {
+        gameUuid: ["a"],
+      });
+    }, 10000);
   }
 
   selectTheGameUuid(gameUuid: string) {
