@@ -1,4 +1,5 @@
 import { Card, Player } from "../Card";
+import { GameDispatcher } from "./GameDispatcher";
 
 enum GameState {
   NOT_STARTED,
@@ -15,12 +16,14 @@ class GameStateManager {
   private token: string;
   private uuid: string;
   private gameUuid: string;
+  private gameDispatcher: GameDispatcher;
 
   constructor(uuid: string, token: string, gameUuid: string) {
     this.uuid = uuid;
     this.token = token;
     this.gameUuid = gameUuid;
     this.setupGameStatePolling();
+    this.gameDispatcher = new GameDispatcher();
   }
 
   private async getPlayerData() {
@@ -40,20 +43,17 @@ class GameStateManager {
 
   private async handleCardClick(cardIndex: number) {
     // Mock the HTTP call with the imaginary method playCard
-    const data = await playCard(
-      this.uuid,
+    await this.gameDispatcher.playCard(
       this.token,
-      cardIndex,
-      this.gameUuid
+      this.uuid,
+      this.gameUuid,
+      cardIndex
     );
-    this.deck = data.deck || [];
-    this.playedDeck = data.playedDeck;
-    this.players = data.players || [];
   }
 
   private async startGame() {
     // Mock the HTTP call with the imaginary method startGame
-    await startGame(this.uuid, this.token, this.gameUuid);
+    await this.gameDispatcher.startGame(this.uuid, this.token, this.gameUuid);
   }
 
   public setAutoPlay(autoPlay: boolean) {
