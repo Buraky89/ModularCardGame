@@ -22,23 +22,14 @@ class GameStateManager {
     this.uuid = uuid;
     this.token = token;
     this.gameUuid = gameUuid;
-    this.setupGameStatePolling();
     this.gameDispatcher = new GameDispatcher();
   }
 
-  private async getPlayerData() {
-    // Mock the HTTP call with the imaginary method getPlayerData
-    const data = await getPlayerData(this.gameUuid, this.uuid, this.token);
+  public updateGameData(data: any) {
     if (data.deck) this.deck = data.deck;
-    this.playedDeck = data.playedDeck;
-    this.players = data.players || [];
-    this.gameState = data.gameState;
-  }
-
-  private setupGameStatePolling() {
-    setInterval(async () => {
-      await this.getPlayerData();
-    }, 5000);
+    if (data.playedDeck) this.playedDeck = data.playedDeck;
+    if (data.players) this.players = data.players;
+    if (data.gameState !== undefined) this.gameState = data.gameState;
   }
 
   private async handleCardClick(cardIndex: number) {

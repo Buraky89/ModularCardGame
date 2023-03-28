@@ -13,7 +13,6 @@ export enum State {
 }
 
 export class StateManager {
-  G;
   state: State;
   gameUuids: string[];
   subscribedGameUuids: string[];
@@ -66,6 +65,7 @@ export class StateManager {
   subscribeGameUuid(gameUuid: string) {
     if (!this.subscribedGameUuids.includes(gameUuid)) {
       this.subscribedGameUuids.push(gameUuid);
+      this.createGameStateManager(gameUuid);
       if (this.onStateChange) {
         this.onStateChange();
       }
@@ -105,8 +105,13 @@ export class GameClient {
       }
     );
 
-    this.socket.on("gameEvent", (payload: { gameUuid: string }) => {
-      console.log("game event geldi", payload.gameUuid);
+    this.socket.on("gameEvent", (payload: { gameUuid: string; data: any }) => {
+      const gameStateManager = this.stateManager.gameStateManagers.get(
+        payload.gameUuid
+      );
+      if (gameStateManager) {
+        gameStateManager.updateGameData(payload.data);
+      }
     });
 
     this.socket.on("subscribedToGame", () => {
@@ -145,9 +150,17 @@ export class GameClient {
       }, 1000);
     }
 
+    // TODO: reproduce more game events to induce a gameplay
     setTimeout(() => {
       this.socket.clientMock.emit("gameEvent", {
-        gameUuid: ["a"],
+        gameUuid: "a",
+        data: {
+          // Add your game data here
+          deck: [], // example data
+          playedDeck: [], // example data
+          players: [], // example data
+          gameState: 0, // example data
+        },
       });
     }, 10000);
   }
