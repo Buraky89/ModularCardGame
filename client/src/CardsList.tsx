@@ -3,11 +3,13 @@ import { Card, CardType, ApiResponse, Player } from "./Card";
 import MySVG from "./MySVG";
 import { PlayerBox } from "./PlayerBox";
 import "./CardsList.css";
+import GameStateManager from "./Common/GameStateManager";
 
 interface CardsListProps {
   token: string;
   uuid: string;
-  gameUuid: string
+  gameUuid: string;
+  gameStateManager: GameStateManager;
 }
 
 function moveLastPlayerToBeginningUntilMe(players: Player[], myUuid: string): Player[] {
@@ -30,41 +32,14 @@ enum GameState {
   ENDED,
 }
 
-function CardsList({ uuid, token, gameUuid }: CardsListProps) {
-  const [deck, setDeck] = useState<Card[]>([]);
-  const [playedDeck, setPlayedDeck] = useState<Card[]>([]);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [autoPlay, setAutoPlay] = useState<boolean>(false);
-  const [gameState, setGameState] = useState<GameState>(GameState.NOT_STARTED);
-
+function CardsList({ uuid, token, gameUuid, gameStateManager }: CardsListProps) {
   const timerIdRef = useRef<NodeJS.Timeout>();
 
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      fetch(`http://localhost:3001/players/${gameUuid}/${uuid}`, { headers })
-        .then((response) => response.json())
-        .then((data: ApiResponse & { gameState: GameState }) => {
-          if(data.deck) setDeck(data.deck);
-          setPlayedDeck(data.playedDeck);
-          setPlayers(moveLastPlayerToBeginningUntilMe(data.players, uuid) || []);
-          setGameState(data.gameState);
-        })
-        .catch((error) => console.log(error));
-    }, 5000);
-  
-    return () => clearInterval(intervalId);
-  }, [uuid]);
-
-  useEffect(() => {
-    if (autoPlay && gameState === GameState.STARTED) {
+    if (gameStateManager.autoPlay && gameStateManager.gameState === GameState.STARTED) {
       timerIdRef.current = setInterval(() => {
-        if (deck.length > 0) {
-          handleCardClick(0);
+        if (gameStateManager.deck.length > 0) {
+          gameStateManager.handleCardClick(0);
         }
       }, 500);
     } else {
@@ -72,66 +47,39 @@ function CardsList({ uuid, token, gameUuid }: CardsListProps) {
     }
 
     return () => clearInterval(timerIdRef.current!);
-  }, [autoPlay, deck]);
+  }, [gameStateManager.autoPlay, gameStateManager.deck]);
 
-  const handleCardClick = (cardIndex: number) => {
-    fetch(`http://localhost:3001/players/${uuid}/play`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        cardIndex,
-        gameUuid
-      }),
-    })
-      .then((response) => response.json())
-      .then((data: ApiResponse) => {
-        setDeck(data.deck || []);
-        setPlayedDeck(data.playedDeck);
-        setPlayers(data.players || []);
-      })
-      .catch((error) => console.log(error));
-  };
-
-  const isYourTurn = players.find((player) => player.uuid === uuid && player.isTheirTurn);
+  const isYourTurn = gameStateManager.players.find((player) => player.uuid === uuid && player.isTheirTurn);
 
   const startGame = () => {
-    fetch(`http://localhost:3001/players/${uuid}/start`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        gameUuid
-      })
-    })
-      .then((response) => response.json())
-      //.then(() => setGameState(GameState.STARTED))
-      .catch((error) => console.log(error));
+    gameStateManager.startGame();
   };
 
   return (
     <div className="cards-list">
       GAMEUUID: {gameUuid}
-      {gameState === GameState.NOT_STARTED && (
+      {gameStateManager.gameState === GameState.NOT_STARTED && (
         <div className="not-started">
           <h1>Game is not started yet</h1>
           <button onClick={startGame}>Start</button>
         </div>
       )}
-      {gameState !== GameState.NOT_STARTED && (
+      {gameStateManager.gameState !== GameState.NOT_STARTED && (
         <>
           <div className="player-row">
-            <PlayerBox player={players[1]} isActive={players[1]?.isTheirTurn} />
+            <PlayerBox player={gameStateManager.players[1]} isActive={gameStateManager.players[1]?.isTheirTurn} />
           </div>
           <div className="main-row">
-            <PlayerBox player={players[0]} isActive={players[0]?.isTheirTurn} />
+            <PlayerBox player={gameStateManager.players[0]} isActive={gameStateManager.players[0]?.isTheirTurn} />
             <div className="played-cards-container">
-              {playedDeck.length > 0 &&
-                playedDeck.map((card, index) => (
+              {gameStateManager.playedDeck.length > 0 &&
+                gameStateManager.playedDeck.map((card: Card, index: number) => (
                   <div
                     style={{
                       position: "absolute",
                       top: "40%",
                       left: "40%",
-                      zIndex: 1000 + index - playedDeck.length - index,
+                      zIndex: 1000 + index - gameStateManager.playedDeck.length - index,
                       transform: `rotate(${index * 30}deg)`,
                     }}
                   >
@@ -146,37 +94,41 @@ function CardsList({ uuid, token, gameUuid }: CardsListProps) {
                 ))}
               <div className="center-card"></div>
             </div>
-            <PlayerBox player={players[2]} isActive={players[2]?.isTheirTurn} />
+            <PlayerBox player={gameStateManager.players[2]} isActive={gameStateManager.players[2]?.isTheirTurn} />
           </div>
           <div className="player-row">
-            <PlayerBox player={players[3]} isActive={players[3]?.isTheirTurn} />
+            <PlayerBox player={gameStateManager.players[3]} isActive={gameStateManager.players[3]?.isTheirTurn} />
           </div>
           <div className="deck-row">
-            {deck.map((card, index) => (
-              <div key={`card-${index}`} className="deck-card" onClick={() => handleCardClick(index)}>
+            {gameStateManager.deck.map((card: Card, index: number) => (
+              <div key={`card-${index}`} className="deck-card" onClick={() => gameStateManager.handleCardClick(index)}>
                 <MySVG
                   cardType={card.cardType}
                   score={card.score}
                   hidden={card.hidden}
-                  handleClick={() => handleCardClick(index)}
+                  handleClick={() => gameStateManager.handleCardClick(index)}
                 />
               </div>
             ))}
           </div>
           <div className="auto-play-row">
             <label>
-              <input type="checkbox" checked={autoPlay} onChange={() => setAutoPlay(!autoPlay)} />
+              <input
+                type="checkbox"
+                checked={gameStateManager.autoPlay}
+                onChange={() => gameStateManager.setAutoPlay(!gameStateManager.autoPlay)}
+              />
               Auto Play
             </label>
           </div>
         </>
       )}
-      {gameState === GameState.ENDED && (
+      {gameStateManager.gameState === GameState.ENDED && (
         <div className="overlay">
           <div className="game-ended">
             <h1>Game ended</h1>
             <p>Final scores:</p>
-            {players.map((player, index) => (
+            {gameStateManager.players.map((player: Player, index: number) => (
               <div key={player.uuid}>
                 {player.name}: {player.points}
               </div>
@@ -184,7 +136,7 @@ function CardsList({ uuid, token, gameUuid }: CardsListProps) {
             <button onClick={startGame}>Start Again</button>
           </div>
         </div>
-    )}
+      )}
     </div>
   );  
 }

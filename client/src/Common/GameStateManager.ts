@@ -8,11 +8,11 @@ enum GameState {
 }
 
 class GameStateManager {
-  private deck: Card[] = [];
-  private playedDeck: Card[] = [];
-  private players: Player[] = [];
-  private autoPlay: boolean = false;
-  private gameState: GameState = GameState.NOT_STARTED;
+  public deck: Card[] = [];
+  public playedDeck: Card[] = [];
+  public players: Player[] = [];
+  public autoPlay: boolean = false;
+  public gameState: GameState = GameState.NOT_STARTED;
   private token: string;
   private uuid: string;
   private gameUuid: string;
@@ -32,7 +32,7 @@ class GameStateManager {
     if (data.gameState !== undefined) this.gameState = data.gameState;
   }
 
-  private async handleCardClick(cardIndex: number) {
+  public async handleCardClick(cardIndex: number) {
     // Mock the HTTP call with the imaginary method playCard
     await this.gameDispatcher.playCard(
       this.token,
@@ -42,7 +42,7 @@ class GameStateManager {
     );
   }
 
-  private async startGame() {
+  public async startGame() {
     // Mock the HTTP call with the imaginary method startGame
     await this.gameDispatcher.startGame(this.uuid, this.token, this.gameUuid);
   }
