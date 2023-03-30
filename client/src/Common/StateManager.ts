@@ -175,24 +175,14 @@ export class GameClient {
     }, 1000);
 
     if (willLoginSuccess) {
-      // Mock loginSuccess or loginError event
-      setTimeout(() => {
-        fetch("http://localhost:3001/getGames")
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`Network error: ${response.statusText}`);
-            }
-            return response.json();
-          })
-          .then((data: string[]) => {
-            this.socket.clientMock.emit("gameListCame", {
-              gameUuids: data,
-            });
-          })
-          .catch((error) => {
-            console.error("Error fetching game list:", error);
-          });
-      }, 1000);
+      const handleGameListData = (gameList: any) => {
+        this.socket.clientMock.emit("gameListCame", {
+          gameUuids: gameList,
+        });
+      };
+
+      const gameDispatcher = new GameDispatcher();
+      gameDispatcher.fetchGames(handleGameListData);
     }
 
     // TODO: reproduce more game events to induce a gameplay

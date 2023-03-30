@@ -124,6 +124,22 @@ export class GameDispatcher {
       throw new Error("Joining game failed");
     }
   }
+
+  public fetchGames(callback: (gameList: string[]) => void): void {
+    fetch("http://localhost:3001/getGames")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network error: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then((data: string[]) => {
+        callback(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching game list:", error);
+      });
+  }
 }
 
 export default GameDispatcher;
