@@ -40,6 +40,11 @@ const App: React.FC = () => {
     client.selectTheGameUuid(event.target.value);
   };
 
+  const handleButtonClick = () => {
+    client.fetchGameData(appState.gameUuids[0]);
+  };
+
+
   return (
     <div>
       <h1>Game Client</h1>
@@ -74,6 +79,11 @@ const App: React.FC = () => {
           </select>
         </>
       )}
+
+
+      <br />
+      <button onClick={handleButtonClick}>Fetch Game Data</button>
+      <br />
     </div>
   );
 };

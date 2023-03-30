@@ -165,6 +165,34 @@ export class GameClient {
     }, 10000);
   }
 
+  updateGameData(gameUuid: string, cb: (data: any) => void) {
+    this.fetchGameData(gameUuid);
+  }
+
+  fetchGameData(gameUuid: string) {
+    const gameStateManager = this.stateManager.gameStateManagers.get(gameUuid);
+
+    if (!gameStateManager) {
+      console.error("Game not found");
+      return;
+    }
+
+    const uuid = gameStateManager.uuid;
+    const token = gameStateManager.token;
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    fetch(`http://localhost:3001/players/${gameUuid}/${uuid}`, { headers })
+      .then((response) => response.json())
+      .then((data) => {
+        gameStateManager.updateGameState(data);
+      })
+      .catch((error) => console.log(error));
+  }
+
   selectTheGameUuid(gameUuid: string) {
     this.socket.clientMock.emit("userSubscribedAGameUuid", { gameUuid });
   }

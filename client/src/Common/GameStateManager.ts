@@ -13,9 +13,9 @@ class GameStateManager {
   public players: Player[] = [];
   public autoPlay: boolean = false;
   public gameState: GameState = GameState.NOT_STARTED;
-  private token: string;
-  private uuid: string;
-  private gameUuid: string;
+  public token: string;
+  public uuid: string;
+  public gameUuid: string;
   private gameDispatcher: GameDispatcher;
 
   constructor(uuid: string, token: string, gameUuid: string) {
@@ -59,6 +59,10 @@ class GameStateManager {
       this.handleCardClick(0);
     }
     setTimeout(() => this.autoPlayInterval(), 500);
+  }
+
+  updateGameState(data: any) {
+    console.log("data obtained in updateGameState: ", data);
   }
 }
 
