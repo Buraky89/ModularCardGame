@@ -144,9 +144,21 @@ export class GameClient {
     if (willLoginSuccess) {
       // Mock loginSuccess or loginError event
       setTimeout(() => {
-        this.socket.clientMock.emit("gameListCame", {
-          gameUuids: ["a", "b", "c"],
-        });
+        fetch("http://localhost:3001/getGames")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Network error: ${response.statusText}`);
+            }
+            return response.json();
+          })
+          .then((data: string[]) => {
+            this.socket.clientMock.emit("gameListCame", {
+              gameUuids: data,
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching game list:", error);
+          });
       }, 1000);
     }
 
