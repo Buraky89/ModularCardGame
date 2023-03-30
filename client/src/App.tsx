@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { GameClient, State } from './Common/StateManager';
+import { GameClient } from './Common/GameClient';
+import { State } from './Common/StateManager';
 
 interface AppState {
   state: string;
