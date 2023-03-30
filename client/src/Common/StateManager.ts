@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import { SocketServerMock } from "socket.io-mock-ts";
 import GameStateManager from "./GameStateManager";
+import { GameDispatcher } from "./GameDispatcher";
 
 export enum State {
   NotLoggedIn,
@@ -65,6 +66,23 @@ export class StateManager {
   subscribeGameUuid(gameUuid: string) {
     if (!this.subscribedGameUuids.includes(gameUuid)) {
       this.subscribedGameUuids.push(gameUuid);
+
+      // TODO:
+      const setUuid = (uuid: string) => {
+        this.userUuid = uuid;
+        const gameStateManager = this.gameStateManagers.get(gameUuid);
+        if (gameStateManager !== undefined) gameStateManager.uuid = uuid;
+      };
+      const gameDispatcher = new GameDispatcher();
+      gameDispatcher
+        .joinGame("aaa", gameUuid, this.jwtToken, setUuid)
+        .then(() => {
+          console.log("Logged in and joined the game successfully");
+        })
+        .catch((error) => {
+          console.error("Error while logging in and joining the game:", error);
+        });
+
       this.createGameStateManager(gameUuid);
       if (this.onStateChange) {
         this.onStateChange();
@@ -110,7 +128,7 @@ export class GameClient {
         payload.gameUuid
       );
       if (gameStateManager) {
-        gameStateManager.updateGameData(payload.data);
+        gameStateManager.updateGameState(payload.data);
       }
     });
 
@@ -133,9 +151,24 @@ export class GameClient {
     // Mock loginSuccess or loginError event
     setTimeout(() => {
       if (willLoginSuccess) {
-        this.socket.clientMock.emit("loginSuccess", {
-          jwtToken: "mockJWTToken",
-        });
+        const setToken = (token: string) => {
+          this.socket.clientMock.emit("loginSuccess", {
+            jwtToken: this.stateManager.jwtToken,
+          });
+        };
+
+        const gameDispatcher = new GameDispatcher();
+        gameDispatcher
+          .loginGame(loginName, setToken)
+          .then(() => {
+            console.log("Logged in and joined the game successfully");
+          })
+          .catch((error) => {
+            console.error(
+              "Error while logging in and joining the game:",
+              error
+            );
+          });
       } else {
         this.socket.clientMock.emit("loginError");
       }
@@ -200,7 +233,10 @@ export class GameClient {
     fetch(`http://localhost:3001/players/${gameUuid}/${uuid}`, { headers })
       .then((response) => response.json())
       .then((data) => {
-        gameStateManager.updateGameState(data);
+        this.socket.clientMock.emit("gameEvent", {
+          gameUuid: gameUuid,
+          data,
+        });
       })
       .catch((error) => console.log(error));
   }

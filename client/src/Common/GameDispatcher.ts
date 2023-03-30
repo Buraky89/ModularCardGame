@@ -1,5 +1,14 @@
 import { ApiResponse } from "../Card";
 
+interface LoginResponse {
+  token: string;
+}
+
+interface JoinResponse {
+  message: string;
+  uuid: string;
+}
+
 export class GameDispatcher {
   public playCard(
     token: string,
@@ -41,6 +50,79 @@ export class GameDispatcher {
       .then((response) => response.json())
       .then(() => {})
       .catch((error) => console.log(error));
+  }
+
+  public async loginGame(
+    playerName: string,
+    setToken: (token: string) => void
+  ): Promise<void> {
+    try {
+      const token = await this.handleLogin(playerName, setToken);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public async joinGame(
+    playerName: string,
+    gameUuid: string,
+    token: string,
+    setUuid: (uuid: string) => void
+  ): Promise<void> {
+    try {
+      await this.handleSelectGame(token, gameUuid, setUuid);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private async handleLogin(
+    playerName: string,
+    setToken: (token: string) => void
+  ): Promise<string> {
+    const response = await fetch("http://localhost:3001/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: playerName }),
+    });
+
+    const data: LoginResponse = await response.json();
+
+    if (response.ok) {
+      console.log("Logged in successfully");
+      setToken(data.token);
+      return data.token;
+    } else {
+      console.error(data);
+      throw new Error("Login failed");
+    }
+  }
+
+  private async handleSelectGame(
+    token: string,
+    gameUuid: string,
+    setUuid: (uuid: string) => void
+  ): Promise<void> {
+    const response = await fetch("http://localhost:3001/join", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ token, gameUuid }),
+    });
+
+    const data: JoinResponse = await response.json();
+
+    if (response.ok) {
+      console.log(data.message);
+      setUuid(data.uuid);
+    } else {
+      console.error(data.message);
+      throw new Error("Joining game failed");
+    }
   }
 }
 
