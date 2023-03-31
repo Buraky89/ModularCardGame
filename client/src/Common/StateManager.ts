@@ -1,7 +1,6 @@
 import { EventEmitter } from "events";
 import { SocketServerMock } from "socket.io-mock-ts";
 import GameStateManager from "./GameStateManager";
-import { GameDispatcher } from "./GameDispatcher";
 
 export enum State {
   NotLoggedIn,
@@ -63,25 +62,13 @@ export class StateManager {
     }
   }
 
-  subscribeGameUuid(gameUuid: string) {
+  subscribeGameUuid(
+    gameUuid: string,
+    cb: (gameUuid: string, jwtToken: string) => void
+  ) {
     if (!this.subscribedGameUuids.includes(gameUuid)) {
       this.subscribedGameUuids.push(gameUuid);
-
-      // TODO:
-      const setUuid = (uuid: string) => {
-        this.userUuid = uuid;
-        const gameStateManager = this.gameStateManagers.get(gameUuid);
-        if (gameStateManager !== undefined) gameStateManager.uuid = uuid;
-      };
-      const gameDispatcher = new GameDispatcher();
-      gameDispatcher
-        .joinGame("aaa", gameUuid, this.jwtToken, setUuid)
-        .then(() => {
-          console.log("Logged in and joined the game successfully");
-        })
-        .catch((error) => {
-          console.error("Error while logging in and joining the game:", error);
-        });
+      cb(gameUuid, this.jwtToken);
 
       this.createGameStateManager(gameUuid);
       if (this.onStateChange) {

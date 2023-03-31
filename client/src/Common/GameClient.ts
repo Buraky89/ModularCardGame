@@ -12,6 +12,24 @@ export class GameClient {
     this.init();
   }
 
+  cb(gameUuid: string, jwtToken: string) {
+    const setUuid = (uuid: string) => {
+      this.stateManager.userUuid = uuid;
+      const gameStateManager =
+        this.stateManager.gameStateManagers.get(gameUuid);
+      if (gameStateManager !== undefined) gameStateManager.uuid = uuid;
+    };
+    const gameDispatcher = new GameDispatcher();
+    gameDispatcher
+      .joinGame("aaa", gameUuid, jwtToken, setUuid)
+      .then(() => {
+        console.log("Logged in and joined the game successfully");
+      })
+      .catch((error) => {
+        console.error("Error while logging in and joining the game:", error);
+      });
+  }
+
   init() {
     this.socket.on("loginError", () => {
       this.stateManager.setState(State.LoginError);
@@ -30,7 +48,7 @@ export class GameClient {
     this.socket.on(
       "userSubscribedAGameUuid",
       (payload: { gameUuid: string }) => {
-        this.stateManager.subscribeGameUuid(payload.gameUuid);
+        this.stateManager.subscribeGameUuid(payload.gameUuid, this.cb);
       }
     );
 
