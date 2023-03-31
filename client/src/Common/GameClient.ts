@@ -113,20 +113,6 @@ export class GameClient {
       const gameDispatcher = new GameDispatcher();
       gameDispatcher.fetchGames(handleGameListData);
     }
-
-    // TODO: reproduce more game events to induce a gameplay
-    setTimeout(() => {
-      this.socket.clientMock.emit("gameEvent", {
-        gameUuid: "a",
-        data: {
-          // Add your game data here
-          deck: [], // example data
-          playedDeck: [], // example data
-          players: [], // example data
-          gameState: 0, // example data
-        },
-      });
-    }, 10000);
   }
 
   updateGameData(gameUuid: string, cb: (data: any) => void) {
