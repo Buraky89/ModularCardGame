@@ -17,7 +17,8 @@ export class Logger {
     this.logMessages = [];
   }
 
-  log(message: string) {
+  log(...messages: any[]) {
+    const message = messages.map(String).join(" ");
     const timestamp = new Date().toISOString();
     this.logMessages.push({
       timestamp,
@@ -27,7 +28,8 @@ export class Logger {
     console.log(`${timestamp}: LOG: ${message}`);
   }
 
-  error(message: string) {
+  error(...messages: any[]) {
+    const message = messages.map(String).join(" ");
     const timestamp = new Date().toISOString();
     this.logMessages.push({
       timestamp,
