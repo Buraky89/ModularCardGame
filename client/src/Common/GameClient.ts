@@ -1,14 +1,17 @@
 import { SocketServerMock } from "socket.io-mock-ts";
 import { GameDispatcher } from "./GameDispatcher";
 import { State, StateManager } from "./StateManager";
+import { Logger } from "./Logger";
 
 export class GameClient {
   stateManager: StateManager;
   socket: SocketServerMock;
+  logger: Logger;
 
   constructor(onStateChange: () => void) {
     this.stateManager = new StateManager(onStateChange);
     this.socket = new SocketServerMock();
+    this.logger = new Logger();
     this.init();
   }
 
@@ -23,10 +26,13 @@ export class GameClient {
     gameDispatcher
       .joinGame("aaa", gameUuid, jwtToken, setUuid)
       .then(() => {
-        console.log("Logged in and joined the game successfully");
+        this.logger.log("Logged in and joined the game successfully");
       })
       .catch((error) => {
-        console.error("Error while logging in and joining the game:", error);
+        this.logger.error(
+          "Error while logging in and joining the game:",
+          error
+        );
       });
   }
 
@@ -66,7 +72,6 @@ export class GameClient {
     });
 
     this.socket.on("connectionLost", () => {
-      console.log("en azından connectionLost çalıştı");
       this.stateManager.setState(State.ConnectionLostWaiting);
     });
   }
@@ -90,10 +95,10 @@ export class GameClient {
         gameDispatcher
           .loginGame(loginName, setToken)
           .then(() => {
-            console.log("Logged in and joined the game successfully");
+            this.logger.log("Logged in and joined the game successfully");
           })
           .catch((error) => {
-            console.error(
+            this.logger.error(
               "Error while logging in and joining the game:",
               error
             );
@@ -123,7 +128,7 @@ export class GameClient {
     const gameStateManager = this.stateManager.gameStateManagers.get(gameUuid);
 
     if (!gameStateManager) {
-      console.error("Game not found");
+      this.logger.error("Game not found");
       return;
     }
 
@@ -143,7 +148,7 @@ export class GameClient {
           data,
         });
       })
-      .catch((error) => console.log(error));
+      .catch((error) => this.logger.log(error));
   }
 
   selectTheGameUuid(gameUuid: string) {
