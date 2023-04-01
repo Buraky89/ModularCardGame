@@ -83,48 +83,36 @@ export class GameClient {
     });
   }
 
-  login(loginName: string) {
+  async login(loginName: string) {
     this.stateManager.setState(State.LoggingIn);
 
     this.socket.emit("login", { loginName });
 
-    var willLoginSuccess = Math.random() > 0.5;
-    // Mock loginSuccess or loginError event
-    setTimeout(() => {
-      if (willLoginSuccess) {
-        const setToken = (token: string) => {
-          this.socket.clientMock.emit("loginSuccess", {
-            jwtToken: this.stateManager.jwtToken,
-          });
-        };
+    const setToken = (token: string) => {
+      this.socket.clientMock.emit("loginSuccess", {
+        jwtToken: this.stateManager.jwtToken,
+      });
+    };
 
-        const gameDispatcher = new GameDispatcher();
-        gameDispatcher
-          .loginGame(loginName, setToken)
-          .then(() => {
-            this.logger.log("Logged in and joined the game successfully");
-          })
-          .catch((error) => {
-            this.logger.error(
-              "Error while logging in and joining the game:",
-              error
-            );
-          });
-      } else {
-        this.socket.clientMock.emit("loginError");
-      }
-    }, 1000);
+    const gameDispatcher = new GameDispatcher();
+    await gameDispatcher
+      .loginGame(loginName, setToken)
+      .then(() => {
+        this.logger.log("Logged in and joined the game successfully");
+      })
+      .catch((error) => {
+        this.logger.error(
+          "Error while logging in and joining the game:",
+          error
+        );
+      });
+    const handleGameListData = (gameList: any) => {
+      this.socket.clientMock.emit("gameListCame", {
+        gameUuids: gameList,
+      });
+    };
 
-    if (willLoginSuccess) {
-      const handleGameListData = (gameList: any) => {
-        this.socket.clientMock.emit("gameListCame", {
-          gameUuids: gameList,
-        });
-      };
-
-      const gameDispatcher = new GameDispatcher();
-      gameDispatcher.fetchGames(handleGameListData);
-    }
+    gameDispatcher.fetchGames(handleGameListData);
   }
 
   updateGameData(gameUuid: string, cb: (data: any) => void) {
