@@ -4,7 +4,7 @@ export enum LogLevel {
   ERROR,
 }
 
-interface LogMessage {
+export interface LogMessage {
   timestamp: string;
   level: LogLevel;
   message: string;

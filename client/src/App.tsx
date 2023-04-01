@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GameClient } from './Common/GameClient';
 import { State } from './Common/StateManager';
+import { LogMessage } from './Common/Logger';
 
 interface AppState {
   state: string;
@@ -31,7 +32,11 @@ const App: React.FC = () => {
     userUuid: '',
     jwtToken: '',
   });
-  
+  const [logs, setLogs] = useState<LogMessage[]>([]);
+
+  useEffect(() => {
+    setLogs(client.logger.getLogs());
+  }, [client]);
 
   const handleLogin = () => {
     client.login(loginName);
@@ -85,6 +90,16 @@ const App: React.FC = () => {
       <br />
       <button onClick={handleButtonClick}>Fetch Game Data</button>
       <br />
+      <h2>Logs</h2>
+      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+        <pre>
+          {logs.map((log, index) => (
+            <div key={index} style={{ color: log.level === 1 ? 'red' : 'black' }}>
+              [{log.timestamp}] {log.level === 0 ? 'LOG' : 'ERROR'}: {log.message}
+            </div>
+          ))}
+        </pre>
+      </div>
     </div>
   );
 };
