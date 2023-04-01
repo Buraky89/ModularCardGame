@@ -95,7 +95,7 @@ const App: React.FC = () => {
         <pre>
           {logs.map((log, index) => (
             <div key={index} style={{ color: log.level === 1 ? 'red' : 'black' }}>
-              [{log.timestamp}] {log.level === 0 ? 'LOG' : 'ERROR'}: {log.message}
+              [{log.timestamp}] {log.level === 0 ? 'LOG' : (log.level === 1 ? 'ERROR': 'EVENT')}: {log.message}
             </div>
           ))}
         </pre>

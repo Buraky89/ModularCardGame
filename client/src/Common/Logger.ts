@@ -2,6 +2,7 @@
 export enum LogLevel {
   LOG,
   ERROR,
+  EVENT,
 }
 
 export interface LogMessage {
@@ -37,6 +38,17 @@ export class Logger {
       message,
     });
     console.error(`${timestamp}: ERROR: ${message}`);
+  }
+
+  event(...messages: any[]) {
+    const message = messages.map(String).join(" ");
+    const timestamp = new Date().toISOString();
+    this.logMessages.push({
+      timestamp,
+      level: LogLevel.EVENT,
+      message,
+    });
+    console.log(`${timestamp}: EVENT: ${message}`);
   }
 
   getLogs(): LogMessage[] {

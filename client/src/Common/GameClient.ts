@@ -38,15 +38,18 @@ export class GameClient {
 
   init() {
     this.socket.on("loginError", () => {
+      this.logger.event("loginError");
       this.stateManager.setState(State.LoginError);
     });
 
     this.socket.on("loginSuccess", (payload: { jwtToken: string }) => {
+      this.logger.event("loginSuccess");
       this.stateManager.setState(State.GameListLoading);
       this.stateManager.setJwtToken(payload.jwtToken);
     });
 
     this.socket.on("gameListCame", (payload: { gameUuids: string[] }) => {
+      this.logger.event("gameListCame");
       this.stateManager.setState(State.GameListLoaded);
       this.stateManager.setGameUuids(payload.gameUuids);
     });
@@ -54,11 +57,13 @@ export class GameClient {
     this.socket.on(
       "userSubscribedAGameUuid",
       (payload: { gameUuid: string }) => {
+        this.logger.event("userSubscribedAGameUuid");
         this.stateManager.subscribeGameUuid(payload.gameUuid, this.cb);
       }
     );
 
     this.socket.on("gameEvent", (payload: { gameUuid: string; data: any }) => {
+      this.logger.event("gameEvent");
       const gameStateManager = this.stateManager.gameStateManagers.get(
         payload.gameUuid
       );
@@ -68,10 +73,12 @@ export class GameClient {
     });
 
     this.socket.on("subscribedToGame", () => {
+      this.logger.event("subscribedToGame");
       this.stateManager.setState(State.SubscribedToGame);
     });
 
     this.socket.on("connectionLost", () => {
+      this.logger.event("connectionLost");
       this.stateManager.setState(State.ConnectionLostWaiting);
     });
   }
