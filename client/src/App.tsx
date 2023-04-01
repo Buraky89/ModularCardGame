@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GameClient } from './Common/GameClient';
 import { State } from './Common/StateManager';
-import { LogMessage } from './Common/Logger';
+import { LogMessage, LogLevel } from './Common/Logger';
 
 interface AppState {
   state: string;
@@ -94,8 +94,18 @@ const App: React.FC = () => {
       <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
         <pre>
           {logs.map((log, index) => (
-            <div key={index} style={{ color: log.level === 1 ? 'red' : 'black' }}>
-              [{log.timestamp}] {log.level === 0 ? 'LOG' : (log.level === 1 ? 'ERROR': 'EVENT')}: {log.message}
+            <div
+              key={index}
+              style={{
+                color:
+                  log.level === LogLevel.ERROR
+                    ? 'red'
+                    : log.level === LogLevel.LOG
+                    ? 'black'
+                    : 'blue',
+              }}
+            >
+              [{log.timestamp}] {LogLevel[log.level]}: {log.message}
             </div>
           ))}
         </pre>
