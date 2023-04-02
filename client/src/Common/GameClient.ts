@@ -140,6 +140,11 @@ export class GameClient {
       .catch((error) => this.log(error));
   }
 
+  public async createGame() {
+    const gameDispatcher = new GameDispatcher();
+    await gameDispatcher.createGame(this.stateManager.jwtToken);
+  }
+
   selectTheGameUuid(gameUuid: string) {
     this.socket.clientMock.emit("userSubscribedAGameUuid", { gameUuid });
   }

@@ -46,10 +46,13 @@ const App: React.FC = () => {
     client.selectTheGameUuid(event.target.value);
   };
 
-  const handleButtonClick = () => {
+  const handleFetchButtonClick = () => {
     client.fetchGameData(appState.gameUuids[0]);
   };
 
+  const handleCreateButtonClick = () => {
+    client.createGame();
+  };
 
   return (
     <div>
@@ -88,7 +91,9 @@ const App: React.FC = () => {
 
 
       <br />
-      <button onClick={handleButtonClick}>Fetch Game Data</button>
+      <button onClick={handleFetchButtonClick}>Fetch Game Data</button>
+      <br />
+      <button onClick={handleCreateButtonClick}>Create Game</button>
       <br />
       <h2>Logs</h2>
       <div style={{ maxHeight: '200px', overflowY: 'auto' }}>

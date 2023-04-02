@@ -34,6 +34,22 @@ export class GameDispatcher {
       .catch((error) => console.log(error));
   }
 
+  public createGame(token: string): void {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    fetch("http://localhost:3001/createGame", {
+      method: "POST",
+      headers,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Game created:", data);
+      })
+      .catch((error) => console.log(error));
+  }
   public startGame(token: string, uuid: string, gameUuid: string): void {
     const headers = {
       "Content-Type": "application/json",
