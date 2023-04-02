@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import { SocketServerMock } from "socket.io-mock-ts";
 import GameStateManager from "./GameStateManager";
+import { Logger } from "./Logger";
 
 export enum State {
   NotLoggedIn,
@@ -20,8 +21,9 @@ export class StateManager {
   jwtToken: string;
   private onStateChange: (() => void) | null;
   gameStateManagers: Map<string, GameStateManager>; // Add a list of GameStateManager instances
+  logger: Logger;
 
-  constructor(onStateChange: () => void) {
+  constructor(onStateChange: () => void, logger: Logger) {
     this.state = State.NotLoggedIn;
     this.gameUuids = [];
     this.subscribedGameUuids = [];
@@ -29,6 +31,7 @@ export class StateManager {
     this.jwtToken = "";
     this.onStateChange = onStateChange;
     this.gameStateManagers = new Map(); // Initialize the list of GameStateManager instances
+    this.logger = logger;
   }
 
   createGameStateManager(gameUuid: string) {
@@ -44,6 +47,7 @@ export class StateManager {
   setState(newState: State) {
     this.state = newState;
     if (this.onStateChange) {
+      this.log("Set the state to ", State[newState]);
       this.onStateChange();
     }
   }
@@ -75,5 +79,15 @@ export class StateManager {
         this.onStateChange();
       }
     }
+  }
+
+  log(...messages: any[]) {
+    this.logger.log(this.constructor.name, messages);
+  }
+  event(...messages: any[]) {
+    this.logger.event(this.constructor.name, messages);
+  }
+  error(...messages: any[]) {
+    this.logger.error(this.constructor.name, messages);
   }
 }

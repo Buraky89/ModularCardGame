@@ -9,9 +9,9 @@ export class GameClient {
   logger: Logger;
 
   constructor(onStateChange: () => void) {
-    this.stateManager = new StateManager(onStateChange);
-    this.socket = new SocketServerMock();
     this.logger = new Logger();
+    this.stateManager = new StateManager(onStateChange, this.logger);
+    this.socket = new SocketServerMock();
     this.init();
   }
 
@@ -26,30 +26,27 @@ export class GameClient {
     gameDispatcher
       .joinGame("aaa", gameUuid, jwtToken, setUuid)
       .then(() => {
-        this.logger.log("Logged in and joined the game successfully");
+        this.log("Logged in and joined the game successfully");
       })
       .catch((error) => {
-        this.logger.error(
-          "Error while logging in and joining the game:",
-          error
-        );
+        this.error("Error while logging in and joining the game:", error);
       });
   }
 
   init() {
     this.socket.on("loginError", () => {
-      this.logger.event("loginError");
+      this.event("loginError");
       this.stateManager.setState(State.LoginError);
     });
 
     this.socket.on("loginSuccess", (payload: { jwtToken: string }) => {
-      this.logger.event("loginSuccess");
+      this.event("loginSuccess");
       this.stateManager.setState(State.GameListLoading);
       this.stateManager.setJwtToken(payload.jwtToken);
     });
 
     this.socket.on("gameListCame", (payload: { gameUuids: string[] }) => {
-      this.logger.event("gameListCame");
+      this.event("gameListCame");
       this.stateManager.setState(State.GameListLoaded);
       this.stateManager.setGameUuids(payload.gameUuids);
     });
@@ -57,13 +54,13 @@ export class GameClient {
     this.socket.on(
       "userSubscribedAGameUuid",
       (payload: { gameUuid: string }) => {
-        this.logger.event("userSubscribedAGameUuid");
+        this.event("userSubscribedAGameUuid");
         this.stateManager.subscribeGameUuid(payload.gameUuid, this.cb);
       }
     );
 
     this.socket.on("gameEvent", (payload: { gameUuid: string; data: any }) => {
-      this.logger.event("gameEvent");
+      this.event("gameEvent");
       const gameStateManager = this.stateManager.gameStateManagers.get(
         payload.gameUuid
       );
@@ -73,12 +70,12 @@ export class GameClient {
     });
 
     this.socket.on("subscribedToGame", () => {
-      this.logger.event("subscribedToGame");
+      this.event("subscribedToGame");
       this.stateManager.setState(State.SubscribedToGame);
     });
 
     this.socket.on("connectionLost", () => {
-      this.logger.event("connectionLost");
+      this.event("connectionLost");
       this.stateManager.setState(State.ConnectionLostWaiting);
     });
   }
@@ -98,13 +95,10 @@ export class GameClient {
     await gameDispatcher
       .loginGame(loginName, setToken)
       .then(() => {
-        this.logger.log("Logged in and joined the game successfully");
+        this.log("Logged in and joined the game successfully");
       })
       .catch((error) => {
-        this.logger.error(
-          "Error while logging in and joining the game:",
-          error
-        );
+        this.error("Error while logging in and joining the game:", error);
       });
     const handleGameListData = (gameList: any) => {
       this.socket.clientMock.emit("gameListCame", {
@@ -123,7 +117,7 @@ export class GameClient {
     const gameStateManager = this.stateManager.gameStateManagers.get(gameUuid);
 
     if (!gameStateManager) {
-      this.logger.error("Game not found");
+      this.error("Game not found");
       return;
     }
 
@@ -143,10 +137,20 @@ export class GameClient {
           data,
         });
       })
-      .catch((error) => this.logger.log(error));
+      .catch((error) => this.log(error));
   }
 
   selectTheGameUuid(gameUuid: string) {
     this.socket.clientMock.emit("userSubscribedAGameUuid", { gameUuid });
+  }
+
+  log(...messages: any[]) {
+    this.logger.log(this.constructor.name, messages);
+  }
+  event(...messages: any[]) {
+    this.logger.event(this.constructor.name, messages);
+  }
+  error(...messages: any[]) {
+    this.logger.error(this.constructor.name, messages);
   }
 }

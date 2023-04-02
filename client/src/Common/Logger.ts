@@ -9,6 +9,7 @@ export interface LogMessage {
   timestamp: string;
   level: LogLevel;
   message: string;
+  source: string;
 }
 
 export class Logger {
@@ -18,35 +19,38 @@ export class Logger {
     this.logMessages = [];
   }
 
-  log(...messages: any[]) {
+  log(source: string, ...messages: any[]) {
     const message = messages.map(String).join(" ");
     const timestamp = new Date().toISOString();
     this.logMessages.push({
       timestamp,
       level: LogLevel.LOG,
       message,
+      source,
     });
     console.log(`${timestamp}: LOG: ${message}`);
   }
 
-  error(...messages: any[]) {
+  error(source: string, ...messages: any[]) {
     const message = messages.map(String).join(" ");
     const timestamp = new Date().toISOString();
     this.logMessages.push({
       timestamp,
       level: LogLevel.ERROR,
       message,
+      source,
     });
     console.error(`${timestamp}: ERROR: ${message}`);
   }
 
-  event(...messages: any[]) {
+  event(source: string, ...messages: any[]) {
     const message = messages.map(String).join(" ");
     const timestamp = new Date().toISOString();
     this.logMessages.push({
       timestamp,
       level: LogLevel.EVENT,
       message,
+      source,
     });
     console.log(`${timestamp}: EVENT: ${message}`);
   }

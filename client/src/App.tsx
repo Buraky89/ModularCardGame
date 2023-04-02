@@ -105,7 +105,7 @@ const App: React.FC = () => {
                     : 'blue',
               }}
             >
-              [{log.timestamp}] {LogLevel[log.level]}: {log.message}
+              [{log.timestamp}, {log.source}] {LogLevel[log.level]}: {log.message}
             </div>
           ))}
         </pre>
