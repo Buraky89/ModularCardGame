@@ -15,11 +15,11 @@ export class GameClient {
     this.init();
   }
 
-  cb(gameUuid: string, jwtToken: string) {
+  cb(stateManager: StateManager, gameUuid: string, jwtToken: string) {
     const setUuid = (uuid: string) => {
-      this.stateManager.userUuid = uuid;
-      const gameStateManager =
-        this.stateManager.gameStateManagers.get(gameUuid);
+      // TODO: is passing the StateManager here a good idea?
+      stateManager.userUuid = uuid;
+      const gameStateManager = stateManager.gameStateManagers.get(gameUuid);
       if (gameStateManager !== undefined) gameStateManager.uuid = uuid;
     };
     const gameDispatcher = new GameDispatcher();
@@ -122,6 +122,7 @@ export class GameClient {
     }
 
     const uuid = gameStateManager.uuid;
+    console.log("pekibu", uuid);
     const token = gameStateManager.token;
 
     const headers = {

@@ -68,11 +68,11 @@ export class StateManager {
 
   subscribeGameUuid(
     gameUuid: string,
-    cb: (gameUuid: string, jwtToken: string) => void
+    cb: (stateManager: StateManager, gameUuid: string, jwtToken: string) => void
   ) {
     if (!this.subscribedGameUuids.includes(gameUuid)) {
       this.subscribedGameUuids.push(gameUuid);
-      cb(gameUuid, this.jwtToken);
+      cb(this, gameUuid, this.jwtToken);
 
       this.createGameStateManager(gameUuid);
       if (this.onStateChange) {
