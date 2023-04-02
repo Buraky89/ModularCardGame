@@ -87,7 +87,7 @@ export class GameClient {
 
     const setToken = (token: string) => {
       this.socket.clientMock.emit("loginSuccess", {
-        jwtToken: this.stateManager.jwtToken,
+        jwtToken: token,
       });
     };
 
