@@ -15,7 +15,12 @@ export class GameClient {
     this.init();
   }
 
-  cb(stateManager: StateManager, gameUuid: string, jwtToken: string) {
+  cb(
+    logger: Logger,
+    stateManager: StateManager,
+    gameUuid: string,
+    jwtToken: string
+  ) {
     const setUuid = (uuid: string) => {
       // TODO: is passing the StateManager here a good idea?
       stateManager.userUuid = uuid;
@@ -26,10 +31,12 @@ export class GameClient {
     gameDispatcher
       .joinGame("aaa", gameUuid, jwtToken, setUuid)
       .then(() => {
-        this.log("Logged in and joined the game successfully");
+        // TODO: find a solution to this.log
+        logger.log("Logged in and joined the game successfully");
       })
       .catch((error) => {
-        this.error("Error while logging in and joining the game:", error);
+        // TODO: find a solution to this.error
+        logger.error("Error while logging in and joining the game:", error);
       });
   }
 
@@ -98,6 +105,7 @@ export class GameClient {
         this.log("Logged in and joined the game successfully");
       })
       .catch((error) => {
+        console.log("error log added ", error);
         this.error("Error while logging in and joining the game:", error);
       });
     const handleGameListData = (gameList: any) => {
