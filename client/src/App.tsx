@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GameClient } from './Common/GameClient';
 import { State } from './Common/StateManager';
 import { LogMessage, LogLevel } from './Common/Logger';
+import CardsList from './CardsList'; // Import CardsList component
 
 interface AppState {
   state: string;
@@ -115,6 +116,14 @@ const App: React.FC = () => {
           ))}
         </pre>
       </div>
+
+      {appState.subscribedGameUuids.length > 0 && (
+        <CardsList
+          client={client}
+          gameUuid={appState.subscribedGameUuids[0]} // assuming you want to render the first subscribed game
+        />
+      )}
+
     </div>
   );
 };

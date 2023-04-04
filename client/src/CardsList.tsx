@@ -3,13 +3,11 @@ import { Card, CardType, ApiResponse, Player } from "./Card";
 import MySVG from "./MySVG";
 import { PlayerBox } from "./PlayerBox";
 import "./CardsList.css";
-import GameStateManager from "./Common/GameStateManager";
+import { GameClient } from './Common/GameClient';
 
 interface CardsListProps {
-  token: string;
-  uuid: string;
+  client: GameClient;
   gameUuid: string;
-  gameStateManager: GameStateManager;
 }
 
 function moveLastPlayerToBeginningUntilMe(players: Player[], myUuid: string): Player[] {
@@ -32,7 +30,9 @@ enum GameState {
   ENDED,
 }
 
-function CardsList({ uuid, token, gameUuid, gameStateManager }: CardsListProps) {
+function CardsList({ client, gameUuid }: CardsListProps) {
+  const gameStateManager = client.stateManager.gameStateManagers.get(gameUuid)!;
+
   const timerIdRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
@@ -49,7 +49,7 @@ function CardsList({ uuid, token, gameUuid, gameStateManager }: CardsListProps) 
     return () => clearInterval(timerIdRef.current!);
   }, [gameStateManager.autoPlay, gameStateManager.deck]);
 
-  const isYourTurn = gameStateManager.players.find((player) => player.uuid === uuid && player.isTheirTurn);
+  const isYourTurn = gameStateManager.players.find((player) => player.uuid === gameStateManager.uuid && player.isTheirTurn);
 
   const startGame = () => {
     gameStateManager.startGame();
