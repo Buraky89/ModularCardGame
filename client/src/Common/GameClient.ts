@@ -32,11 +32,15 @@ export class GameClient {
       .joinGame("aaa", gameUuid, jwtToken, setUuid)
       .then(() => {
         // TODO: find a solution to this.log
-        logger.log("Logged in and joined the game successfully");
+        logger.log("GameClient", "Logged in and joined the game successfully");
       })
       .catch((error) => {
         // TODO: find a solution to this.error
-        logger.error("Error while logging in and joining the game:", error);
+        logger.error(
+          "GameClient",
+          "Error while logging in and joining the game:",
+          error
+        );
       });
   }
 
