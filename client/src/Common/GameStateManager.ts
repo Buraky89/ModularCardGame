@@ -44,7 +44,7 @@ class GameStateManager {
 
   public async startGame() {
     // Mock the HTTP call with the imaginary method startGame
-    await this.gameDispatcher.startGame(this.uuid, this.token, this.gameUuid);
+    await this.gameDispatcher.startGame(this.token, this.uuid, this.gameUuid);
   }
 
   public setAutoPlay(autoPlay: boolean) {
