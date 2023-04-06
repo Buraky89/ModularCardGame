@@ -63,6 +63,26 @@ class GameStateManager {
 
   updateGameState(data: any) {
     console.log("data obtained in updateGameState: ", data);
+
+    if (data.deck) this.deck = data.deck;
+    if (data.playedDeck) this.playedDeck = data.playedDeck;
+    if (data.players) this.players = data.players;
+    if (data.gameState !== undefined) this.gameState = data.gameState;
+
+    console.log("this.players", this.players);
+    console.log("this.gameState", GameState[this.gameState]);
+  }
+
+  private subscribers: (() => void)[] = [];
+
+  public subscribe(callback: () => void): void {
+    this.subscribers.push(callback);
+  }
+
+  private notifySubscribers(): void {
+    this.subscribers.forEach((callback) => {
+      callback();
+    });
   }
 }
 
