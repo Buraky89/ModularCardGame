@@ -53,7 +53,9 @@ const App: React.FC = () => {
   };
 
   const handleFetchButtonClick = () => {
-    client.fetchGameData(appState.gameUuids[0]);
+    appState.gameUuids.forEach(uuid => {
+      client.fetchGameData(uuid);
+    });
   };
 
   const handleCreateButtonClick = () => {
