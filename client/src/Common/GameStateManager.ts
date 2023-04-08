@@ -17,12 +17,19 @@ class GameStateManager {
   public uuid: string;
   public gameUuid: string;
   private gameDispatcher: GameDispatcher;
+  private onStateChange: (() => void) | null;
 
-  constructor(uuid: string, token: string, gameUuid: string) {
+  constructor(
+    uuid: string,
+    token: string,
+    gameUuid: string,
+    onStateChange: (() => void) | null
+  ) {
     this.uuid = uuid;
     this.token = token;
     this.gameUuid = gameUuid;
     this.gameDispatcher = new GameDispatcher();
+    this.onStateChange = onStateChange;
   }
 
   public updateGameData(data: any) {
@@ -71,6 +78,8 @@ class GameStateManager {
 
     console.log("this.players", this.players);
     console.log("this.gameState", GameState[this.gameState]);
+
+    if (this.onStateChange) this.onStateChange();
   }
 
   private subscribers: (() => void)[] = [];

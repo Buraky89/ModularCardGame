@@ -21,6 +21,7 @@ export class StateManager {
   jwtToken: string;
   private onStateChange: (() => void) | null;
   gameStateManagers: Map<string, GameStateManager>; // Add a list of GameStateManager instances
+  gameStateManagersToString: string;
   logger: Logger;
 
   constructor(onStateChange: () => void, logger: Logger) {
@@ -31,6 +32,10 @@ export class StateManager {
     this.jwtToken = "";
     this.onStateChange = onStateChange;
     this.gameStateManagers = new Map(); // Initialize the list of GameStateManager instances
+    const serializedGameStateManagers = JSON.stringify(
+      Array.from(this.gameStateManagers.entries())
+    );
+    this.gameStateManagersToString = serializedGameStateManagers;
     this.logger = logger;
   }
 
@@ -39,9 +44,15 @@ export class StateManager {
     const gameStateManager = new GameStateManager(
       this.userUuid,
       this.jwtToken,
-      gameUuid
+      gameUuid,
+      this.onStateChange
     );
     this.gameStateManagers.set(gameUuid, gameStateManager);
+
+    const serializedGameStateManagers = JSON.stringify(
+      Array.from(this.gameStateManagers.entries())
+    );
+    this.gameStateManagersToString = serializedGameStateManagers;
   }
 
   setState(newState: State) {
