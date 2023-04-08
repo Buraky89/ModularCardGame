@@ -3,6 +3,8 @@ import { GameClient } from './Common/GameClient';
 import { State } from './Common/StateManager';
 import { LogMessage, LogLevel } from './Common/Logger';
 import CardsList from './CardsList'; // Import CardsList component
+import { SocketClientMock } from 'socket.io-mock-ts';
+import GameStateManager from './Common/GameStateManager';
 
 interface AppState {
   state: string;
@@ -10,6 +12,7 @@ interface AppState {
   subscribedGameUuids: string[];
   userUuid: string;
   jwtToken: string;
+  gameStateManagers: Map<string, GameStateManager>;
 }
 
 const App: React.FC = () => {
@@ -20,6 +23,7 @@ const App: React.FC = () => {
       subscribedGameUuids: client.stateManager.subscribedGameUuids,
       userUuid: client.stateManager.userUuid,
       jwtToken: client.stateManager.jwtToken,
+      gameStateManagers: client.stateManager.gameStateManagers
     };
     setAppState(newState);
   };
@@ -32,6 +36,7 @@ const App: React.FC = () => {
     subscribedGameUuids: [],
     userUuid: '',
     jwtToken: '',
+    gameStateManagers: new Map()
   });
   const [logs, setLogs] = useState<LogMessage[]>([]);
 
@@ -117,11 +122,14 @@ const App: React.FC = () => {
         </pre>
       </div>
 
-      {appState.subscribedGameUuids.length > 0 && (
-        <CardsList
-          client={client}
-          gameUuid={appState.subscribedGameUuids[0]} // assuming you want to render the first subscribed game
-        />
+      {appState.subscribedGameUuids.length > 0 && appState.gameStateManagers.size > 0 && (
+        Array.from(appState.gameStateManagers.entries()).map(([gameUuid, gameStateManager]) => (
+          <CardsList
+            key={gameUuid}
+            gameStateManager={gameStateManager}
+            gameUuid={gameUuid}
+          />
+        ))
       )}
 
     </div>

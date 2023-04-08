@@ -4,9 +4,10 @@ import MySVG from "./MySVG";
 import { PlayerBox } from "./PlayerBox";
 import "./CardsList.css";
 import { GameClient } from './Common/GameClient';
+import GameStateManager from "./Common/GameStateManager";
 
 interface CardsListProps {
-  client: GameClient;
+  gameStateManager: GameStateManager;
   gameUuid: string;
 }
 
@@ -30,58 +31,61 @@ enum GameState {
   ENDED,
 }
 
-function CardsList({ client, gameUuid }: CardsListProps) {
-  const gameStateManager = client.stateManager.gameStateManagers.get(gameUuid)!;
+function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
+  // const [gameState, setGameState] = useState({
+  //   deck: gameStateManager.deck,
+  //   playedDeck: gameStateManager.playedDeck,
+  //   players: gameStateManager.players,
+  //   autoPlay: gameStateManager.autoPlay,
+  //   gameState: gameStateManager.gameState,
+  //   uuid: gameStateManager.uuid,
+  // });
 
-  const [gameState, setGameState] = useState({
-    deck: client.stateManager.gameStateManagers.get(gameUuid)!.deck,
-    playedDeck: client.stateManager.gameStateManagers.get(gameUuid)!.playedDeck,
-    players: client.stateManager.gameStateManagers.get(gameUuid)!.players,
-    autoPlay: client.stateManager.gameStateManagers.get(gameUuid)!.autoPlay,
-    gameState: client.stateManager.gameStateManagers.get(gameUuid)!.gameState,
-    uuid: client.stateManager.gameStateManagers.get(gameUuid)!.uuid,
-  });
+  // useEffect(() => {
+  //   const unsubscribe = gameStateManager.subscribe(() => {
+  //     setGameState({
+  //       deck: gameStateManager.deck,
+  //       playedDeck: gameStateManager.playedDeck,
+  //       players: gameStateManager.players,
+  //       autoPlay: gameStateManager.autoPlay,
+  //       gameState: gameStateManager.gameState,
+  //       uuid: gameStateManager.uuid,
+  //     });
+  //   });
 
-  useEffect(() => {
-    const unsubscribe = client.stateManager.gameStateManagers.get(gameUuid)!.subscribe(() => {
-      setGameState({
-        deck: client.stateManager.gameStateManagers.get(gameUuid)!.deck,
-        playedDeck: client.stateManager.gameStateManagers.get(gameUuid)!.playedDeck,
-        players: client.stateManager.gameStateManagers.get(gameUuid)!.players,
-        autoPlay: client.stateManager.gameStateManagers.get(gameUuid)!.autoPlay,
-        gameState: client.stateManager.gameStateManagers.get(gameUuid)!.gameState,
-        uuid: client.stateManager.gameStateManagers.get(gameUuid)!.uuid,
-      });
-    });
-
-    return unsubscribe;
-  }, [client.stateManager, gameUuid]);
+  //   return unsubscribe;
+  // }, [gameStateManager, gameUuid]);
 
   const timerIdRef = useRef<NodeJS.Timeout>();
 
-  useEffect(() => {
-    if (gameState.autoPlay && gameState.gameState === GameState.STARTED) {
-      timerIdRef.current = setInterval(() => {
-        if (gameState.deck.length > 0) {
-          gameStateManager.handleCardClick(0);
-        }
-      }, 500);
-    } else {
-      clearInterval(timerIdRef.current!);
-    }
+  // useEffect(() => {
+  //   if (gameState.autoPlay && gameState.gameState === GameState.STARTED) {
+  //     timerIdRef.current = setInterval(() => {
+  //       if (gameState.deck.length > 0) {
+  //         gameStateManager.handleCardClick(0);
+  //       }
+  //     }, 500);
+  //   } else {
+  //     clearInterval(timerIdRef.current!);
+  //   }
 
-    return () => clearInterval(timerIdRef.current!);
-  }, [gameState.autoPlay, gameState.deck]);
+  //   return () => clearInterval(timerIdRef.current!);
+  // }, [gameState.autoPlay, gameState.deck]);
 
-  const isYourTurn = gameState.players.find((player) => player.uuid === gameState.uuid && player.isTheirTurn);
+  // const isYourTurn = gameState.players.find((player) => player.uuid === gameState.uuid && player.isTheirTurn);
+
+  // TODO: use effect as in above
 
   const startGame = () => {
     gameStateManager.startGame();
   };
 
+  var gameState = gameStateManager;
+
   return (
     <div className="cards-list">
       GAMEUUID: {gameUuid}
+      GAMESTATE: {gameStateManager.gameState}
       {gameState.gameState === GameState.NOT_STARTED && (
         <div className="not-started">
           <h1>Game is not started yet</h1>
