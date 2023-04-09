@@ -2,11 +2,13 @@ import { SocketServerMock } from "socket.io-mock-ts";
 import { GameDispatcher } from "./GameDispatcher";
 import { State, StateManager } from "./StateManager";
 import { Logger } from "./Logger";
+import { StateManagerWrapper } from "./StateManagerWrapper";
 
 export class GameClient {
   stateManager: StateManager;
   socket: SocketServerMock;
   logger: Logger;
+  stateManagerVersion: number = 0;
 
   constructor(onStateChange: () => void) {
     this.logger = new Logger();
@@ -156,6 +158,11 @@ export class GameClient {
   public async createGame() {
     const gameDispatcher = new GameDispatcher();
     await gameDispatcher.createGame(this.stateManager.jwtToken);
+  }
+
+  public getStateManager(): StateManagerWrapper {
+    this.stateManagerVersion++;
+    return new StateManagerWrapper(this.stateManager, this.stateManagerVersion);
   }
 
   selectTheGameUuid(gameUuid: string) {

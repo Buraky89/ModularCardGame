@@ -1,43 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { GameClient } from './Common/GameClient';
-import { State } from './Common/StateManager';
+import { State, StateManager } from './Common/StateManager';
 import { LogMessage, LogLevel } from './Common/Logger';
 import CardsList from './CardsList'; // Import CardsList component
 import { SocketClientMock } from 'socket.io-mock-ts';
 import GameStateManager from './Common/GameStateManager';
-
-interface AppState {
-  state: string;
-  gameUuids: string[];
-  subscribedGameUuids: string[];
-  userUuid: string;
-  jwtToken: string;
-  gameStateManagers: Map<string, GameStateManager>;
-}
+import StateManagerWrapper from './Common/StateManagerWrapper';
 
 const App: React.FC = () => {
   const updateState = () => {
-    const newState: AppState = {
-      state: State[client.stateManager.state],
-      gameUuids: client.stateManager.gameUuids,
-      subscribedGameUuids: client.stateManager.subscribedGameUuids,
-      userUuid: client.stateManager.userUuid,
-      jwtToken: client.stateManager.jwtToken,
-      gameStateManagers: client.stateManager.gameStateManagers
-    };
+    const newState: StateManagerWrapper = client.getStateManager();
     setAppState(newState);
   };
   
   const [client] = useState(new GameClient(updateState));
   const [loginName, setLoginName] = useState('');
-  const [appState, setAppState] = useState<AppState>({
-    state: 'NotLoggedIn',
-    gameUuids: [],
-    subscribedGameUuids: [],
-    userUuid: '',
-    jwtToken: '',
-    gameStateManagers: new Map()
-  });
+  const [appState, setAppState] = useState<StateManagerWrapper | null>(client.getStateManager());
   const [logs, setLogs] = useState<LogMessage[]>([]);
 
   useEffect(() => {
@@ -52,8 +30,12 @@ const App: React.FC = () => {
     client.selectTheGameUuid(event.target.value);
   };
 
+  if(appState == null){
+    return (<></>);
+  }
+
   const handleFetchButtonClick = () => {
-    appState.gameUuids.forEach(uuid => {
+    appState.stateManager.gameUuids.forEach(uuid => {
       client.fetchGameData(uuid);
     });
   };
@@ -66,15 +48,15 @@ const App: React.FC = () => {
     <div>
       <h1>Game Client</h1>
       <p>
-        State: {appState.state}
+        State: {State[appState.stateManager.state]}
         <br />
-        JWT Token: {appState.jwtToken}
+        JWT Token: {appState.stateManager.jwtToken}
         <br />
-        Game UUIDs: {appState.gameUuids.join(', ')}
+        Game UUIDs: {appState.stateManager.gameUuids.join(', ')}
         <br />
-        Subs Game UUIDs: {appState.subscribedGameUuids.join(', ')}
+        Subs Game UUIDs: {appState.stateManager.subscribedGameUuids.join(', ')}
         <br />
-        User UUID: {appState.userUuid}
+        User UUID: {appState.stateManager.userUuid}
       </p>
       <input
         type="text"
@@ -83,12 +65,12 @@ const App: React.FC = () => {
         placeholder="Enter login name"
       />
       <button onClick={handleLogin}>Login</button>
-      {appState.state === State[State.GameListLoaded] && (
+      {appState.stateManager.state === State.GameListLoaded && (
         <>
           <label htmlFor="gameUuidSelection">Select a Game UUID: </label>
           <select id="gameUuidSelection" onChange={handleGameUuidSelection}>
             <option value="">--Select a game UUID--</option>
-            {appState.gameUuids.map((gameUuid) => (
+            {appState.stateManager.gameUuids.map((gameUuid) => (
               <option key={gameUuid} value={gameUuid}>
                 {gameUuid}
               </option>
@@ -124,8 +106,8 @@ const App: React.FC = () => {
         </pre>
       </div>
 
-      {appState.subscribedGameUuids.length > 0 && appState.gameStateManagers.size > 0 && (
-        Array.from(appState.gameStateManagers.entries()).map(([gameUuid, gameStateManager]) => (
+      {appState.stateManager.subscribedGameUuids.length > 0 && appState.stateManager.gameStateManagers.size > 0 && (
+        Array.from(appState.stateManager.gameStateManagers.entries()).map(([gameUuid, gameStateManager]) => (
           <CardsList
             key={gameUuid}
             gameStateManager={gameStateManager}
