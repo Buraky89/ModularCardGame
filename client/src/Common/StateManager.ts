@@ -48,7 +48,7 @@ export class StateManager {
     const path =
       "http://localhost:8080/realms/FlexibleCardGame/protocol/openid-connect/token";
 
-    const formData = new FormData();
+    const formData = new URLSearchParams();
     formData.append("client_id", "flexible-card-game");
     formData.append("client_secret", "8lL55Se6FeiOLwFVKr9aMmYzy9e9O3Ds");
     formData.append("code", authorizationCode);
@@ -58,6 +58,9 @@ export class StateManager {
       const response = await fetch(path, {
         method: "POST",
         body: formData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
 
       if (!response.ok) {

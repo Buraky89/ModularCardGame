@@ -123,7 +123,7 @@ export class GameClient {
     this.stateManager.setState(State.LoggingIn);
 
     window.location.href =
-      "http://localhost:8080/realms/FlexibleCardGame/protocol/openid-connect/auth?response_type=code&client_id=flexible-card-game&scope=openid&redirect_uri=http://localhost:3002/&state=xyz&code_challenge=mh7Vc1JX0l7aINfiydNlcR7N0JPEQZ25tVxNtJAbukY&code_challenge_method=S256";
+      "http://localhost:8080/realms/FlexibleCardGame/protocol/openid-connect/auth?response_type=code&client_id=flexible-card-game";
 
     // this.socket.emit("login", { loginName });
 
