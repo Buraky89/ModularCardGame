@@ -93,34 +93,63 @@ export class GameClient {
     });
   }
 
+  public exchangeCodeForToken(authorizationCode: string) {
+    this.stateManager.setState(State.EXCHANGING_CODE_FOR_TOKEN);
+
+    setTimeout(async () => {
+      // Code to exchange authorization code for access token
+      // ...
+      try {
+        const accessToken = await this.stateManager.getTokenByAuthorizationCode(
+          authorizationCode
+        );
+        if (accessToken) {
+          this.stateManager.setJwtToken(accessToken);
+          // Code to store the access token and redirect to the main application view
+          // ...
+        } else {
+          this.stateManager.setState(State.TOKEN_RETRIEVAL_FAILED);
+          // Code to display an error message and allow the user to retry the token retrieval process
+          // ...
+        }
+      } catch (error) {
+        this.error(error);
+        this.stateManager.setState(State.TOKEN_RETRIEVAL_FAILED);
+      }
+    }, 5000);
+  }
+
   async login(loginName: string) {
     this.stateManager.setState(State.LoggingIn);
 
-    this.socket.emit("login", { loginName });
+    window.location.href =
+      "http://localhost:8080/realms/FlexibleCardGame/protocol/openid-connect/auth?response_type=code&client_id=flexible-card-game&scope=openid&redirect_uri=http://localhost:3002/&state=xyz&code_challenge=mh7Vc1JX0l7aINfiydNlcR7N0JPEQZ25tVxNtJAbukY&code_challenge_method=S256";
 
-    const setToken = (token: string) => {
-      this.socket.clientMock.emit("loginSuccess", {
-        jwtToken: token,
-      });
-    };
+    // this.socket.emit("login", { loginName });
 
-    const gameDispatcher = new GameDispatcher();
-    await gameDispatcher
-      .loginGame(loginName, setToken)
-      .then(() => {
-        this.log("Logged in and joined the game successfully");
-      })
-      .catch((error) => {
-        console.log("error log added ", error);
-        this.error("Error while logging in and joining the game:", error);
-      });
-    const handleGameListData = (gameList: any) => {
-      this.socket.clientMock.emit("gameListCame", {
-        gameUuids: gameList,
-      });
-    };
+    // const setToken = (token: string) => {
+    //   this.socket.clientMock.emit("loginSuccess", {
+    //     jwtToken: token,
+    //   });
+    // };
 
-    gameDispatcher.fetchGames(handleGameListData);
+    // const gameDispatcher = new GameDispatcher();
+    // await gameDispatcher
+    //   .loginGame(loginName, setToken)
+    //   .then(() => {
+    //     this.log("Logged in and joined the game successfully");
+    //   })
+    //   .catch((error) => {
+    //     console.log("error log added ", error);
+    //     this.error("Error while logging in and joining the game:", error);
+    //   });
+    // const handleGameListData = (gameList: any) => {
+    //   this.socket.clientMock.emit("gameListCame", {
+    //     gameUuids: gameList,
+    //   });
+    // };
+
+    // gameDispatcher.fetchGames(handleGameListData);
   }
 
   updateGameData(gameUuid: string, cb: (data: any) => void) {

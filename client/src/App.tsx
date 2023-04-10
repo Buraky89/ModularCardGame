@@ -18,6 +18,16 @@ const App: React.FC = () => {
   const [appState, setAppState] = useState<StateManagerWrapper | null>(client.getStateManager());
   const [logs, setLogs] = useState<LogMessage[]>([]);
 
+
+  const queryParams = new URLSearchParams(window.location.search);
+  const code = queryParams.get("code") || undefined;
+
+  useEffect(() => {
+    if (client.stateManager.state === State.NotLoggedIn && code) {
+      client.exchangeCodeForToken(code);
+    }
+  }, []);
+
   useEffect(() => {
     setLogs(client.logger.getLogs());
   }, [client]);

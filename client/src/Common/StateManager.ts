@@ -6,6 +6,9 @@ import { Logger } from "./Logger";
 export enum State {
   NotLoggedIn,
   LoggingIn, // Add the new state here
+  EXCHANGING_CODE_FOR_TOKEN,
+  TOKEN_RECEIVED,
+  TOKEN_RETRIEVAL_FAILED,
   LoginError,
   GameListLoading,
   GameListLoaded,
@@ -39,6 +42,40 @@ export class StateManager {
     this.logger = logger;
   }
 
+  async getTokenByAuthorizationCode(
+    authorizationCode: string
+  ): Promise<string> {
+    const path =
+      "http://localhost:8080/realms/FlexibleCardGame/protocol/openid-connect/token";
+
+    const formData = new FormData();
+    formData.append("client_id", "flexible-card-game");
+    formData.append("client_secret", "8lL55Se6FeiOLwFVKr9aMmYzy9e9O3Ds");
+    formData.append("code", authorizationCode);
+    formData.append("grant_type", "authorization_code");
+
+    try {
+      const response = await fetch(path, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Token request failed");
+      }
+
+      const result = await response.json();
+
+      if (!result.access_token) {
+        throw new Error("Access token not found in response");
+      }
+
+      return result.access_token;
+    } catch (error) {
+      throw new Error("Access token could not be fetched");
+    }
+  }
+
   createGameStateManager(gameUuid: string) {
     // Create a new instance of GameStateManager and store it in the list
     const gameStateManager = new GameStateManager(
@@ -65,6 +102,7 @@ export class StateManager {
 
   setJwtToken(jwtToken: string) {
     this.jwtToken = jwtToken;
+    this.setState(State.TOKEN_RECEIVED);
     if (this.onStateChange) {
       this.onStateChange();
     }
