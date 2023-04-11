@@ -105,6 +105,20 @@ export class GameClient {
         );
         if (accessToken) {
           this.stateManager.setJwtToken(accessToken);
+
+          this.socket.clientMock.emit("loginSuccess", {
+            jwtToken: accessToken,
+          });
+
+          const gameDispatcher = new GameDispatcher();
+          const handleGameListData = (gameList: any) => {
+            this.socket.clientMock.emit("gameListCame", {
+              gameUuids: gameList,
+            });
+          };
+
+          gameDispatcher.fetchGames(handleGameListData);
+
           // Code to store the access token and redirect to the main application view
           // ...
         } else {
@@ -124,32 +138,6 @@ export class GameClient {
 
     window.location.href =
       "http://localhost:8080/realms/FlexibleCardGame/protocol/openid-connect/auth?response_type=code&client_id=flexible-card-game";
-
-    // this.socket.emit("login", { loginName });
-
-    // const setToken = (token: string) => {
-    //   this.socket.clientMock.emit("loginSuccess", {
-    //     jwtToken: token,
-    //   });
-    // };
-
-    // const gameDispatcher = new GameDispatcher();
-    // await gameDispatcher
-    //   .loginGame(loginName, setToken)
-    //   .then(() => {
-    //     this.log("Logged in and joined the game successfully");
-    //   })
-    //   .catch((error) => {
-    //     console.log("error log added ", error);
-    //     this.error("Error while logging in and joining the game:", error);
-    //   });
-    // const handleGameListData = (gameList: any) => {
-    //   this.socket.clientMock.emit("gameListCame", {
-    //     gameUuids: gameList,
-    //   });
-    // };
-
-    // gameDispatcher.fetchGames(handleGameListData);
   }
 
   updateGameData(gameUuid: string, cb: (data: any) => void) {
