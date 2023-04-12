@@ -133,7 +133,7 @@ export class GameClient {
     }, 5000);
   }
 
-  async login(loginName: string) {
+  async login() {
     this.stateManager.setState(State.LoggingIn);
 
     window.location.href =

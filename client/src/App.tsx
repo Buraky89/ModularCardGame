@@ -14,7 +14,6 @@ const App: React.FC = () => {
   };
   
   const [client] = useState(new GameClient(updateState));
-  const [loginName, setLoginName] = useState('');
   const [appState, setAppState] = useState<StateManagerWrapper | null>(client.getStateManager());
   const [logs, setLogs] = useState<LogMessage[]>([]);
 
@@ -33,7 +32,7 @@ const App: React.FC = () => {
   }, [client]);
 
   const handleLogin = () => {
-    client.login(loginName);
+    client.login();
   };
 
   const handleGameUuidSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -68,12 +67,6 @@ const App: React.FC = () => {
         <br />
         User UUID: {appState.stateManager.userUuid}
       </p>
-      <input
-        type="text"
-        value={loginName}
-        onChange={(e) => setLoginName(e.target.value)}
-        placeholder="Enter login name"
-      />
       <button onClick={handleLogin}>Login</button>
       {appState.stateManager.state === State.GameListLoaded && (
         <>
