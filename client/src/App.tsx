@@ -90,12 +90,36 @@ const App: React.FC = () => {
     );
   };
 
+  const handleLogout = () => {
+    appState.stateManager.setState(State.NotLoggedIn);
+    appState.stateManager.setJwtToken('');
+  };
+
+  const renderLoginButton = () => {
+    const { state } = appState.stateManager;
+
+    if (state === State.NotLoggedIn) {
+      return <button onClick={handleLogin}>Login</button>;
+    } else if (
+      state === State.LoggingIn ||
+      state === State.EXCHANGING_CODE_FOR_TOKEN
+    ) {
+      return (
+        <button disabled>
+          <span className="spinner"></span>
+        </button>
+      );
+    } else {
+      return <button onClick={handleLogout}>Logout</button>;
+    }
+  };
+
   return (
     <div>
       <header className="header">
         {!devMode && (
           <>
-            <button onClick={handleLogin}>Login</button>
+            {renderLoginButton()}
             <h1 onClick={toggleDevMode} style={{ cursor: 'pointer', flex: 1, textAlign: 'center' }}>Hearts</h1>
           </>
         )}
