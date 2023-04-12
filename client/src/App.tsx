@@ -79,48 +79,61 @@ const App: React.FC = () => {
     return (<></>);
   }
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        // Clipboard successfully set
+      },
+      () => {
+        // Clipboard write failed
+      }
+    );
+  };
+
   return (
     <div>
       <header className="header">
         {!devMode && (
           <>
             <button onClick={handleLogin}>Login</button>
-            <h1 onClick={toggleDevMode} style={{ cursor: 'pointer' }}>Hearts</h1>
+            <h1 onClick={toggleDevMode} style={{ cursor: 'pointer', flex: 1, textAlign: 'center' }}>Hearts</h1>
           </>
         )}
         {devMode && (
           <button onClick={closeDevMode}>X</button>
         )}
       </header>
-      {devMode ? (
-        <Dev logs={logs} appState={appState} />
-      ) : (
-        <>
-          {appState.stateManager.state === State.GameListLoaded && (
-            <>
-              {appState.stateManager.gameUuids.map((gameUuid) => (
-                <button key={gameUuid} className="uuid-button" onClick={() => handleGameUuidSelection(gameUuid)}>
-                  {gameUuid}
-                </button>
-              ))}
-            </>
-          )}
+      <div className="main-content">
+        {devMode ? (
+          <Dev logs={logs} appState={appState} />
+        ) : (
+          <>
+            {appState.stateManager.state === State.GameListLoaded && (
+              <>
+                {appState.stateManager.gameUuids.map((gameUuid) => (
+                  <button key={gameUuid} className="uuid-button" onClick={() => handleGameUuidSelection(gameUuid)}>
+                    {gameUuid}
+                  </button>
+                ))}
+              </>
+            )}
 
-          <br />
-          <button className="plus-button" onClick={handleCreateButtonClick}>+</button>
-          <br />
+            <br />
+            <button className="plus-button" onClick={handleCreateButtonClick}>+</button>
+            <br />
 
-          {appState.stateManager.subscribedGameUuids.length > 0 && appState.stateManager.gameStateManagers.size > 0 && (
-            Array.from(appState.stateManager.gameStateManagers.entries()).map(([gameUuid, gameStateManager]) => (
-              <CardsList
-                key={gameUuid}
-                gameStateManager={gameStateManager}
-                gameUuid={gameUuid}
-              />
-            ))
-          )}
-        </>
-      )}
+            {appState.stateManager.subscribedGameUuids.length > 0 && appState.stateManager.gameStateManagers.size > 0 && (
+              Array.from(appState.stateManager.gameStateManagers.entries()).map(([gameUuid, gameStateManager]) => (
+                <CardsList
+                  key={gameUuid}
+                  gameStateManager={gameStateManager}
+                  gameUuid={gameUuid}
+                />
+              ))
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
