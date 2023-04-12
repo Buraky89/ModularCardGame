@@ -175,6 +175,14 @@ export class GameClient {
   public async createGame() {
     const gameDispatcher = new GameDispatcher();
     await gameDispatcher.createGame(this.stateManager.jwtToken);
+
+    const handleGameListData = (gameList: any) => {
+      this.socket.clientMock.emit("gameListCame", {
+        gameUuids: gameList,
+      });
+    };
+
+    gameDispatcher.fetchGames(handleGameListData);
   }
 
   public getStateManager(): StateManagerWrapper {
