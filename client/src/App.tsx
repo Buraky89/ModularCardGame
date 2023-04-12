@@ -6,17 +6,20 @@ import CardsList from './CardsList'; // Import CardsList component
 import { SocketClientMock } from 'socket.io-mock-ts';
 import GameStateManager from './Common/GameStateManager';
 import StateManagerWrapper from './Common/StateManagerWrapper';
+import Dev from './Dev'; // Import Logs component
+import './App.css'; // Import the CSS file
 
 const App: React.FC = () => {
   const updateState = () => {
     const newState: StateManagerWrapper = client.getStateManager();
     setAppState(newState);
   };
-  
+
   const [client] = useState(new GameClient(updateState));
   const [appState, setAppState] = useState<StateManagerWrapper | null>(client.getStateManager());
   const [logs, setLogs] = useState<LogMessage[]>([]);
-
+  const [devMode, setDevMode] = useState(false);
+  const [devModeClicks, setDevModeClicks] = useState(0);
 
   const queryParams = new URLSearchParams(window.location.search);
   const code = queryParams.get("code") || undefined;
@@ -31,20 +34,26 @@ const App: React.FC = () => {
     setLogs(client.logger.getLogs());
   }, [client]);
 
+  useEffect(() => {
+    const fetchInterval = setInterval(() => {
+      handleFetchButtonClick();
+    }, 5000);
+
+    return () => {
+      clearInterval(fetchInterval);
+    };
+  }, []);
+
   const handleLogin = () => {
     client.login();
   };
 
-  const handleGameUuidSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    client.selectTheGameUuid(event.target.value);
+  const handleGameUuidSelection = (uuid: string) => {
+    client.selectTheGameUuid(uuid);
   };
 
-  if(appState == null){
-    return (<></>);
-  }
-
   const handleFetchButtonClick = () => {
-    appState.stateManager.gameUuids.forEach(uuid => {
+    appState?.stateManager.gameUuids.forEach(uuid => {
       client.fetchGameData(uuid);
     });
   };
@@ -53,72 +62,65 @@ const App: React.FC = () => {
     client.createGame();
   };
 
+  const toggleDevMode = () => {
+    if (devModeClicks >= 4) {
+      setDevMode(!devMode);
+      setDevModeClicks(0);
+    } else {
+      setDevModeClicks(devModeClicks + 1);
+    }
+  };
+
+  const closeDevMode = () => {
+    setDevMode(false);
+  };
+
+  if (appState == null) {
+    return (<></>);
+  }
+
   return (
     <div>
-      <h1>Game Client</h1>
-      <p>
-        State: {State[appState.stateManager.state]}
-        <br />
-        JWT Token: {appState.stateManager.jwtToken}
-        <br />
-        Game UUIDs: {appState.stateManager.gameUuids.join(', ')}
-        <br />
-        Subs Game UUIDs: {appState.stateManager.subscribedGameUuids.join(', ')}
-        <br />
-        User UUID: {appState.stateManager.userUuid}
-      </p>
-      <button onClick={handleLogin}>Login</button>
-      {appState.stateManager.state === State.GameListLoaded && (
+      <header className="header">
+        {!devMode && (
+          <>
+            <button onClick={handleLogin}>Login</button>
+            <h1 onClick={toggleDevMode} style={{ cursor: 'pointer' }}>Hearts</h1>
+          </>
+        )}
+        {devMode && (
+          <button onClick={closeDevMode}>X</button>
+        )}
+      </header>
+      {devMode ? (
+        <Dev logs={logs} appState={appState} />
+      ) : (
         <>
-          <label htmlFor="gameUuidSelection">Select a Game UUID: </label>
-          <select id="gameUuidSelection" onChange={handleGameUuidSelection}>
-            <option value="">--Select a game UUID--</option>
-            {appState.stateManager.gameUuids.map((gameUuid) => (
-              <option key={gameUuid} value={gameUuid}>
-                {gameUuid}
-              </option>
-            ))}
-          </select>
+          {appState.stateManager.state === State.GameListLoaded && (
+            <>
+              {appState.stateManager.gameUuids.map((gameUuid) => (
+                <button key={gameUuid} className="uuid-button" onClick={() => handleGameUuidSelection(gameUuid)}>
+                  {gameUuid}
+                </button>
+              ))}
+            </>
+          )}
+
+          <br />
+          <button className="plus-button" onClick={handleCreateButtonClick}>+</button>
+          <br />
+
+          {appState.stateManager.subscribedGameUuids.length > 0 && appState.stateManager.gameStateManagers.size > 0 && (
+            Array.from(appState.stateManager.gameStateManagers.entries()).map(([gameUuid, gameStateManager]) => (
+              <CardsList
+                key={gameUuid}
+                gameStateManager={gameStateManager}
+                gameUuid={gameUuid}
+              />
+            ))
+          )}
         </>
       )}
-
-
-      <br />
-      <button onClick={handleFetchButtonClick}>Fetch Game Data</button>
-      <br />
-      <button onClick={handleCreateButtonClick}>Create Game</button>
-      <br />
-      <h2>Logs</h2>
-      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-        <pre>
-          {logs.map((log, index) => (
-            <div
-              key={index}
-              style={{
-                color:
-                  log.level === LogLevel.ERROR
-                    ? 'red'
-                    : log.level === LogLevel.LOG
-                    ? 'black'
-                    : 'blue',
-              }}
-            >
-              [{log.timestamp}, {log.source}] {LogLevel[log.level]}: {log.message}
-            </div>
-          ))}
-        </pre>
-      </div>
-
-      {appState.stateManager.subscribedGameUuids.length > 0 && appState.stateManager.gameStateManagers.size > 0 && (
-        Array.from(appState.stateManager.gameStateManagers.entries()).map(([gameUuid, gameStateManager]) => (
-          <CardsList
-            key={gameUuid}
-            gameStateManager={gameStateManager}
-            gameUuid={gameUuid}
-          />
-        ))
-      )}
-
     </div>
   );
 };
