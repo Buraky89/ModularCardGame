@@ -84,8 +84,6 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
 
   return (
     <div className="cards-list">
-      GAMEUUID: {gameUuid}
-      GAMESTATE: {gameStateManager.gameState}
       {gameState.gameState === GameState.NOT_STARTED && (
         <div className="not-started">
           <h1>Game is not started yet</h1>
