@@ -12,6 +12,7 @@ import './App.css'; // Import the CSS file
 const App: React.FC = () => {
   const updateState = () => {
     const newState: StateManagerWrapper = client.getStateManager();
+    console.log("new state", newState);
     setAppState(newState);
   };
 
@@ -91,8 +92,7 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => {
-    appState.stateManager.setState(State.NotLoggedIn);
-    appState.stateManager.setJwtToken('');
+    client.logout();
   };
 
   const renderLoginButton = () => {

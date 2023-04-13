@@ -91,6 +91,12 @@ export class GameClient {
       this.event("connectionLost");
       this.stateManager.setState(State.ConnectionLostWaiting);
     });
+
+    this.socket.on("logout", () => {
+      this.event("logout");
+      this.stateManager.setState(State.NotLoggedIn);
+      this.stateManager.setJwtToken("");
+    });
   }
 
   public exchangeCodeForToken(authorizationCode: string) {
@@ -138,6 +144,9 @@ export class GameClient {
 
     window.location.href =
       "http://localhost:8080/realms/FlexibleCardGame/protocol/openid-connect/auth?response_type=code&client_id=flexible-card-game";
+  }
+  async logout() {
+    this.socket.clientMock.emit("logout");
   }
 
   updateGameData(gameUuid: string, cb: (data: any) => void) {

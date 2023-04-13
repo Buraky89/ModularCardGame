@@ -105,7 +105,7 @@ export class StateManager {
 
   setJwtToken(jwtToken: string) {
     this.jwtToken = jwtToken;
-    this.setState(State.TOKEN_RECEIVED);
+    if (this.jwtToken !== "") this.setState(State.TOKEN_RECEIVED);
     if (this.onStateChange) {
       this.onStateChange();
     }
