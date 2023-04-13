@@ -98,7 +98,7 @@ const App: React.FC = () => {
   const renderLoginButton = () => {
     const { state } = appState.stateManager;
 
-    if (state === State.NotLoggedIn) {
+    if (state === State.NotLoggedIn || state === State.TOKEN_RETRIEVAL_FAILED) {
       return <button onClick={handleLogin}>Login</button>;
     } else if (
       state === State.LoggingIn ||
