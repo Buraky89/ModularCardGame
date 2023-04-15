@@ -40,6 +40,21 @@ export class StateManager {
     );
     this.gameStateManagersToString = serializedGameStateManagers;
     this.logger = logger;
+
+    const savedJwtToken = this.getTokenFromLocalStorage();
+    if (savedJwtToken) {
+      // TODO: fix this. React calls our objects in a way that we do not suppose. find it and address a solution.
+      //this.setJwtToken(savedJwtToken);
+      //this.setState(State.GameListLoading);
+    }
+  }
+
+  saveTokenToLocalStorage(jwtToken: string) {
+    localStorage.setItem("jwtToken", jwtToken);
+  }
+
+  getTokenFromLocalStorage(): string | null {
+    return localStorage.getItem("jwtToken");
   }
 
   async getTokenByAuthorizationCode(
@@ -105,6 +120,7 @@ export class StateManager {
 
   setJwtToken(jwtToken: string) {
     this.jwtToken = jwtToken;
+    this.saveTokenToLocalStorage(jwtToken);
     if (this.jwtToken !== "") this.setState(State.TOKEN_RECEIVED);
     if (this.onStateChange) {
       this.onStateChange();
