@@ -26,6 +26,7 @@ export class StateManager {
   gameStateManagers: Map<string, GameStateManager>; // Add a list of GameStateManager instances
   gameStateManagersToString: string;
   logger: Logger;
+  inited: boolean = false;
 
   constructor(onStateChange: () => void, logger: Logger) {
     this.state = State.NotLoggedIn;
@@ -40,21 +41,10 @@ export class StateManager {
     );
     this.gameStateManagersToString = serializedGameStateManagers;
     this.logger = logger;
-
-    const savedJwtToken = this.getTokenFromLocalStorage();
-    if (savedJwtToken) {
-      // TODO: fix this. React calls our objects in a way that we do not suppose. find it and address a solution.
-      //this.setJwtToken(savedJwtToken);
-      //this.setState(State.GameListLoading);
-    }
   }
 
   saveTokenToLocalStorage(jwtToken: string) {
     localStorage.setItem("jwtToken", jwtToken);
-  }
-
-  getTokenFromLocalStorage(): string | null {
-    return localStorage.getItem("jwtToken");
   }
 
   async getTokenByAuthorizationCode(

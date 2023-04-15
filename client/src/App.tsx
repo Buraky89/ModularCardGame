@@ -144,6 +144,7 @@ const App: React.FC = () => {
 
             <br />
             <button className="plus-button" onClick={handleCreateButtonClick}>+</button>
+            <button className="plus-button" onClick={() => client.retainLogin()}>Retain Login</button>
             <br />
 
             {appState.stateManager.subscribedGameUuids.length > 0 && appState.stateManager.gameStateManagers.size > 0 && (

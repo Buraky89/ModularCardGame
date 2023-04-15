@@ -17,6 +17,27 @@ export class GameClient {
     this.init();
   }
 
+  retainLogin() {
+    const savedJwtToken = this.getTokenFromLocalStorage();
+    if (savedJwtToken) {
+      this.stateManager.setJwtToken(savedJwtToken);
+      this.stateManager.setState(State.GameListLoading);
+    }
+
+    const gameDispatcher = new GameDispatcher();
+    const handleGameListData = (gameList: any) => {
+      this.socket.clientMock.emit("gameListCame", {
+        gameUuids: gameList,
+      });
+    };
+
+    gameDispatcher.fetchGames(handleGameListData);
+  }
+
+  getTokenFromLocalStorage(): string | null {
+    return localStorage.getItem("jwtToken");
+  }
+
   cb(
     logger: Logger,
     stateManager: StateManager,
