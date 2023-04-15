@@ -17,6 +17,12 @@ const App: React.FC = () => {
   };
 
   const [client] = useState(new GameClient(updateState));
+
+  // TODO: at a later time, use a base component that runs this automatically. it will also probably handle update state and all that stuff too.
+  useEffect(() => {
+    client.afterInit();
+  }, []);
+
   const [appState, setAppState] = useState<StateManagerWrapper | null>(client.getStateManager());
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [devMode, setDevMode] = useState(false);
@@ -144,7 +150,6 @@ const App: React.FC = () => {
 
             <br />
             <button className="plus-button" onClick={handleCreateButtonClick}>+</button>
-            <button className="plus-button" onClick={() => client.retainLogin()}>Retain Login</button>
             <br />
 
             {appState.stateManager.subscribedGameUuids.length > 0 && appState.stateManager.gameStateManagers.size > 0 && (

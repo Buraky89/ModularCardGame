@@ -17,6 +17,10 @@ export class GameClient {
     this.init();
   }
 
+  afterInit() {
+    this.retainLogin();
+  }
+
   retainLogin() {
     const savedJwtToken = this.getTokenFromLocalStorage();
     if (savedJwtToken) {
