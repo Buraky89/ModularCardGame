@@ -26,16 +26,16 @@ export class GameClient {
     if (savedJwtToken) {
       this.stateManager.setJwtToken(savedJwtToken);
       this.stateManager.setState(State.GameListLoading);
+
+      const gameDispatcher = new GameDispatcher();
+      const handleGameListData = (gameList: any) => {
+        this.socket.clientMock.emit("gameListCame", {
+          gameUuids: gameList,
+        });
+      };
+
+      gameDispatcher.fetchGames(handleGameListData);
     }
-
-    const gameDispatcher = new GameDispatcher();
-    const handleGameListData = (gameList: any) => {
-      this.socket.clientMock.emit("gameListCame", {
-        gameUuids: gameList,
-      });
-    };
-
-    gameDispatcher.fetchGames(handleGameListData);
   }
 
   getTokenFromLocalStorage(): string | null {
