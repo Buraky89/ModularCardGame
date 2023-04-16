@@ -60,7 +60,7 @@ const App: React.FC = () => {
   };
 
   const handleFetchButtonClick = () => {
-    appState?.stateManager.gameUuids.forEach(uuid => {
+    appState?.stateManager.subscribedGameUuids.forEach(uuid => {
       client.fetchGameData(uuid);
     });
   };
