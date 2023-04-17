@@ -210,5 +210,7 @@ app.post("/createGame", async (req: Request, res: Response) => {
   var eventManager = await realmService.addEventManager();
   await channel.assertQueue(`game-events-${eventManager.uuid}`);
 
+  await channel.assertQueue(`game-events-approved-${eventManager.uuid}`);
+
   res.json(eventManager.uuid);
 });

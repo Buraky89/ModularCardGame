@@ -207,6 +207,12 @@ class EventManager {
         console.log("message", message);
         const buffer = Buffer.from(JSON.stringify(message));
         await this.amqpService.publish("", `game-events-${this.uuid}`, buffer);
+
+        await this.amqpService.publish(
+          "",
+          `game-events-approved-${this.uuid}`,
+          buffer
+        );
       } else {
         console.log("Invalid card played");
       }
