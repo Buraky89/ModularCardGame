@@ -9,10 +9,12 @@ export class GameClient {
   socket: SocketServerMock;
   logger: Logger;
   stateManagerVersion: number = 0;
+  customToken: string | undefined;
 
-  constructor(onStateChange: () => void) {
+  constructor(onStateChange: () => void, customToken?: string) {
     this.logger = new Logger();
     this.stateManager = new StateManager(onStateChange, this.logger);
+    this.customToken = customToken;
     this.socket = new SocketServerMock();
     this.init();
   }
@@ -22,7 +24,7 @@ export class GameClient {
   }
 
   retainLogin() {
-    const savedJwtToken = this.getTokenFromLocalStorage();
+    const savedJwtToken = this.getSavedToken();
     if (savedJwtToken) {
       this.stateManager.setJwtToken(savedJwtToken);
       this.stateManager.setState(State.GameListLoading);
@@ -36,6 +38,10 @@ export class GameClient {
 
       gameDispatcher.fetchGames(handleGameListData);
     }
+  }
+
+  getSavedToken() {
+    return this.customToken ?? this.getTokenFromLocalStorage();
   }
 
   getTokenFromLocalStorage(): string | null {

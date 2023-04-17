@@ -16,7 +16,11 @@ const App: React.FC = () => {
     setAppState(newState);
   };
 
-  const [client] = useState(new GameClient(updateState));
+
+  const queryParams = new URLSearchParams(window.location.search);
+  const customToken = queryParams.get("customToken") || undefined;
+
+  const [client] = useState(new GameClient(updateState, customToken));
 
   // TODO: at a later time, use a base component that runs this automatically. it will also probably handle update state and all that stuff too.
   useEffect(() => {
@@ -28,7 +32,6 @@ const App: React.FC = () => {
   const [devMode, setDevMode] = useState(false);
   const [devModeClicks, setDevModeClicks] = useState(0);
 
-  const queryParams = new URLSearchParams(window.location.search);
   const code = queryParams.get("code") || undefined;
 
   useEffect(() => {
