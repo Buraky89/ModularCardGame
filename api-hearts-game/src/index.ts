@@ -5,6 +5,7 @@ import { connect, Channel } from "amqplib";
 import Events from "./Common/Events";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -207,10 +208,13 @@ app.get("/getGames", (req: Request, res: Response) => {
 });
 
 app.post("/createGame", async (req: Request, res: Response) => {
-  var eventManager = await realmService.addEventManager();
-  await channel.assertQueue(`game-events-${eventManager.uuid}`);
+  var eventManagerUuid = uuidv4(); // TODO: design the classes better so that run listen queue's as callbacks.
 
-  await channel.assertQueue(`game-events-approved-${eventManager.uuid}`);
+  await channel.assertQueue(`game-events-${eventManagerUuid}`);
+
+  await channel.assertQueue(`game-events-exchange-q-${eventManagerUuid}`);
+
+  var eventManager = await realmService.addEventManager(eventManagerUuid);
 
   res.json(eventManager.uuid);
 });

@@ -10,7 +10,6 @@ import {
   GameStartRequestedPayload,
   GameStartApprovedPayload,
 } from "../Common/Payloads";
-import { v4 as uuidv4 } from "uuid";
 
 enum GameState {
   NOT_STARTED,
@@ -21,10 +20,10 @@ enum GameState {
 class EventManager {
   public amqpService: AmqpService;
   public gameService: GameService;
-  public uuid: string = uuidv4();
+  public uuid: string;
 
-  constructor() {
-    this.uuid = uuidv4();
+  constructor(uuid: string) {
+    this.uuid = uuid;
     this.amqpService = new AmqpService();
     this.gameService = new GameService();
   }
@@ -42,10 +41,29 @@ class EventManager {
         noAck: true,
       }
     );
+
+    await channel.consume(
+      `game-events-exchange-q-${this.uuid}`,
+      this.handleExchange.bind(this),
+      {
+        noAck: true,
+      }
+    );
   }
 
   async stop(): Promise<void> {
     await this.amqpService.stop();
+  }
+
+  async handleExchange(msg: any): Promise<void> {
+    if (this.gameService.gameState == GameState.ENDED) {
+      console.log("Game is ended, ignoring message");
+      return;
+    }
+
+    const message = JSON.parse(msg.content.toString());
+    console.log(`Received message: ${JSON.stringify(message)}`);
+    this.handleExchangeEvent(message);
   }
 
   async handleMessage(msg: any): Promise<void> {
@@ -57,6 +75,35 @@ class EventManager {
     const message = JSON.parse(msg.content.toString());
     console.log(`Received message: ${JSON.stringify(message)}`);
     this.handleEvent(message);
+  }
+
+  handleExchangeEvent(message: any): void {
+    if (this.gameService.gameState == GameState.ENDED) {
+      console.log("Game is ended, ignoring event");
+      return;
+    }
+
+    // Loop through each player and send the message to their queue
+    for (const player of this.gameService.playerService.players) {
+      const playerQueue = `game-events-for-player-${player.uuid}-${this.uuid}`;
+      if (this.amqpService != null && this.amqpService.channel != null) {
+        this.amqpService.channel
+          .assertQueue(playerQueue, { durable: false })
+          .then(() => {
+            const buffer = Buffer.from(JSON.stringify(message));
+            if (this.amqpService.channel != null) {
+              console.log(`Exchanging message to player ${player.uuid}`);
+              this.amqpService.channel.sendToQueue(playerQueue, buffer);
+            }
+          })
+          .catch((error) => {
+            console.error(
+              `Error sending message to player ${player.uuid}:`,
+              error
+            );
+          });
+      }
+    }
   }
 
   handleEvent(message: any): void {
@@ -210,7 +257,7 @@ class EventManager {
 
         await this.amqpService.publish(
           "",
-          `game-events-approved-${this.uuid}`,
+          `game-events-exchange-q-${this.uuid}`,
           buffer
         );
       } else {

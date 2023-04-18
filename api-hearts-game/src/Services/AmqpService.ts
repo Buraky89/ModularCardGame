@@ -2,7 +2,7 @@ import { connect, Connection, ConsumeMessage, Channel } from "amqplib";
 
 class AmqpService {
   private connection: Connection | null = null;
-  private channel: Channel | null = null;
+  public channel: Channel | null = null;
 
   async start(eventManagerUuid: string): Promise<Channel> {
     this.connection = await connect("amqp://localhost");

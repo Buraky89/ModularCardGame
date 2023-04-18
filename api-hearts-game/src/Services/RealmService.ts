@@ -15,8 +15,8 @@ class RealmService {
     }
   }
 
-  async addEventManager(): Promise<EventManager> {
-    const eventManager = new EventManager();
+  async addEventManager(uuid: string): Promise<EventManager> {
+    const eventManager = new EventManager(uuid);
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();
