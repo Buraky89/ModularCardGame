@@ -6,6 +6,9 @@ import Events from "./Common/Events";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import { Server } from "socket.io";
+import { createServer } from "http";
+import path from "path";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -22,6 +25,51 @@ enum GameState {
 }
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // adjust this to your specific origin
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("User connected", socket.id);
+
+  // TODO: add authentication
+  // socket.use(async (packet, next) => {
+  //   // const token = packet[1]?.token;
+  //   // if (!token) {
+  //   //   return next(new Error("Authentication error"));
+  //   // }
+  //   // ... (rest of the existing authenticateToken function)
+  //   // jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
+  //   //   if (err) {
+  //   //     return next(new Error("Authentication error"));
+  //   //   }
+  //   //   const { sid, preferred_username } = decoded as TokenPayload;
+  //   //   socket.user = { uuid: sid, username: preferred_username, avatar: "" };
+  //   //   next();
+  //   // });
+  // });
+
+  socket.on("joinGameEventQueue", async ({ playerUuid, gameUuid }) => {
+    const queueName = `game-events-for-player-${playerUuid}-${gameUuid}`;
+    await channel.assertQueue(queueName, { durable: false });
+    channel.consume(queueName, (msg) => {
+      if (msg) {
+        const content = msg.content.toString();
+        const data = JSON.parse(content);
+        socket.emit("gameEvent", data);
+        channel.ack(msg);
+      }
+    });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket.id);
+  });
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -101,7 +149,7 @@ realmService
   .start()
   .then(() => {
     console.log("RealmService started");
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`Server is listening on port ${port}.`);
 
       main().catch((err) => console.error(err));
@@ -217,4 +265,8 @@ app.post("/createGame", async (req: Request, res: Response) => {
   var eventManager = await realmService.addEventManager(eventManagerUuid);
 
   res.json(eventManager.uuid);
+});
+
+app.get("/test", (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "../src/test.html"));
 });
