@@ -94,15 +94,26 @@ export const authenticateToken = (
   const publicKey =
     "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkLRqxmPUDSjL39rbmIrJLXXd9WtlcRMZnylO2Nm7FjCYFdomrzc8zOc1kqIm6dWQZu7wOnNISQpzPQojp9bBLxRgx3bpT2jOEHeLkySVO8MP+rYunDAb989wm2HVqSCI70MnncC0eJrK06xN5M793jdS/SI4830qn59NJOBhXukmX63zmAYi42QQPv27PcA7T6PyY85vTTeDtT4kqa2e4j8sUtxU/b37nHv6TWzAt2Ia862RYMwHM+QTasZnp17+wurRsUciSGPOMedskmj2X3vyfT44cazjQMKmcOmfmoUqGz+YQi9vSYcwnGDVZuGHwC6q6b9L8dFTUR/ZimFxmwIDAQAB\n-----END PUBLIC KEY-----\n";
 
-  jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
-    if (err) {
-      return res.sendStatus(403);
-    }
+  // TODO: uncomment when publishing
+  // jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
+  //   if (err) {
+  //     return res.sendStatus(403);
+  //   }
 
-    const { sid, preferred_username } = decoded as TokenPayload;
-    req.user = { uuid: sid, username: preferred_username, avatar: "" };
-    next();
-  });
+  //   const { sid, preferred_username } = decoded as TokenPayload;
+  //   req.user = { uuid: sid, username: preferred_username, avatar: "" };
+  //   next();
+  // });
+
+  const decoded = jwt.decode(token);
+
+  if (!decoded) {
+    return res.sendStatus(403);
+  }
+
+  const { sid, preferred_username } = decoded as TokenPayload;
+  req.user = { uuid: sid, username: preferred_username, avatar: "" };
+  next();
 };
 
 // Protected endpoint
