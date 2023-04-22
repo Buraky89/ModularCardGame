@@ -83,12 +83,7 @@ export class GameClient {
   init() {
     // real socket events
     this.realSocket.on("connect", () => {
-      console.log("Connected");
-      const playerUuid = this.stateManager.userUuid;
-      const gameUuid = this.stateManager.gameUuid;
-      if (playerUuid && gameUuid) {
-        this.realSocket.emit("joinGameEventQueue", { playerUuid, gameUuid });
-      }
+      console.log("Connected!");
     });
 
     this.realSocket.on("gameEvent", (data) => {
