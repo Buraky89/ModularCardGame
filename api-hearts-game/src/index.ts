@@ -53,7 +53,12 @@ io.on("connection", (socket) => {
   //   // });
   // });
 
-  socket.on("joinGameEventQueue", async ({ playerUuid, gameUuid }) => {
+  socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {
+    // TODO: use middleware instead
+    const decoded = jwt.decode(jwtToken);
+    const { sid, preferred_username } = decoded as TokenPayload;
+    const playerUuid = sid;
+
     const queueName = `game-events-for-player-${playerUuid}-${gameUuid}`;
     await channel.assertQueue(queueName, { durable: false });
     channel.consume(queueName, (msg) => {
