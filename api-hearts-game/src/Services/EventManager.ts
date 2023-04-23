@@ -176,9 +176,18 @@ class EventManager {
     }
   }
 
-  private handleGameStartApproved(payload: GameStartApprovedPayload): void {
+  private async handleGameStartApproved(
+    payload: GameStartApprovedPayload
+  ): Promise<void> {
     console.log("Game start approved");
     this.gameService.gameState = GameState.STARTED;
+
+    const buffer = Buffer.from(JSON.stringify(payload));
+    await this.amqpService.publish(
+      "",
+      `game-events-exchange-q-${this.uuid}`,
+      buffer
+    );
   }
 
   private handleGameEnded(payload: GameEndedPayload): void {
