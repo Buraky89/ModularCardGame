@@ -7,6 +7,7 @@ enum Events {
   GameEnded = "GameEnded",
   GameStartRequested = "GameStartRequested",
   GameStartApproved = "GameStartApproved",
+  GameUpdated = "GameUpdated",
 }
 
 export default Events;

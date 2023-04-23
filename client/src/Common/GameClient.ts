@@ -89,7 +89,7 @@ export class GameClient {
     this.realSocket.on("gameEvent", (data) => {
       console.log("Received game event:", data);
       if (this.socket instanceof SocketServerMock) {
-        this.socket.clientMock.emit("gameEvent", data);
+        this.socket.clientMock.emit("gameEvent", data.payload);
       }
     });
 
@@ -132,6 +132,7 @@ export class GameClient {
       const gameStateManager = this.stateManager.gameStateManagers.get(
         payload.gameUuid
       );
+      console.log("payload", payload);
       if (gameStateManager) {
         gameStateManager.updateGameState(payload.data);
       }

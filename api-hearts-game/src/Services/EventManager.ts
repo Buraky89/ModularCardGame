@@ -77,7 +77,7 @@ class EventManager {
     this.handleEvent(message);
   }
 
-  handleExchangeEvent(message: any): void {
+  async handleExchangeEvent(message: any): Promise<void> {
     if (this.gameService.gameState == GameState.ENDED) {
       console.log("Game is ended, ignoring event");
       return;
@@ -85,6 +85,17 @@ class EventManager {
 
     // Loop through each player and send the message to their queue
     for (const player of this.gameService.playerService.players) {
+      const playerUuid = player.uuid;
+      const gameState = await this.gameService.getGameData(playerUuid);
+
+      const message = {
+        event: Events.GameUpdated,
+        payload: {
+          gameUuid: this.uuid,
+          data: gameState,
+        },
+      };
+
       const playerQueue = `game-events-for-player-${player.uuid}-${this.uuid}`;
       if (this.amqpService != null && this.amqpService.channel != null) {
         this.amqpService.channel
