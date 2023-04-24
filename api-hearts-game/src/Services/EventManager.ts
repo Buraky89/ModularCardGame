@@ -74,7 +74,7 @@ class EventManager {
 
     const message = JSON.parse(msg.content.toString());
     console.log(`Received message: ${JSON.stringify(message)}`);
-    this.handleEvent(message);
+    await this.handleEvent(message);
   }
 
   async handleExchangeEvent(message: any): Promise<void> {
@@ -117,7 +117,7 @@ class EventManager {
     }
   }
 
-  handleEvent(message: any): void {
+  async handleEvent(message: any): Promise<void> {
     if (this.gameService.gameState == GameState.ENDED) {
       console.log("Game is ended, ignoring event");
       return;
@@ -144,7 +144,9 @@ class EventManager {
         this.gameService.playerService.distributeCards();
         break;
       case Events.PlayerAttemptsToPlay:
-        this.handlePlayerAttemptsToPlay(payload as PlayerAttemptsToPlayPayload);
+        await this.handlePlayerAttemptsToPlay(
+          payload as PlayerAttemptsToPlayPayload
+        );
         break;
       case Events.GameEnded:
         this.handleGameEnded(payload as GameEndedPayload);
