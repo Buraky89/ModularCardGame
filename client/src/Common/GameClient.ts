@@ -8,7 +8,7 @@ import { io, Socket } from "socket.io-client";
 export class GameClient {
   stateManager: StateManager;
   socket: SocketServerMock;
-  realSocket: Socket;
+  realSocket: Socket | undefined;
   logger: Logger;
   stateManagerVersion: number = 0;
   customToken: string | undefined;
@@ -18,12 +18,32 @@ export class GameClient {
     this.stateManager = new StateManager(onStateChange, this.logger);
     this.customToken = customToken;
     this.socket = new SocketServerMock();
-    this.realSocket = io("http://localhost:3001");
     this.init();
   }
 
   afterInit() {
     this.retainLogin();
+    this.realSocket = io("http://localhost:3001");
+
+    // real socket events
+    this.realSocket?.on("connect", () => {
+      console.log("Connected!");
+    });
+
+    this.realSocket?.on("gameEvent", (data) => {
+      console.log("Received game event:", data);
+      if (this.socket instanceof SocketServerMock) {
+        this.socket.clientMock.emit("gameEvent", data.payload);
+      }
+    });
+
+    this.realSocket?.on("disconnect", () => {
+      console.log("Disconnected");
+    });
+
+    this.realSocket?.on("error", (err) => {
+      console.error("Socket error:", err);
+    });
   }
 
   retainLogin() {
@@ -81,26 +101,6 @@ export class GameClient {
   }
 
   init() {
-    // real socket events
-    this.realSocket.on("connect", () => {
-      console.log("Connected!");
-    });
-
-    this.realSocket.on("gameEvent", (data) => {
-      console.log("Received game event:", data);
-      if (this.socket instanceof SocketServerMock) {
-        this.socket.clientMock.emit("gameEvent", data.payload);
-      }
-    });
-
-    this.realSocket.on("disconnect", () => {
-      console.log("Disconnected");
-    });
-
-    this.realSocket.on("error", (err) => {
-      console.error("Socket error:", err);
-    });
-
     // fake socket events
     this.socket.on("loginError", () => {
       this.event("loginError");

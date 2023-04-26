@@ -24,6 +24,7 @@ const App: React.FC = () => {
 
   // TODO: at a later time, use a base component that runs this automatically. it will also probably handle update state and all that stuff too.
   useEffect(() => {
+    console.log("after init...");
     client.afterInit();
   }, []);
 
@@ -132,7 +133,7 @@ const App: React.FC = () => {
   };
 
   const handleJoinGameEventQueue = (gameUuid: string) => {
-    client.realSocket.emit("joinGameEventQueue", { jwtToken: appState.stateManager.jwtToken, gameUuid });
+    client.realSocket?.emit("joinGameEventQueue", { jwtToken: appState.stateManager.jwtToken, gameUuid });
   }
 
   return (
