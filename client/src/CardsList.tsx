@@ -127,7 +127,7 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
           </div>
           <div className="deck-row">
             {gameState.deck.map((card: Card, index: number) => (
-              <div key={`card-${index}`} className="deck-card" onClick={() => gameStateManager.handleCardClick(index)}>
+              <div key={`card-${index}`} className="deck-card">
                 <MySVG
                   cardType={card.cardType}
                   score={card.score}
