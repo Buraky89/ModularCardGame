@@ -3,14 +3,17 @@ import Events from "../Common/Events";
 import { v4 as uuidv4 } from "uuid";
 import { Player } from "../Common/Player";
 import { CardService } from "./CardService";
+import { Mutex } from "async-mutex";
 
 class PlayerService {
   public players: Player[] = [];
   private channel: Channel | null = null;
   private cardService: CardService;
+  public turnMutex: Mutex;
 
   constructor() {
     this.cardService = new CardService();
+    this.turnMutex = new Mutex(); // Initialize the mutex
   }
 
   async start(channel: Channel): Promise<void> {

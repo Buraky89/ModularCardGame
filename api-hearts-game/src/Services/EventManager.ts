@@ -227,10 +227,22 @@ class EventManager {
     );
 
     if (player) {
-      await this.gameService.playGame(player, selectedIndex, this.uuid); // TODO: is this the best way? (sending eventManagerUuid to the gameService?)
+      // Check if it's the player's turn before allowing them to play
+      if (player.isTheirTurn) {
+        // Acquire the mutex before playing and changing the turn
+        const release =
+          await this.gameService.playerService.turnMutex.acquire();
 
-      // Set the next player's isTheirTurn property to true
-      this.gameService.playerService.setWhoseTurn();
+        await this.gameService.playGame(player, selectedIndex, this.uuid);
+
+        // Set the next player's isTheirTurn property to true
+        await this.gameService.playerService.setWhoseTurn();
+
+        // Release the mutex when done
+        release();
+      } else {
+        console.log(`Player ${uuid} tried to play out of turn`);
+      }
     } else {
       console.log(`Player ${uuid} not found`);
     }
