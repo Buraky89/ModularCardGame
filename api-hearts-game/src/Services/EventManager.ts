@@ -56,11 +56,6 @@ class EventManager {
   }
 
   async handleExchange(msg: any): Promise<void> {
-    if (this.gameService.gameState == GameState.ENDED) {
-      console.log("Game is ended, ignoring message");
-      return;
-    }
-
     const message = JSON.parse(msg.content.toString());
     console.log(`Received message: ${JSON.stringify(message)}`);
     this.handleExchangeEvent(message);
@@ -78,11 +73,6 @@ class EventManager {
   }
 
   async handleExchangeEvent(message: any): Promise<void> {
-    if (this.gameService.gameState == GameState.ENDED) {
-      console.log("Game is ended, ignoring event");
-      return;
-    }
-
     // Loop through each player and send the message to their queue
     for (const player of this.gameService.playerService.players) {
       const playerUuid = player.uuid;
@@ -118,12 +108,15 @@ class EventManager {
   }
 
   async handleEvent(message: any): Promise<void> {
-    if (this.gameService.gameState == GameState.ENDED) {
+    const { event, payload } = message;
+
+    if (
+      this.gameService.gameState == GameState.ENDED &&
+      event !== Events.GameEnded
+    ) {
       console.log("Game is ended, ignoring event");
       return;
     }
-
-    const { event, payload } = message;
 
     switch (event) {
       case Events.NewPlayerWantsToJoin:
@@ -203,9 +196,16 @@ class EventManager {
     );
   }
 
-  private handleGameEnded(payload: GameEndedPayload): void {
+  private async handleGameEnded(payload: GameEndedPayload): Promise<void> {
     console.log("Game has ended!");
     this.gameService.gameState = GameState.ENDED;
+
+    const buffer = Buffer.from(JSON.stringify(payload));
+    await this.amqpService.publish(
+      "",
+      `game-events-exchange-q-${this.uuid}`,
+      buffer
+    );
   }
 
   private handleNewPlayerWantsToJoin(
@@ -233,7 +233,20 @@ class EventManager {
         const release =
           await this.gameService.playerService.turnMutex.acquire();
 
-        await this.gameService.playGame(player, selectedIndex, this.uuid);
+        var isGameEnded = await this.gameService.playGame(
+          player,
+          selectedIndex,
+          this.uuid
+        );
+
+        if (isGameEnded != "") {
+          const buffer = Buffer.from(JSON.stringify(isGameEnded));
+          await this.amqpService.publish(
+            "",
+            `game-events-${this.uuid}`,
+            buffer
+          );
+        }
 
         // Set the next player's isTheirTurn property to true
         await this.gameService.playerService.setWhoseTurn();

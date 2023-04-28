@@ -26,7 +26,7 @@ class GameService {
     player: Player,
     selectedIndex: number,
     eventManagerUuid: string
-  ): Promise<void> {
+  ): Promise<any> {
     if (this.gameState == GameState.ENDED) {
       console.log("Game is ended, cannot play game");
       return;
@@ -89,14 +89,10 @@ class GameService {
           players,
         },
       };
-      const buffer = Buffer.from(JSON.stringify(message));
-      await this.amqpService.publish(
-        "",
-        `game-events-${eventManagerUuid}`,
-        buffer
-      );
-      this.gameState = GameState.ENDED;
-      return;
+
+      return message;
+    } else {
+      return "";
     }
   }
 
