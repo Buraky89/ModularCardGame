@@ -54,6 +54,29 @@ class GameStateManager {
     await this.gameDispatcher.startGame(this.token, this.uuid, this.gameUuid);
   }
 
+  private setUuid = (uuid: string) => {
+    // TODO: is passing the StateManager here a good idea?
+    //this.stateManager.userUuid = uuid;
+    this.uuid = uuid;
+  };
+
+  public async joinGame() {
+    await this.gameDispatcher
+      .joinGame("aaa", this.gameUuid, this.token, this.setUuid)
+      .then(() => {
+        // TODO: find a solution to this.log
+        //logger.log("GameClient", "Logged in and joined the game successfully");
+      })
+      .catch((error) => {
+        // TODO: find a solution to this.error
+        /*logger.error(
+          "GameClient",
+          "Error while logging in and joining the game:",
+          error
+        );*/
+      });
+  }
+
   public setAutoPlay(autoPlay: boolean) {
     this.autoPlay = autoPlay;
     if (this.autoPlay && this.gameState === GameState.STARTED) {

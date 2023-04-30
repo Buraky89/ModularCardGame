@@ -76,29 +76,7 @@ export class GameClient {
     stateManager: StateManager,
     gameUuid: string,
     jwtToken: string
-  ) {
-    const setUuid = (uuid: string) => {
-      // TODO: is passing the StateManager here a good idea?
-      stateManager.userUuid = uuid;
-      const gameStateManager = stateManager.gameStateManagers.get(gameUuid);
-      if (gameStateManager !== undefined) gameStateManager.uuid = uuid;
-    };
-    const gameDispatcher = new GameDispatcher();
-    gameDispatcher
-      .joinGame("aaa", gameUuid, jwtToken, setUuid)
-      .then(() => {
-        // TODO: find a solution to this.log
-        logger.log("GameClient", "Logged in and joined the game successfully");
-      })
-      .catch((error) => {
-        // TODO: find a solution to this.error
-        logger.error(
-          "GameClient",
-          "Error while logging in and joining the game:",
-          error
-        );
-      });
-  }
+  ) {}
 
   init() {
     // fake socket events

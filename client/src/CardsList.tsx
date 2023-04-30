@@ -80,6 +80,10 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
     gameStateManager.startGame();
   };
 
+  const joinGame = () => {
+    gameStateManager.joinGame();
+  };
+
   var gameState = gameStateManager;
 
   return (
@@ -88,6 +92,7 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
         <div className="not-started">
           <h1>Game is not started yet</h1>
           <button onClick={startGame}>Start</button>
+          <button onClick={joinGame}>Join</button>
         </div>
       )}
       {gameState.gameState !== GameState.NOT_STARTED && (
