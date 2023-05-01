@@ -200,6 +200,44 @@ app.post(
   }
 );
 
+app.post(
+  "/subscribe",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res) => {
+    if (req.user) {
+      const { uuid, username } = req.user;
+      const { gameUuid } = req.body;
+
+      if (!gameUuid) {
+        res.status(500).json({ message: "Please provide a game uuid" });
+        return;
+      }
+
+      const date = new Date();
+      const ip = req.ip;
+
+      const message = {
+        event: Events.NewViewerWantsToSubscribe,
+        payload: {
+          date,
+          ip,
+          uuid,
+          playerName: username,
+        },
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+
+      try {
+        await channel.publish("", `game-events-${gameUuid}`, buffer);
+        res.status(200).json({ uuid, message: "Player joined the game" });
+      } catch (err) {
+        console.error("Error publishing message", err);
+        res.status(500).json({ message: "Error joining the game" });
+      }
+    }
+  }
+);
+
 app.post("/join", authenticateToken, async (req: AuthenticatedRequest, res) => {
   if (req.user) {
     const { uuid, username } = req.user;

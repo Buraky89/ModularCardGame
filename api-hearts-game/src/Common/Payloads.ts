@@ -17,6 +17,11 @@ interface NewPlayerApprovedToJoinPayload {
   approvedAt: Date;
 }
 
+interface NewViewerApprovedToSubscribePayload {
+  uuid: string;
+  approvedAt: Date;
+}
+
 interface PlayerAttemptsToPlayPayload {
   uuid: string;
   selectedIndex: number;
@@ -43,4 +48,5 @@ export {
   GameEndedPayload,
   GameStartRequestedPayload,
   GameStartApprovedPayload,
+  NewViewerApprovedToSubscribePayload,
 };

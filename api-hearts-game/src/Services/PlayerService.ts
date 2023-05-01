@@ -7,6 +7,7 @@ import { Mutex } from "async-mutex";
 
 class PlayerService {
   public players: Player[] = [];
+  public viewers: Player[] = [];
   private channel: Channel | null = null;
   private cardService: CardService;
   public turnMutex: Mutex;
@@ -58,6 +59,29 @@ class PlayerService {
         `game-events-${eventManagerUuid}`,
         buffer
       );
+    }
+  }
+
+  async subscribeViewer(
+    playerName: string,
+    uuid: string,
+    eventManagerUuid: string
+  ): Promise<void> {
+    const player = new Player(playerName, uuid);
+    this.viewers.push(player);
+    if (this.viewers.length > 499) return;
+    console.log(`Viewer added: ${uuid}`);
+
+    // Publish NewViewerApprovedToSubscribe event
+    if (this.channel) {
+      const message = {
+        event: Events.NewViewerApprovedToSubscribe,
+        payload: {
+          uuid,
+        },
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+      await this.channel.publish("", `game-events-${eventManagerUuid}`, buffer);
     }
   }
 

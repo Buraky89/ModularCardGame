@@ -9,6 +9,7 @@ import {
   GameEndedPayload,
   GameStartRequestedPayload,
   GameStartApprovedPayload,
+  NewViewerApprovedToSubscribePayload,
 } from "../Common/Payloads";
 
 enum GameState {
@@ -122,12 +123,22 @@ class EventManager {
       case Events.NewPlayerWantsToJoin:
         this.handleNewPlayerWantsToJoin(payload as NewPlayerWantsToJoinPayload);
         break;
+      case Events.NewViewerWantsToSubscribe:
+        this.handleNewViewerWantsToSubscribe(
+          payload as NewPlayerWantsToJoinPayload
+        );
+        break;
       case Events.PlayerPlayed:
         this.handlePlayerPlayed(payload as PlayerPlayedPayload);
         break;
       case Events.NewPlayerApprovedToJoin:
         this.handleNewPlayerApprovedToJoin(
           payload as NewPlayerApprovedToJoinPayload
+        );
+        break;
+      case Events.NewViewerApprovedToSubscribe:
+        this.handleNewViewerApprovedToSubscribe(
+          payload as NewViewerApprovedToSubscribePayload
         );
         break;
       case Events.CardsAreReadyToBeDistributed:
@@ -219,6 +230,13 @@ class EventManager {
     }
   }
 
+  private handleNewViewerWantsToSubscribe(
+    payload: NewPlayerWantsToJoinPayload
+  ): void {
+    const { date, ip, uuid, playerName } = payload;
+    this.gameService.playerService.subscribeViewer(playerName, uuid, this.uuid);
+  }
+
   async handlePlayerPlayed(payload: PlayerPlayedPayload): Promise<void> {
     const { uuid, selectedIndex } = payload;
 
@@ -266,6 +284,14 @@ class EventManager {
   ): void {
     const { uuid } = payload;
     console.log(`New player ${uuid} approved to join`);
+    // Do something with the approved player
+  }
+
+  private handleNewViewerApprovedToSubscribe(
+    payload: NewViewerApprovedToSubscribePayload
+  ): void {
+    const { uuid } = payload;
+    console.log(`New viewer ${uuid} approved to subscribe`);
     // Do something with the approved player
   }
 
