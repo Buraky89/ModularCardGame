@@ -229,10 +229,10 @@ app.post(
 
       try {
         await channel.publish("", `game-events-${gameUuid}`, buffer);
-        res.status(200).json({ uuid, message: "Player joined the game" });
+        res.status(200).json({ uuid, message: "Player subscribed the game" });
       } catch (err) {
         console.error("Error publishing message", err);
-        res.status(500).json({ message: "Error joining the game" });
+        res.status(500).json({ message: "Error subscribing the game" });
       }
     }
   }
