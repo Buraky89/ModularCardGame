@@ -86,7 +86,20 @@ export class GameDispatcher {
     setUuid: (uuid: string) => void
   ): Promise<void> {
     try {
-      await this.handleSelectGame(token, gameUuid, setUuid);
+      await this.handleJoinGame(token, gameUuid, setUuid);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public async subscribeGame(
+    playerName: string,
+    gameUuid: string,
+    token: string,
+    setUuid: (uuid: string) => void
+  ): Promise<void> {
+    try {
+      await this.handleSubscribeGame(token, gameUuid, setUuid);
     } catch (error) {
       console.error(error);
     }
@@ -116,12 +129,37 @@ export class GameDispatcher {
     }
   }
 
-  private async handleSelectGame(
+  private async handleJoinGame(
     token: string,
     gameUuid: string,
     setUuid: (uuid: string) => void
   ): Promise<void> {
     const response = await fetch("http://localhost:3001/join", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ token, gameUuid }),
+    });
+
+    const data: JoinResponse = await response.json();
+
+    if (response.ok) {
+      console.log(data.message);
+      setUuid(data.uuid);
+    } else {
+      console.error(data.message);
+      throw new Error("Joining game failed");
+    }
+  }
+
+  private async handleSubscribeGame(
+    token: string,
+    gameUuid: string,
+    setUuid: (uuid: string) => void
+  ): Promise<void> {
+    const response = await fetch("http://localhost:3001/subscribe", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

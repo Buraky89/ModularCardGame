@@ -77,6 +77,23 @@ class GameStateManager {
       });
   }
 
+  public async subscribeGame() {
+    await this.gameDispatcher
+      .subscribeGame("aaa", this.gameUuid, this.token, this.setUuid)
+      .then(() => {
+        // TODO: find a solution to this.log
+        //logger.log("GameClient", "Logged in and joined the game successfully");
+      })
+      .catch((error) => {
+        // TODO: find a solution to this.error
+        /*logger.error(
+          "GameClient",
+          "Error while logging in and joining the game:",
+          error
+        );*/
+      });
+  }
+
   public setAutoPlay(autoPlay: boolean) {
     this.autoPlay = autoPlay;
     if (this.autoPlay && this.gameState === GameState.STARTED) {
