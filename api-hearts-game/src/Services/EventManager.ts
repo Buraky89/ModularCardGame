@@ -11,6 +11,7 @@ import {
   GameStartApprovedPayload,
   NewViewerApprovedToSubscribePayload,
 } from "../Common/Payloads";
+import { Player } from "../Common/Player";
 
 enum GameState {
   NOT_STARTED,
@@ -75,7 +76,22 @@ class EventManager {
 
   async handleExchangeEvent(message: any): Promise<void> {
     // Loop through each player and send the message to their queue
+
+    const mergedPlayersMap = new Map<string, Player>();
+
     for (const player of this.gameService.playerService.players) {
+      mergedPlayersMap.set(player.uuid, player);
+    }
+
+    for (const viewer of this.gameService.playerService.viewers) {
+      if (!mergedPlayersMap.has(viewer.uuid)) {
+        mergedPlayersMap.set(viewer.uuid, viewer);
+      }
+    }
+
+    const mergedPlayersArray = Array.from(mergedPlayersMap.values());
+
+    for (const player of mergedPlayersArray) {
       const playerUuid = player.uuid;
       const gameState = await this.gameService.getGameData(playerUuid);
 
