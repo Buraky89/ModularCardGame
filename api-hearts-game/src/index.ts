@@ -283,7 +283,7 @@ app.post(
     const { gameUuid } = req.body;
 
     if (realmService.isGameEnded(gameUuid)) {
-      realmService.stop(gameUuid);
+      // realmService.stop(gameUuid);
       realmService.restartGame(gameUuid);
       res.send("OK");
     } else {

@@ -10,6 +10,7 @@ enum Events {
   GameUpdated = "GameUpdated",
   NewViewerWantsToSubscribe = "NewViewerWantsToSubscribe",
   NewViewerApprovedToSubscribe = "NewViewerApprovedToSubscribe",
+  GameRestarted = "GameRestarted",
 }
 
 export default Events;

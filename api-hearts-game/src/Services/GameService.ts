@@ -22,6 +22,14 @@ class GameService {
     this.amqpService = new AmqpService();
   }
 
+  restartAsClean() {
+    this.playerService.restartAsClean();
+    this.playedDeck = [];
+    this.turnNumber = 1;
+    this.gameState = GameState.NOT_STARTED;
+    this.playerService.restartAsClean();
+  }
+
   async playGame(
     player: Player,
     selectedIndex: number,

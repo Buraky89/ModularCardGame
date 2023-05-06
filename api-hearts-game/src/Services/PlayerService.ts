@@ -17,6 +17,11 @@ class PlayerService {
     this.turnMutex = new Mutex(); // Initialize the mutex
   }
 
+  restartAsClean() {
+    this.players = [];
+    this.cardService = new CardService();
+  }
+
   async start(channel: Channel): Promise<void> {
     this.channel = channel;
   }

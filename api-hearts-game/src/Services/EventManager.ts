@@ -366,14 +366,27 @@ class EventManager {
   }
 
   async restartGame(): Promise<any> {
-    this.gameService = new GameService();
-    this.start()
-      .then(() => {
-        console.log("GameService started");
-      })
-      .catch((error) => {
-        console.error("Error starting GameService", error);
-      });
+    this.gameService.restartAsClean();
+
+    const message = {
+      event: Events.GameRestarted,
+    };
+    const buffer = Buffer.from(JSON.stringify(message));
+    //await this.amqpService.publish("", `game-events-${this.uuid}`, buffer);
+
+    await this.amqpService.publish(
+      "",
+      `game-events-exchange-q-${this.uuid}`,
+      buffer
+    );
+
+    // this.start()
+    //   .then(() => {
+    //     console.log("GameService started");
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error starting GameService", error);
+    //   });
   }
 }
 

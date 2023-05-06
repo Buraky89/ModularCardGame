@@ -20,6 +20,14 @@ class Player {
     this.isFirstPlayer = false;
   }
 
+  restartAsClean() {
+    this._deck = [];
+    this.points = 0;
+    this.isTheirTurn = false;
+    this.deck = [];
+    this.isFirstPlayer = false;
+  }
+
   setCards(cards: Card[]) {
     this._deck = cards;
   }
