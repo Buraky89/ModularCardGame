@@ -190,11 +190,7 @@ class EventManager {
       (p) => p.uuid === uuid
     );
 
-    if (
-      player &&
-      player.isFirstPlayer &&
-      this.gameService.playerService.players.length == 4
-    ) {
+    if (player && this.gameService.playerService.players.length == 4) {
       console.log("Game start requested by first player");
       const message = {
         event: Events.GameStartApproved,
