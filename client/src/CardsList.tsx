@@ -95,7 +95,7 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
           <button onClick={joinGame}>Join</button>
         </div>
       )}
-      {gameState.gameState !== GameState.NOT_STARTED && (
+      {true && (
         <>
           <div className="player-row">
             <PlayerBox player={gameState.players[1]} isActive={gameState.players[1]?.isTheirTurn} />
