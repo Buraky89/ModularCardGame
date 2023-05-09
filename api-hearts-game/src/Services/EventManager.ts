@@ -291,12 +291,19 @@ class EventManager {
     }
   }
 
-  private handleNewPlayerApprovedToJoin(
+  private async handleNewPlayerApprovedToJoin(
     payload: NewPlayerApprovedToJoinPayload
-  ): void {
+  ): Promise<void> {
     const { uuid } = payload;
     console.log(`New player ${uuid} approved to join`);
     // Do something with the approved player
+
+    const buffer = Buffer.from(JSON.stringify(payload));
+    await this.amqpService.publish(
+      "",
+      `game-events-exchange-q-${this.uuid}`,
+      buffer
+    );
   }
 
   private handleNewViewerApprovedToSubscribe(
