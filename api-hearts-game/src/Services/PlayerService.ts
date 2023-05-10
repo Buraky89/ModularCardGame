@@ -31,6 +31,10 @@ class PlayerService {
     uuid: string,
     eventManagerUuid: string
   ): Promise<void> {
+    if (this.players.some((p: Player) => p.uuid === uuid)) {
+      return;
+    }
+
     var playerLengthIsMax = false;
     const player = new Player(playerName, uuid);
     if (this.players.length == 1) {
@@ -72,6 +76,10 @@ class PlayerService {
     uuid: string,
     eventManagerUuid: string
   ): Promise<void> {
+    if (this.viewers.some((p: Player) => p.uuid === uuid)) {
+      return;
+    }
+
     const player = new Player(playerName, uuid);
     this.viewers.push(player);
     if (this.viewers.length > 499) return;
