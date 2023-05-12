@@ -317,6 +317,11 @@ class EventManager {
   private async handlePlayerAttemptsToPlay(
     payload: PlayerAttemptsToPlayPayload
   ): Promise<void> {
+    if (this.gameService.gameState == GameState.NOT_STARTED) {
+      console.log("Game is not started yet. Cannot play.");
+      return;
+    }
+
     const { uuid, selectedIndex } = payload;
     console.log("payload", payload);
     const player = this.gameService.playerService.players.find(
