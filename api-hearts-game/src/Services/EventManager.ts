@@ -1,5 +1,5 @@
 import { AmqpService } from "./AmqpService";
-import { GameService } from "./GameService";
+import { HeartsGameService } from "./HeartsGameService";
 import Events from "../Common/Events";
 import {
   NewPlayerWantsToJoinPayload,
@@ -21,13 +21,13 @@ enum GameState {
 
 class EventManager {
   public amqpService: AmqpService;
-  public gameService: GameService;
+  public gameService: HeartsGameService;
   public uuid: string;
 
   constructor(uuid: string) {
     this.uuid = uuid;
     this.amqpService = new AmqpService();
-    this.gameService = new GameService();
+    this.gameService = new HeartsGameService();
   }
 
   async start(): Promise<void> {

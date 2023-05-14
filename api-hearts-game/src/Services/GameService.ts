@@ -3,18 +3,13 @@ import { PlayerService } from "./PlayerService";
 import Events from "../Common/Events";
 import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
-
-enum GameState {
-  NOT_STARTED,
-  STARTED,
-  ENDED,
-}
+import GameState from "../Common/Enums";
 
 class GameService {
   public playerService: PlayerService;
   private amqpService: AmqpService;
-  private playedDeck: Card[] = [];
-  private turnNumber = 1;
+  public playedDeck: Card[] = [];
+  public turnNumber = 1;
   public gameState: GameState = GameState.NOT_STARTED;
 
   constructor() {
