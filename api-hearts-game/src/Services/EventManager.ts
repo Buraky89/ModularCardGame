@@ -260,6 +260,7 @@ class EventManager {
       // Check if it's the player's turn before allowing them to play
       if (player.isTheirTurn) {
         // Acquire the mutex before playing and changing the turn
+        // TODO: the problem is with mutex... the fact that the event is not handled is Mutex blocking this... Make a good log that also includes mutex lock/unlock.
         const release =
           await this.gameService.playerService.turnMutex.acquire();
 
