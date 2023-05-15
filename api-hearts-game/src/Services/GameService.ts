@@ -25,6 +25,10 @@ class GameService {
     this.playerService.restartAsClean();
   }
 
+  calculatePoints(turnNumber: number, card: Card): number {
+    return turnNumber * card.score;
+  }
+
   async playGame(
     player: Player,
     selectedIndex: number,
@@ -55,8 +59,10 @@ class GameService {
       );
 
       if (result) {
+        let points = this.calculatePoints(this.turnNumber, result.card);
+
         console.log(
-          `${player.name} played ${result.card.cardType} and earned ${result.points} points`
+          `${player.name} played ${result.card.cardType} and earned ${points} points`
         );
       } else {
         console.log(`${player.name} has no more cards in their deck.`);
