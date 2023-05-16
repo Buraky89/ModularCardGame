@@ -1,5 +1,5 @@
 import { response } from "express";
-import { Card, RepresentedCard } from "./Card";
+import { Card, CardType, RepresentedCard } from "./Card";
 
 class Player {
   name: string;
@@ -30,6 +30,27 @@ class Player {
 
   setCards(cards: Card[]) {
     this._deck = cards;
+  }
+
+  hasCard(c: Card): boolean {
+    return this._deck.includes(c);
+  }
+
+  hasOnlyHearts(): boolean {
+    for (const card of this._deck) {
+      if (card.cardType !== CardType.HEARTS) {
+        return false;
+      }
+    }
+    return true;
+  }
+  hasCardOfSuit(cardType: CardType): boolean {
+    for (const card of this._deck) {
+      if (card.cardType === cardType) {
+        return true;
+      }
+    }
+    return false;
   }
 
   getDeck(): Card[] {

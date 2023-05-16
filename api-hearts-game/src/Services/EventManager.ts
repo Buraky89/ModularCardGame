@@ -335,7 +335,7 @@ class EventManager {
       }
 
       const isValidCard =
-        await this.gameService.playerService.isThisAValidCardToPlay(
+        await this.gameService.isThisAValidCardToPlay(
           player,
           selectedIndex
         );

@@ -1,7 +1,7 @@
 import { AmqpService } from "./AmqpService";
 import { PlayerService } from "./PlayerService";
 import Events from "../Common/Events";
-import { Card } from "../Common/Card";
+import { Card, CardType } from "../Common/Card";
 import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
 
@@ -23,6 +23,13 @@ class GameService {
     this.turnNumber = 1;
     this.gameState = GameState.NOT_STARTED;
     this.playerService.restartAsClean();
+  }
+
+  isThisAValidCardToPlay(
+    player: Player,
+    selectedIndex: number
+  ): boolean {
+    return true;
   }
 
   calculatePoints(turnNumber: number, card: Card): number {

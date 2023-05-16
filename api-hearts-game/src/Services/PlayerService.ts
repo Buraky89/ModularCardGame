@@ -108,13 +108,6 @@ class PlayerService {
     return this.players.some((player) => player.getDeck().length > 0);
   }
 
-  public isThisAValidCardToPlay(
-    player: Player,
-    selectedIndex: number
-  ): boolean {
-    return true;
-  }
-
   public setWhoseTurn(): void {
     const currentPlayer = this.players.find((player) => player.isTheirTurn);
     if (currentPlayer) {
