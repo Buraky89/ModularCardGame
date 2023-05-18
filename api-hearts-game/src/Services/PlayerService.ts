@@ -8,7 +8,7 @@ import { Mutex } from "async-mutex";
 class PlayerService {
   public players: Player[] = [];
   public viewers: Player[] = [];
-  private channel: Channel | null = null;
+  public channel: Channel | null = null;
   private cardService: CardService;
   public turnMutex: Mutex;
 

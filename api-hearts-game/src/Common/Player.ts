@@ -90,6 +90,11 @@ class Player {
       points: turnNumber * card.score,
     };
   }
+
+  setFirstPlayer(): void {
+    this.isFirstPlayer = true;
+    this.isTheirTurn = true;
+  }
 }
 
 export { Player };

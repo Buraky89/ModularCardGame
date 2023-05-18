@@ -1,13 +1,17 @@
 import { GameService } from "./GameService";
+import { HeartsPlayerService } from "./HeartsPlayerService"; // import HeartsPlayerService
 import { Card, CardType } from "../Common/Card";
 import GameState from "../Common/Enums";
 import { Player } from "../Common/Player";
 
 class HeartsGameService extends GameService {
+  public playerService: HeartsPlayerService;
+
   private keyValueStore: { [key: string]: any } = {};
 
   constructor() {
     super();
+    this.playerService = new HeartsPlayerService();
     // Initialize heartsBroken value in the key-value store
     this.keyValueStore['heartsBroken'] = false;
   }
