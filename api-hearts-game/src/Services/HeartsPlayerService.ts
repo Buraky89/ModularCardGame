@@ -17,6 +17,12 @@ class HeartsPlayerService extends PlayerService {
   ): Promise<void> {
     await super.addPlayer(playerName, uuid, eventManagerUuid);
 
+
+  }
+
+  public distributeCards(): void {
+    super.distributeCards();
+
     // After adding a player, check if all players are present and if so, set the first player
     if (this.players.length === 4) {
       this.setFirstPlayerWithTwoOfClubs();
