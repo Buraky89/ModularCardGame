@@ -111,3 +111,15 @@
     transform: rotate(360deg);
   }
 }
+
+.player-turn {
+  color: red;
+}
+
+.player-turn-dot {
+  height: 20px;
+  width: 20px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+}
