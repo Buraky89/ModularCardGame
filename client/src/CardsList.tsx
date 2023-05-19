@@ -3,7 +3,7 @@ import { Card, CardType, ApiResponse, Player } from "./Card";
 import MySVG from "./MySVG";
 import { PlayerBox } from "./PlayerBox";
 import "./CardsList.css";
-import { GameClient } from './Common/GameClient';
+import { GameClient } from "./Common/GameClient";
 import GameStateManager from "./Common/GameStateManager";
 
 interface CardsListProps {
@@ -11,8 +11,11 @@ interface CardsListProps {
   gameUuid: string;
 }
 
-function moveLastPlayerToBeginningUntilMe(players: Player[], myUuid: string): Player[] {
-  const index = players.findIndex(player => player.uuid === myUuid);
+function moveLastPlayerToBeginningUntilMe(
+  players: Player[],
+  myUuid: string
+): Player[] {
+  const index = players.findIndex((player) => player.uuid === myUuid);
   if (index === -1) {
     // myUuid is not among the players
     return players;
@@ -98,10 +101,18 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
       {true && (
         <>
           <div className="player-row">
-            <PlayerBox player={gameState.players[1]} isActive={gameState.players[1]?.isTheirTurn} />
+            <PlayerBox
+              player={gameState.players[1]}
+              isActive={gameState.players[1]?.isTheirTurn}
+              isMe={gameState.players[1]?.uuid === gameStateManager.uuid}
+            />
           </div>
           <div className="main-row">
-            <PlayerBox player={gameState.players[0]} isActive={gameState.players[0]?.isTheirTurn} />
+            <PlayerBox
+              player={gameState.players[0]}
+              isActive={gameState.players[0]?.isTheirTurn}
+              isMe={gameState.players[0]?.uuid === gameStateManager.uuid}
+            />
             <div className="played-cards-container">
               {gameState.playedDeck.length > 0 &&
                 gameState.playedDeck.map((card: Card, index: number) => (
@@ -110,7 +121,8 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
                       position: "absolute",
                       top: "40%",
                       left: "40%",
-                      zIndex: 1000 + index - gameState.playedDeck.length - index,
+                      zIndex:
+                        1000 + index - gameState.playedDeck.length - index,
                       transform: `rotate(${index * 30}deg)`,
                     }}
                   >
@@ -125,10 +137,18 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
                 ))}
               <div className="center-card"></div>
             </div>
-            <PlayerBox player={gameState.players[2]} isActive={gameState.players[2]?.isTheirTurn} />
+            <PlayerBox
+              player={gameState.players[2]}
+              isActive={gameState.players[2]?.isTheirTurn}
+              isMe={gameState.players[2]?.uuid === gameStateManager.uuid}
+            />
           </div>
           <div className="player-row">
-            <PlayerBox player={gameState.players[3]} isActive={gameState.players[3]?.isTheirTurn} />
+            <PlayerBox
+              player={gameState.players[3]}
+              isActive={gameState.players[3]?.isTheirTurn}
+              isMe={gameState.players[3]?.uuid === gameStateManager.uuid}
+            />
           </div>
           <div className="deck-row">
             {gameState.deck.map((card: Card, index: number) => (
@@ -147,7 +167,9 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
               <input
                 type="checkbox"
                 checked={gameState.autoPlay}
-                onChange={() => gameStateManager.setAutoPlay(!gameState.autoPlay)}
+                onChange={() =>
+                  gameStateManager.setAutoPlay(!gameState.autoPlay)
+                }
               />
               Auto Play
             </label>
@@ -169,7 +191,7 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
         </div>
       )}
     </div>
-  );  
+  );
 }
 
 export default CardsList;

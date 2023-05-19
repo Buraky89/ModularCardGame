@@ -3,9 +3,10 @@ import { Player } from "./Card";
 interface PlayerBoxProps {
   player: Player;
   isActive?: boolean;
+  isMe?: boolean;
 }
 
-export function PlayerBox({ player, isActive }: PlayerBoxProps) {
+export function PlayerBox({ player, isActive, isMe }: PlayerBoxProps) {
   const isPlayerTurn = player?.isTheirTurn;
   return (
     <div
@@ -15,6 +16,7 @@ export function PlayerBox({ player, isActive }: PlayerBoxProps) {
     >
       <span>{player?.name || "Unknown Player"}</span>
       {isPlayerTurn && <div className="player-turn-dot"></div>}
+      {isMe && <span className="me-indicator">(Me)</span>}
       <div className="score-box">
         <span>{player?.points || "0"}</span>
       </div>

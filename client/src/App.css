@@ -123,3 +123,8 @@
   border-radius: 50%;
   display: inline-block;
 }
+
+.me-indicator {
+  font-weight: bold;
+  color: blue;
+}
