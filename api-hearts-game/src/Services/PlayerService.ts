@@ -98,10 +98,28 @@ class PlayerService {
     }
   }
 
-  public distributeCards(): void {
+  public async distributeCards(eventManagerUuid: string): Promise<void> {
     this.players.forEach((player) => {
       player.setCards(this.cardService.getNextCards());
     });
+
+    // Publish CardsAreDistributed event after distributing cards
+    await this.publishCardsAreDistributedEvent(eventManagerUuid);
+  }
+
+  async publishCardsAreDistributedEvent(eventManagerUuid: string): Promise<void> {
+    if (this.channel) {
+      const message = {
+        event: Events.CardsAreDistributed,
+        payload: {},
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+      await this.channel.publish("", `game-events-${eventManagerUuid}`, buffer);
+    }
+  }
+
+  public onCardsAreDistributed(): void {
+
   }
 
   public haveAnyPlayersCards(): boolean {

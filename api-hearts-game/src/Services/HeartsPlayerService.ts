@@ -20,9 +20,8 @@ class HeartsPlayerService extends PlayerService {
 
   }
 
-  public distributeCards(): void {
-    super.distributeCards();
 
+  public onCardsAreDistributed(): void {
     // After adding a player, check if all players are present and if so, set the first player
     if (this.players.length === 4) {
       this.setFirstPlayerWithTwoOfClubs();

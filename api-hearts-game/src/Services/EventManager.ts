@@ -161,7 +161,12 @@ class EventManager {
         console.log(
           `It seems cards are ready to distribute. Adding players' cards`
         );
-        this.gameService.playerService.distributeCards();
+        this.gameService.playerService.distributeCards(this.uuid);
+        break;
+      case Events.CardsAreDistributed:
+        this.handleCardsAreDistributed(
+          payload as CardsAreDistributedPayload
+        );
         break;
       case Events.PlayerAttemptsToPlay:
         await this.handlePlayerAttemptsToPlay(
