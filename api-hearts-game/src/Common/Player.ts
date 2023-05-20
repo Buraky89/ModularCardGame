@@ -91,9 +91,9 @@ class Player {
     };
   }
 
-  setFirstPlayer(): void {
-    this.isFirstPlayer = true;
-    this.isTheirTurn = true;
+  setFirstPlayer(isFirstPlayer: boolean): void {
+    this.isFirstPlayer = isFirstPlayer;
+    this.isTheirTurn = isFirstPlayer;
   }
 }
 

@@ -30,7 +30,9 @@ class HeartsPlayerService extends PlayerService {
   }
 
   setFirstPlayerWithTwoOfClubs(): void {
-    // Iterate over each player
+    let firstPlayer: Player | null = null;
+
+    // Iterate over each player to find the first player
     for (let player of this.players) {
       // Check if the player's deck has the 2 of clubs
       let deck = player.getDeck();
@@ -38,12 +40,23 @@ class HeartsPlayerService extends PlayerService {
         if (card.cardType === CardType.CLUBS && card.score === 2) {
           // If so, set this player as the first player and break the loop
           console.log("setting the first player with club 2", player);
-          player.setFirstPlayer();
+          player.setFirstPlayer(true);
+          firstPlayer = player;
           break;
         }
       }
     }
+
+    // Now iterate over each player again to set other players' isFirstPlayer to false
+    if (firstPlayer !== null) {
+      for (let player of this.players) {
+        if (player !== firstPlayer) {
+          player.setFirstPlayer(false);
+        }
+      }
+    }
   }
+
 }
 
 export { HeartsPlayerService };
