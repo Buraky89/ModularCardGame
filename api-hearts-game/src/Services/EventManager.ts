@@ -11,6 +11,7 @@ import {
   GameStartApprovedPayload,
   NewViewerApprovedToSubscribePayload,
   CardsAreDistributedPayload,
+  GameMessageToPlayerPayload,
 } from "../Common/Payloads";
 import { Player } from "../Common/Player";
 
@@ -76,17 +77,34 @@ class EventManager {
   }
 
   async handleExchangeEvent(message: any): Promise<void> {
-    // Loop through each player and send the message to their queue
+    // TODO: refactor this method. this method is currently recreating an event from scratch, to form a GameUpdated event for game play events. however, for the message event, I wrote bad code. maybe form different methods for two separate concerns.
 
     const mergedPlayersMap = new Map<string, Player>();
 
-    for (const player of this.gameService.playerService.players) {
-      mergedPlayersMap.set(player.uuid, player);
-    }
+    // non-GameUpdated exchange events:
+    const { event, payload } = message;
+    if (event == Events.GameMessageToPlayer) {
+      var gameMessageToPlayerPayload = payload as GameMessageToPlayerPayload;
 
-    for (const viewer of this.gameService.playerService.viewers) {
-      if (!mergedPlayersMap.has(viewer.uuid)) {
-        mergedPlayersMap.set(viewer.uuid, viewer);
+      for (const player of this.gameService.playerService.players) {
+        if (player.uuid == gameMessageToPlayerPayload.playerUuid) {
+          mergedPlayersMap.set(player.uuid, player);
+        }
+      }
+
+    } else {
+      // Loop through each player and send the message to their queue
+
+
+
+      for (const player of this.gameService.playerService.players) {
+        mergedPlayersMap.set(player.uuid, player);
+      }
+
+      for (const viewer of this.gameService.playerService.viewers) {
+        if (!mergedPlayersMap.has(viewer.uuid)) {
+          mergedPlayersMap.set(viewer.uuid, viewer);
+        }
       }
     }
 
@@ -96,13 +114,15 @@ class EventManager {
       const playerUuid = player.uuid;
       const gameState = await this.gameService.getGameData(playerUuid);
 
-      const message = {
-        event: Events.GameUpdated,
-        payload: {
-          gameUuid: this.uuid,
-          data: gameState,
-        },
-      };
+      if (event !== Events.GameMessageToPlayer) {
+        message = {
+          event: Events.GameUpdated,
+          payload: {
+            gameUuid: this.uuid,
+            data: gameState,
+          },
+        };
+      }
 
       const playerQueue = `game-events-for-player-${player.uuid}-${this.uuid}`;
       if (this.amqpService != null && this.amqpService.channel != null) {
@@ -346,10 +366,13 @@ class EventManager {
         return;
       }
 
+      let failureEvent = { message: "" };
+
       const isValidCard =
         await this.gameService.isThisAValidCardToPlay(
           player,
-          selectedIndex
+          selectedIndex,
+          failureEvent
         );
 
       if (isValidCard) {
@@ -371,6 +394,22 @@ class EventManager {
         );
       } else {
         console.log("Invalid card played");
+
+        const message = {
+          event: Events.GameMessageToPlayer,
+          payload: {
+            uuid,
+            playerUuid: player.uuid,
+            message: failureEvent.message,
+          },
+        };
+
+        const buffer = Buffer.from(JSON.stringify(message));
+        await this.amqpService.publish(
+          "",
+          `game-events-exchange-q-${this.uuid}`,
+          buffer
+        );
       }
     } else {
       console.log(`Player ${uuid} not found`);

@@ -30,6 +30,12 @@ interface PlayerAttemptsToPlayPayload {
 interface CardsAreDistributedPayload {
 }
 
+interface GameMessageToPlayerPayload {
+  uuid: string;
+  playerUuid: string;
+  message: string;
+}
+
 interface GameStartRequestedPayload {
   uuid: string;
 }
@@ -53,4 +59,5 @@ export {
   GameStartApprovedPayload,
   NewViewerApprovedToSubscribePayload,
   CardsAreDistributedPayload,
+  GameMessageToPlayerPayload,
 };

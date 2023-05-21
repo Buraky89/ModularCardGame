@@ -25,7 +25,7 @@ class HeartsGameService extends GameService {
     return 0;
   }
 
-  isThisAValidCardToPlay(player: Player, selectedIndex: number): boolean {
+  isThisAValidCardToPlay(player: Player, selectedIndex: number, outputEvent?: { message: string }): boolean {
     const isFirstTurn = (this.turnNumber == 1);
 
     // Get the selected card from the player's deck
@@ -33,38 +33,48 @@ class HeartsGameService extends GameService {
 
     // Check if the selected index is valid
     if (!selectedCard) {
+      if (outputEvent) outputEvent.message = "Invalid card selected.";
       return false;
     }
 
     // The player should have the card that they are trying to play
     if (!player.hasCard(selectedCard)) {
+      if (outputEvent) outputEvent.message = "You don't have this card in your deck.";
       return false;
     }
 
     // On the first turn, the player holding the 2 of clubs starts the game
     if (isFirstTurn) {
-      return selectedCard.cardType === CardType.CLUBS && selectedCard.score === 2;
+      if (selectedCard.cardType === CardType.CLUBS && selectedCard.score === 2) {
+        return true;
+      }
+      if (outputEvent) outputEvent.message = "First player must start with the 2 of Clubs.";
+      return false;
     }
 
     // Hearts cannot be led until they have been broken, unless the player has only hearts left
     if (!this.keyValueStore['heartsBroken'] && selectedCard.cardType === CardType.HEARTS && !player.hasOnlyHearts()) {
+      if (outputEvent) outputEvent.message = "Hearts have not been broken yet.";
       return false;
     }
 
     // On first trick, you cannot play a Heart or Queen of Spades, even if you have no clubs
     if (this.turnNumber === 1 && (selectedCard.cardType === CardType.HEARTS || (selectedCard.cardType === CardType.SPADES && selectedCard.score === 12))) {
+      if (outputEvent) outputEvent.message = "Hearts or the Queen of Spades cannot be played in the first trick.";
       return false;
     }
 
     // A player must follow suit if they can
     let firstCardInTrick = this.playedDeck[0];
     if (firstCardInTrick && selectedCard.cardType !== firstCardInTrick.cardType && player.hasCardOfSuit(firstCardInTrick.cardType)) {
+      if (outputEvent) outputEvent.message = "You must follow the suit of the first card in the trick.";
       return false;
     }
 
     // If none of the above conditions were met, the card is valid to play
     return true;
   }
+
 
 }
 
