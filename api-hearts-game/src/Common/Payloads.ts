@@ -27,6 +27,9 @@ interface PlayerAttemptsToPlayPayload {
   selectedIndex: number;
 }
 
+interface CardsAreDistributedPayload {
+}
+
 interface GameStartRequestedPayload {
   uuid: string;
 }
@@ -49,4 +52,5 @@ export {
   GameStartRequestedPayload,
   GameStartApprovedPayload,
   NewViewerApprovedToSubscribePayload,
+  CardsAreDistributedPayload,
 };

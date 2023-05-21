@@ -10,6 +10,7 @@ import {
   GameStartRequestedPayload,
   GameStartApprovedPayload,
   NewViewerApprovedToSubscribePayload,
+  CardsAreDistributedPayload,
 } from "../Common/Payloads";
 import { Player } from "../Common/Player";
 
@@ -222,6 +223,12 @@ class EventManager {
       `game-events-exchange-q-${this.uuid}`,
       buffer
     );
+  }
+
+  private async handleCardsAreDistributed(
+    payload: CardsAreDistributedPayload
+  ): Promise<void> {
+    this.gameService.playerService.onCardsAreDistributed();
   }
 
   private async handleGameEnded(payload: GameEndedPayload): Promise<void> {
