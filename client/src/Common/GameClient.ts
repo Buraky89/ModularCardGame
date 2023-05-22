@@ -12,12 +12,14 @@ export class GameClient {
   logger: Logger;
   stateManagerVersion: number = 0;
   customToken: string | undefined;
+  private onMessage: ((message: string) => void);
 
-  constructor(onStateChange: () => void, customToken?: string) {
+  constructor(onStateChange: () => void, onMessage: (message: string) => void, customToken?: string) {
     this.logger = new Logger();
     this.stateManager = new StateManager(onStateChange, this.logger);
     this.customToken = customToken;
     this.socket = new SocketServerMock();
+    this.onMessage = onMessage;
     this.init();
   }
 
@@ -130,12 +132,15 @@ export class GameClient {
       }
     );
 
-    this.socket.on("gameEvent", (payload: { gameUuid: string; data: any }) => {
+    this.socket.on("gameEvent", (payload: { gameUuid: string; data: any, message: string | null }) => {
       this.event("gameEvent");
       const gameStateManager = this.stateManager.gameStateManagers.get(
         payload.gameUuid
       );
       console.log("payload", payload);
+      if (payload.message) {
+        this.onMessage(payload.message);
+      }
       if (gameStateManager) {
         gameStateManager.updateGameState(payload.data);
       }
