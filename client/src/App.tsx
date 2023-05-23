@@ -8,6 +8,8 @@ import GameStateManager from "./Common/GameStateManager";
 import StateManagerWrapper from "./Common/StateManagerWrapper";
 import Dev from "./Dev"; // Import Logs component
 import "./App.css"; // Import the CSS file
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App: React.FC = () => {
   const updateState = () => {
@@ -18,6 +20,8 @@ const App: React.FC = () => {
 
   const onMessage = (message: string) => {
     console.log("onMessage: ", message);
+
+    toast(message, { autoClose: 1000 }); // Display a toast notification with the message for 1 second
   };
 
   const queryParams = new URLSearchParams(window.location.search);
@@ -148,6 +152,7 @@ const App: React.FC = () => {
 
   return (
     <div>
+      <ToastContainer />
       <header className="header">
         {!devMode && (
           <>
