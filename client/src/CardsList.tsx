@@ -119,11 +119,13 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
                   <div
                     style={{
                       position: "absolute",
-                      top: "40%",
-                      left: "40%",
+                      top: "50%",
+                      left: "50%",
                       zIndex:
                         1000 + index - gameState.playedDeck.length - index,
-                      transform: `rotate(${index * 30}deg)`,
+                      transform: `translate(-50%, -50%) rotate(${
+                        index * 30
+                      }deg)`,
                     }}
                   >
                     <MySVG
