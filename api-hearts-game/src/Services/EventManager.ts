@@ -76,13 +76,68 @@ class EventManager {
     await this.handleEvent(message);
   }
 
+  // TODO: find the error in the new method and fix the bug that way
+  async handleExchangeEventOld(message: any): Promise<void> {
+    // Loop through each player and send the message to their queue
+
+    const mergedPlayersMap = new Map<string, Player>();
+
+    for (const player of this.gameService.playerService.players) {
+      mergedPlayersMap.set(player.uuid, player);
+    }
+
+    for (const viewer of this.gameService.playerService.viewers) {
+      if (!mergedPlayersMap.has(viewer.uuid)) {
+        mergedPlayersMap.set(viewer.uuid, viewer);
+      }
+    }
+
+    const mergedPlayersArray = Array.from(mergedPlayersMap.values());
+
+    for (const player of mergedPlayersArray) {
+      const playerUuid = player.uuid;
+      const gameState = await this.gameService.getGameData(playerUuid);
+
+      const message = {
+        event: Events.GameUpdated,
+        payload: {
+          gameUuid: this.uuid,
+          data: gameState,
+        },
+      };
+
+      const playerQueue = `game-events-for-player-${player.uuid}-${this.uuid}`;
+      if (this.amqpService != null && this.amqpService.channel != null) {
+        this.amqpService.channel
+          .assertQueue(playerQueue, { durable: false })
+          .then(() => {
+            const buffer = Buffer.from(JSON.stringify(message));
+            if (this.amqpService.channel != null) {
+              console.log(`Exchanging message to player ${player.uuid}`);
+              this.amqpService.channel.sendToQueue(playerQueue, buffer);
+            }
+          })
+          .catch((error) => {
+            console.error(
+              `Error sending message to player ${player.uuid}:`,
+              error
+            );
+          });
+      }
+    }
+  }
+
   async handleExchangeEvent(message: any): Promise<void> {
+    const { event, payload } = message;
+    if (event !== Events.GameMessageToPlayer) {
+      await this.handleExchangeEventOld(message);
+      return;
+    }
     // TODO: refactor this method. this method is currently recreating an event from scratch, to form a GameUpdated event for game play events. however, for the message event, I wrote bad code. maybe form different methods for two separate concerns.
 
     const mergedPlayersMap = new Map<string, Player>();
 
     // non-GameUpdated exchange events:
-    const { event, payload } = message;
     if (event == Events.GameMessageToPlayer) {
       var gameMessageToPlayerPayload = payload as GameMessageToPlayerPayload;
 
