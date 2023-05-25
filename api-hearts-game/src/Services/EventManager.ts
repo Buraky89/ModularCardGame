@@ -129,11 +129,6 @@ class EventManager {
 
   async handleExchangeEvent(message: any): Promise<void> {
     const { event, payload } = message;
-    if (event !== Events.GameMessageToPlayer) {
-      await this.handleExchangeEventOld(message);
-      return;
-    }
-    // TODO: refactor this method. this method is currently recreating an event from scratch, to form a GameUpdated event for game play events. however, for the message event, I wrote bad code. maybe form different methods for two separate concerns.
 
     const mergedPlayersMap = new Map<string, Player>();
 
@@ -149,8 +144,6 @@ class EventManager {
 
     } else {
       // Loop through each player and send the message to their queue
-
-
 
       for (const player of this.gameService.playerService.players) {
         mergedPlayersMap.set(player.uuid, player);
@@ -170,33 +163,38 @@ class EventManager {
       const gameState = await this.gameService.getGameData(playerUuid);
 
       if (event !== Events.GameMessageToPlayer) {
-        message = {
+        const messageToExchange = {
           event: Events.GameUpdated,
           payload: {
             gameUuid: this.uuid,
             data: gameState,
           },
         };
+        await this.exchangeToPlayerQueue(player.uuid, messageToExchange);
+      } else {
+        await this.exchangeToPlayerQueue(player.uuid, message);
       }
+    }
+  }
 
-      const playerQueue = `game-events-for-player-${player.uuid}-${this.uuid}`;
-      if (this.amqpService != null && this.amqpService.channel != null) {
-        this.amqpService.channel
-          .assertQueue(playerQueue, { durable: false })
-          .then(() => {
-            const buffer = Buffer.from(JSON.stringify(message));
-            if (this.amqpService.channel != null) {
-              console.log(`Exchanging message to player ${player.uuid}`);
-              this.amqpService.channel.sendToQueue(playerQueue, buffer);
-            }
-          })
-          .catch((error) => {
-            console.error(
-              `Error sending message to player ${player.uuid}:`,
-              error
-            );
-          });
-      }
+  async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
+    const playerQueue = `game-events-for-player-${playerUuid}-${this.uuid}`;
+    if (this.amqpService != null && this.amqpService.channel != null) {
+      await this.amqpService.channel
+        .assertQueue(playerQueue, { durable: false })
+        .then(() => {
+          const buffer = Buffer.from(JSON.stringify(messageToExchange));
+          if (this.amqpService.channel != null) {
+            console.log(`Exchanging message to player ${playerUuid}`);
+            this.amqpService.channel.sendToQueue(playerQueue, buffer);
+          }
+        })
+        .catch((error) => {
+          console.error(
+            `Error sending message to player ${playerUuid}:`,
+            error
+          );
+        });
     }
   }
 
