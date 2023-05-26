@@ -154,7 +154,11 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
           </div>
           <div className="deck-row">
             {gameState.deck.map((card: Card, index: number) => (
-              <div key={`card-${index}`} className="deck-card">
+              <div
+                key={`card-${index}`}
+                className="deck-card"
+                style={{ zIndex: 1000 - index }}
+              >
                 <MySVG
                   cardType={card.cardType}
                   score={card.score}

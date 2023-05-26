@@ -18,8 +18,10 @@ display: flex;
 .deck-row {
 height: 30%;
 display: flex;
-justify-content: center;
+flex-direction: row-reverse;
+justify-content: flex-start;
 align-items: center;
+overflow: hidden;
 background-color: #222;
 }
 
@@ -69,8 +71,11 @@ justify-content: center;
 align-items: center;
 }
 
+
 .deck-card {
-margin-right: 10px;
+  position: relative;
+  margin-left: -50px;  /* Adjust this value to get the desired overlap effect */
+  z-index: 1000; /* Arbitrary value */
 }
 
 .score-box {
