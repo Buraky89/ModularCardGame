@@ -415,7 +415,24 @@ class EventManager {
 
     if (player) {
       if (!player.isTheirTurn) {
+        const message = {
+          event: Events.GameMessageToPlayer,
+          payload: {
+            uuid,
+            playerUuid: player.uuid,
+            message: `It is not your turn yet.`,
+          },
+        };
+
+        const buffer = Buffer.from(JSON.stringify(message));
+        await this.amqpService.publish(
+          "",
+          `game-events-exchange-q-${this.uuid}`,
+          buffer
+        );
+
         console.log(`Player ${player.name} cannot play at this time.`);
+
         return;
       }
 
