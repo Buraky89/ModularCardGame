@@ -153,7 +153,7 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
             />
           </div>
           <div className="deck-row">
-            {gameState.deck.map((card: Card, index: number) => (
+            {[...gameState.deck].reverse().map((card: Card, index: number) => (
               <div
                 key={`card-${index}`}
                 className="deck-card"
@@ -163,7 +163,11 @@ function CardsList({ gameStateManager, gameUuid }: CardsListProps) {
                   cardType={card.cardType}
                   score={card.score}
                   hidden={card.hidden}
-                  handleClick={() => gameStateManager.handleCardClick(index)}
+                  handleClick={() =>
+                    gameStateManager.handleCardClick(
+                      gameState.deck.length - 1 - index
+                    )
+                  }
                 />
               </div>
             ))}
