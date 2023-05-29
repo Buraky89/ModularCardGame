@@ -7,6 +7,10 @@ interface NewPlayerWantsToJoinPayload {
   playerName: string;
 }
 
+interface GeneralUpdateMessagePayload {
+  gameUuidList: string[];
+}
+
 interface PlayerPlayedPayload {
   uuid: string;
   selectedIndex: number;
@@ -60,4 +64,5 @@ export {
   NewViewerApprovedToSubscribePayload,
   CardsAreDistributedPayload,
   GameMessageToPlayerPayload,
+  GeneralUpdateMessagePayload,
 };

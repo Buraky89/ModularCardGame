@@ -14,6 +14,7 @@ enum Events {
   GameRestarted = "GameRestarted",
   CardsAreDistributed = "CardsAreDistributed",
   GameMessageToPlayer = "GameMessageToPlayer",
+  GeneralUpdateMessage = "GeneralUpdateMessage",
 }
 
 export default Events;

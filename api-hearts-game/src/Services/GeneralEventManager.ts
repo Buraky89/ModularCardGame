@@ -2,6 +2,7 @@ import { AmqpService } from "./AmqpService";
 import Events from "../Common/Events";
 import {
   NewPlayerWantsToJoinPayload,
+  GeneralUpdateMessagePayload,
 } from "../Common/Payloads";
 
 class GeneralEventManager {
@@ -44,6 +45,11 @@ class GeneralEventManager {
           payload as NewPlayerWantsToJoinPayload
         );
         break;
+      case Events.GeneralUpdateMessage:
+        this.handleGeneralUpdateMessage(
+          payload as GeneralUpdateMessagePayload
+        );
+        break;
       default:
         throw new Error(`Invalid event: ${event}`);
     }
@@ -57,6 +63,27 @@ class GeneralEventManager {
 
     this.uuidList.push(uuid); // Add the UUID to the list
     console.log("Updated UUID list:", this.uuidList);
+  }
+
+  private handleGeneralUpdateMessage(
+    payload: GeneralUpdateMessagePayload
+  ): void {
+    const { gameUuidList } = payload;
+    console.log("General update message", payload);
+
+    // Distribute a message for each UUID in the list
+    gameUuidList.forEach((uuid) => {
+      const message = {
+        event: Events.GeneralUpdateMessage,
+        payload: {
+          gameUuidList,
+        },
+      };
+
+      const buffer = Buffer.from(JSON.stringify(message));
+      // Distribute the message using the UUID as the routing key
+      this.amqpService.publish("", `game-events-general.${uuid}`, buffer);
+    });
   }
 }
 
