@@ -1,4 +1,5 @@
 import { EventManager } from "./EventManager";
+import { GeneralEventManager } from "./GeneralEventManager";
 
 enum GameState {
   NOT_STARTED,
@@ -7,11 +8,16 @@ enum GameState {
 }
 
 class RealmService {
+  private generalEventManager?: GeneralEventManager;
   private eventMangers: EventManager[] = [];
 
-  constructor(eventMangers?: EventManager[]) {
+  constructor(generalEventManager: GeneralEventManager, eventMangers?: EventManager[]) {
     if (eventMangers) {
       this.eventMangers = eventMangers;
+    }
+    if (generalEventManager) {
+      this.generalEventManager = generalEventManager;
+      this.generalEventManager.start();
     }
   }
 

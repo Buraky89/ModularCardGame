@@ -30,7 +30,7 @@ export class GameDispatcher {
       }),
     })
       .then((response) => response.json())
-      .then((data: ApiResponse) => {})
+      .then((data: ApiResponse) => { })
       .catch((error) => console.log(error));
   }
 
@@ -64,7 +64,7 @@ export class GameDispatcher {
       }),
     })
       .then((response) => response.json())
-      .then(() => {})
+      .then(() => { })
       .catch((error) => console.log(error));
   }
 
@@ -100,6 +100,16 @@ export class GameDispatcher {
   ): Promise<void> {
     try {
       await this.handleSubscribeGame(token, gameUuid, setUuid);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public async subscribeGeneral(
+    token: string,
+  ): Promise<void> {
+    try {
+      await this.handleSubscribeGeneral(token);
     } catch (error) {
       console.error(error);
     }
@@ -176,6 +186,28 @@ export class GameDispatcher {
     } else {
       console.error(data.message);
       throw new Error("Joining game failed");
+    }
+  }
+
+  private async handleSubscribeGeneral(
+    token: string
+  ): Promise<void> {
+    const response = await fetch("http://localhost:3001/subscribe-general", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    const data: JoinResponse = await response.json();
+
+    if (response.ok) {
+      console.log(data.message);
+    } else {
+      console.error(data.message);
+      throw new Error("Subscribing general failed");
     }
   }
 

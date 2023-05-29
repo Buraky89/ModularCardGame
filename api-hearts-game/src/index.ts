@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import path from "path";
+import { GeneralEventManager } from "./Services/GeneralEventManager";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -160,7 +161,7 @@ async function main() {
 
 const port = 3001;
 
-var realmService = new RealmService();
+var realmService = new RealmService(new GeneralEventManager());
 realmService
   .start()
   .then(() => {
@@ -199,6 +200,40 @@ app.post(
     res.send("OK");
   }
 );
+
+app.post(
+  "/subscribe-general",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res) => {
+    if (req.user) {
+      const { uuid, username } = req.user;
+
+      const date = new Date();
+      const ip = req.ip;
+
+      const message = {
+        event: Events.NewViewerWantsToSubscribeGeneral,
+        payload: {
+          date,
+          ip,
+          uuid,
+          playerName: username,
+        },
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+
+      try {
+        await channel.publish("", `game-events-general`, buffer);
+        res.status(200).json({ uuid, message: "Player subscribed general" });
+      } catch (err) {
+        console.error("Error publishing message", err);
+        res.status(500).json({ message: "Error subscribing general" });
+      }
+    }
+  }
+);
+
+
 
 app.post(
   "/subscribe",

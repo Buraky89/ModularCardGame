@@ -9,6 +9,7 @@ enum Events {
   GameStartApproved = "GameStartApproved",
   GameUpdated = "GameUpdated",
   NewViewerWantsToSubscribe = "NewViewerWantsToSubscribe",
+  NewViewerWantsToSubscribeGeneral = "NewViewerWantsToSubscribeGeneral",
   NewViewerApprovedToSubscribe = "NewViewerApprovedToSubscribe",
   GameRestarted = "GameRestarted",
   CardsAreDistributed = "CardsAreDistributed",

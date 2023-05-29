@@ -48,7 +48,7 @@ export class GameClient {
     });
   }
 
-  retainLogin() {
+  async retainLogin() {
     const savedJwtToken = this.getSavedToken();
     if (savedJwtToken) {
       this.stateManager.setJwtToken(savedJwtToken);
@@ -62,6 +62,8 @@ export class GameClient {
       };
 
       gameDispatcher.fetchGames(handleGameListData);
+
+      await gameDispatcher.subscribeGeneral(savedJwtToken);
     }
   }
 
@@ -189,6 +191,7 @@ export class GameClient {
 
           gameDispatcher.fetchGames(handleGameListData);
 
+          await gameDispatcher.subscribeGeneral(accessToken);
           // Code to store the access token and redirect to the main application view
           // ...
         } else {
