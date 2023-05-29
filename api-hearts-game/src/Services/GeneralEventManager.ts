@@ -72,17 +72,20 @@ class GeneralEventManager {
     console.log("General update message", payload);
 
     // Distribute a message for each UUID in the list
-    gameUuidList.forEach((uuid) => {
-      const message = {
-        event: Events.GeneralUpdateMessage,
-        payload: {
-          gameUuidList,
-        },
-      };
+    this.uuidList.forEach((viewerUuid) => {
+      gameUuidList.forEach((uuid) => {
+        const message = {
+          event: Events.GeneralUpdateMessageExchange,
+          payload: {
+            gameUuidList,
+            viewerUuid
+          },
+        };
 
-      const buffer = Buffer.from(JSON.stringify(message));
-      // Distribute the message using the UUID as the routing key
-      this.amqpService.publish("", `game-events-general.${uuid}`, buffer);
+        const buffer = Buffer.from(JSON.stringify(message));
+        // Distribute the message using the UUID as the routing key
+        this.amqpService.publish("", `game-events-general`, buffer);
+      });
     });
   }
 }

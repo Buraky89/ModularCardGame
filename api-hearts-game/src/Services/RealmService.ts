@@ -8,7 +8,7 @@ enum GameState {
 }
 
 class RealmService {
-  private generalEventManager?: GeneralEventManager;
+  public generalEventManager?: GeneralEventManager;
   private eventMangers: EventManager[] = [];
 
   constructor(generalEventManager: GeneralEventManager, eventMangers?: EventManager[]) {
