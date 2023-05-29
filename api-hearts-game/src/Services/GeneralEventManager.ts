@@ -6,9 +6,11 @@ import {
 
 class GeneralEventManager {
   public amqpService: AmqpService;
+  public uuidList: string[]; // List to store the UUIDs
 
   constructor() {
     this.amqpService = new AmqpService();
+    this.uuidList = []; // Initialize the UUID list
   }
 
   async start(): Promise<void> {
@@ -52,6 +54,9 @@ class GeneralEventManager {
   ): void {
     const { date, ip, uuid, playerName } = payload;
     console.log("New payload wants to subscribe to general", payload);
+
+    this.uuidList.push(uuid); // Add the UUID to the list
+    console.log("Updated UUID list:", this.uuidList);
   }
 }
 
