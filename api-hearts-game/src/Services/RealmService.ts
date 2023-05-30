@@ -1,3 +1,4 @@
+import Events from "../Common/Events";
 import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
 
@@ -9,7 +10,7 @@ enum GameState {
 
 class RealmService {
   public generalEventManager?: GeneralEventManager;
-  private eventMangers: EventManager[] = [];
+  public eventMangers: EventManager[] = [];
 
   constructor(generalEventManager: GeneralEventManager, eventMangers?: EventManager[]) {
     if (eventMangers) {
@@ -26,6 +27,30 @@ class RealmService {
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();
+
+    const eventManagerUuids: string[] = [];
+    this.eventMangers.forEach((em: EventManager) => {
+      eventManagerUuids.push(em.uuid);
+    })
+    if (this.generalEventManager) {
+
+      const message = {
+        event: Events.GeneralUpdateMessage,
+        payload: {
+          gameUuidList: eventManagerUuids
+        },
+      };
+      const buffer = Buffer.from(JSON.stringify(message));
+
+      try {
+        await this.generalEventManager.amqpService.publish("", `game-events-general`, buffer);
+      } catch (err) {
+        console.error("Error publishing message", err);
+      }
+
+
+    }
+
 
     return eventManager;
   }

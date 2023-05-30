@@ -353,22 +353,6 @@ app.post("/createGame", async (req: Request, res: Response) => {
 
   var eventManager = await realmService.addEventManager(eventManagerUuid);
 
-
-  const message = {
-    event: Events.GeneralUpdateMessage,
-    payload: {
-      gameUuidList: ["a", "b", "c", "d", "e"]
-    },
-  };
-  const buffer = Buffer.from(JSON.stringify(message));
-
-  try {
-    await channel.publish("", `game-events-general`, buffer);
-  } catch (err) {
-    console.error("Error publishing message", err);
-  }
-
-
   res.json(eventManager.uuid);
 });
 

@@ -50,6 +50,9 @@ class GeneralEventManager {
           payload as GeneralUpdateMessagePayload
         );
         break;
+      case Events.GeneralUpdateMessageExchange:
+        console.log("This is an exchange message. Do something with this...", payload);
+        break;
       default:
         throw new Error(`Invalid event: ${event}`);
     }
