@@ -4,6 +4,7 @@ import { State, StateManager } from "./StateManager";
 import { Logger } from "./Logger";
 import { StateManagerWrapper } from "./StateManagerWrapper";
 import { io, Socket } from "socket.io-client";
+import GameStateManager from "./GameStateManager";
 
 export class GameClient {
   stateManager: StateManager;
@@ -36,6 +37,13 @@ export class GameClient {
       console.log("Received game event:", data);
       if (this.socket instanceof SocketServerMock) {
         this.socket.clientMock.emit("gameEvent", data.payload);
+      }
+    });
+
+    this.realSocket?.on("generalEvent", (data) => {
+      console.log("Received general event:", data);
+      if (this.socket instanceof SocketServerMock) {
+        this.socket.clientMock.emit("generalEvent", data.payload);
       }
     });
 
@@ -146,6 +154,13 @@ export class GameClient {
       if (gameStateManager) {
         gameStateManager.updateGameState(payload.data);
       }
+    });
+
+    this.socket.on("generalEvent", (payload: any) => {
+      this.event("generalEvent");
+      console.log("general event payload", payload);
+
+      this.stateManager.setGameUuids((payload.gameUuidList));
     });
 
     this.socket.on("subscribedToGame", () => {

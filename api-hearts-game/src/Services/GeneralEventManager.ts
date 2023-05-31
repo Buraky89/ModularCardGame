@@ -17,6 +17,8 @@ class GeneralEventManager {
   async start(): Promise<void> {
     const channel = await this.amqpService.start("general");
 
+    await this.amqpService.start("general-exchange");
+
     await channel.consume(
       `game-events-general`,
       this.handleMessage.bind(this),
@@ -49,9 +51,6 @@ class GeneralEventManager {
         this.handleGeneralUpdateMessage(
           payload as GeneralUpdateMessagePayload
         );
-        break;
-      case Events.GeneralUpdateMessageExchange:
-        console.log("This is an exchange message. Do something with this...", payload);
         break;
       default:
         throw new Error(`Invalid event: ${event}`);
@@ -87,7 +86,7 @@ class GeneralEventManager {
 
         const buffer = Buffer.from(JSON.stringify(message));
         // Distribute the message using the UUID as the routing key
-        this.amqpService.publish("", `game-events-general`, buffer);
+        this.amqpService.publish("", `game-events-general-exchange`, buffer);
       });
     });
   }

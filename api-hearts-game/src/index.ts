@@ -54,6 +54,28 @@ io.on("connection", (socket) => {
   //   // });
   // });
 
+  socket.on("joinGeneralEventQueue", async ({ jwtToken }) => {
+    // TODO: use middleware instead
+    const decoded = jwt.decode(jwtToken);
+    const { sid, preferred_username } = decoded as TokenPayload;
+    const playerUuid = sid;
+
+    const queueNameGeneralExchange = `game-events-general-exchange`;
+    await channel.assertQueue(queueNameGeneralExchange, { durable: true });
+    channel.consume(queueNameGeneralExchange, (msg) => {
+      console.log("CONSUM", queueNameGeneralExchange, msg);
+      if (msg) {
+        const content = msg.content.toString();
+        const data = JSON.parse(content);
+
+        if (JSON.stringify(data).toString().indexOf(playerUuid) > -1) {
+          socket.emit("generalEvent", data);
+          channel.ack(msg);
+        }
+      }
+    });
+  });
+
   socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {
     // TODO: use middleware instead
     const decoded = jwt.decode(jwtToken);
@@ -71,6 +93,7 @@ io.on("connection", (socket) => {
       }
     });
   });
+
 
   socket.on("disconnect", () => {
     console.log("User disconnected", socket.id);

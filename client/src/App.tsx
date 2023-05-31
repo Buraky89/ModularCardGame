@@ -35,6 +35,8 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log("after init...");
     client.afterInit();
+
+    handleJoinGeneralEventQueue();
   }, []);
 
   const [appState, setAppState] = useState<StateManagerWrapper | null>(
@@ -147,6 +149,12 @@ const App: React.FC = () => {
     client.realSocket?.emit("joinGameEventQueue", {
       jwtToken: appState.stateManager.jwtToken,
       gameUuid,
+    });
+  };
+
+  const handleJoinGeneralEventQueue = () => {
+    client.realSocket?.emit("joinGeneralEventQueue", {
+      jwtToken: appState.stateManager.jwtToken,
     });
   };
 
