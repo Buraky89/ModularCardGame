@@ -61,6 +61,7 @@ io.on("connection", (socket) => {
     const playerUuid = sid;
 
     const queueNameGeneralExchange = `game-events-general-exchange`;
+    channel.prefetch(1);
     await channel.assertQueue(queueNameGeneralExchange, { durable: true });
     channel.consume(queueNameGeneralExchange, (msg) => {
       console.log("CONSUM", queueNameGeneralExchange, msg);
