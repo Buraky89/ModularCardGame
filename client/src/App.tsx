@@ -45,6 +45,7 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [devMode, setDevMode] = useState(false);
   const [devModeClicks, setDevModeClicks] = useState(0);
+  const [selectedGame, setSelectedGame] = useState("");
 
   const code = queryParams.get("code") || undefined;
 
@@ -76,6 +77,9 @@ const App: React.FC = () => {
     client.selectTheGameUuid(uuid);
 
     handleJoinGameEventQueue(uuid);
+
+    console.log("setSelectedGame", uuid);
+    setSelectedGame(uuid);
   };
 
   const handleFetchButtonClick = () => {
@@ -251,13 +255,16 @@ const App: React.FC = () => {
             {appState.stateManager.subscribedGameUuids.length > 0 &&
               appState.stateManager.gameStateManagers.size > 0 &&
               Array.from(appState.stateManager.gameStateManagers.entries()).map(
-                ([gameUuid, gameStateManager]) => (
-                  <CardsList
-                    key={gameUuid}
-                    gameStateManager={gameStateManager}
-                    gameUuid={gameUuid}
-                  />
-                )
+                ([gameUuid, gameStateManager]) => {
+                  if (gameUuid !== selectedGame) return;
+                  return (
+                    <CardsList
+                      key={gameUuid}
+                      gameStateManager={gameStateManager}
+                      gameUuid={gameUuid}
+                    />
+                  );
+                }
               )}
           </>
         )}
