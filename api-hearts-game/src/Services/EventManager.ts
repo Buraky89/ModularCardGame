@@ -210,6 +210,11 @@ class EventManager {
     }
   }
 
+  async publishMessage(payload: any, queue: string): Promise<void> {
+    const buffer = Buffer.from(JSON.stringify(payload));
+    await this.amqpService.publish("", queue, buffer);
+  }
+
   private async handleGameStartRequested(
     payload: GameStartRequestedPayload
   ): Promise<void> {
@@ -224,8 +229,7 @@ class EventManager {
         event: Events.GameStartApproved,
         payload: {},
       };
-      const buffer = Buffer.from(JSON.stringify(message));
-      await this.amqpService.publish("", `game-events-${this.uuid}`, buffer);
+      await this.publishMessage(message, `game-events-${this.uuid}`);
     } else if (this.gameService.playerService.players.length < 4) {
       console.log("There are not enough players to start yet");
     } else {
@@ -239,12 +243,7 @@ class EventManager {
     console.log("Game start approved");
     this.gameService.gameState = GameState.STARTED;
 
-    const buffer = Buffer.from(JSON.stringify(payload));
-    await this.amqpService.publish(
-      "",
-      `game-events-exchange-q-${this.uuid}`,
-      buffer
-    );
+    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
   }
 
   private async handleCardsAreDistributed(
@@ -257,12 +256,7 @@ class EventManager {
     console.log("Game has ended!");
     this.gameService.gameState = GameState.ENDED;
 
-    const buffer = Buffer.from(JSON.stringify(payload));
-    await this.amqpService.publish(
-      "",
-      `game-events-exchange-q-${this.uuid}`,
-      buffer
-    );
+    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
   }
 
   private handleNewPlayerWantsToJoin(
@@ -304,12 +298,7 @@ class EventManager {
         );
 
         if (isGameEnded != "") {
-          const buffer = Buffer.from(JSON.stringify(isGameEnded));
-          await this.amqpService.publish(
-            "",
-            `game-events-${this.uuid}`,
-            buffer
-          );
+          await this.publishMessage(isGameEnded, `game-events-${this.uuid}`);
         }
 
         // Set the next player's isTheirTurn property to true
@@ -332,12 +321,7 @@ class EventManager {
     console.log(`New player ${uuid} approved to join`);
     // Do something with the approved player
 
-    const buffer = Buffer.from(JSON.stringify(payload));
-    await this.amqpService.publish(
-      "",
-      `game-events-exchange-q-${this.uuid}`,
-      buffer
-    );
+    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
   }
 
   private handleNewViewerApprovedToSubscribe(
@@ -373,12 +357,7 @@ class EventManager {
           },
         };
 
-        const buffer = Buffer.from(JSON.stringify(message));
-        await this.amqpService.publish(
-          "",
-          `game-events-exchange-q-${this.uuid}`,
-          buffer
-        );
+        await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
 
         console.log(`Player ${player.name} cannot play at this time.`);
 
@@ -403,14 +382,9 @@ class EventManager {
           },
         };
         console.log("message", message);
-        const buffer = Buffer.from(JSON.stringify(message));
-        await this.amqpService.publish("", `game-events-${this.uuid}`, buffer);
 
-        await this.amqpService.publish(
-          "",
-          `game-events-exchange-q-${this.uuid}`,
-          buffer
-        );
+        await this.publishMessage(message, `game-events-${this.uuid}`);
+        await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
       } else {
         console.log("Invalid card played");
 
@@ -423,12 +397,7 @@ class EventManager {
           },
         };
 
-        const buffer = Buffer.from(JSON.stringify(message));
-        await this.amqpService.publish(
-          "",
-          `game-events-exchange-q-${this.uuid}`,
-          buffer
-        );
+        await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
       }
     } else {
       console.log(`Player ${uuid} not found`);
@@ -449,14 +418,8 @@ class EventManager {
     const message = {
       event: Events.GameRestarted,
     };
-    const buffer = Buffer.from(JSON.stringify(message));
-    //await this.amqpService.publish("", `game-events-${this.uuid}`, buffer);
 
-    await this.amqpService.publish(
-      "",
-      `game-events-exchange-q-${this.uuid}`,
-      buffer
-    );
+    await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
 
     // this.start()
     //   .then(() => {
