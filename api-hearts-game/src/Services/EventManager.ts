@@ -210,6 +210,14 @@ class EventManager {
     }
   }
 
+  async publishMessageToExchange(payload: any, uuid: string): Promise<void> {
+    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
+  }
+
+  async publishMessageToGameEvents(payload: any, uuid: string): Promise<void> {
+    await this.publishMessage(payload, `game-events-${this.uuid}`);
+  }
+
   async publishMessage(payload: any, queue: string): Promise<void> {
     const buffer = Buffer.from(JSON.stringify(payload));
     await this.amqpService.publish("", queue, buffer);
@@ -229,7 +237,7 @@ class EventManager {
         event: Events.GameStartApproved,
         payload: {},
       };
-      await this.publishMessage(message, `game-events-${this.uuid}`);
+      await this.publishMessageToGameEvents(message, this.uuid);
     } else if (this.gameService.playerService.players.length < 4) {
       console.log("There are not enough players to start yet");
     } else {
@@ -243,7 +251,7 @@ class EventManager {
     console.log("Game start approved");
     this.gameService.gameState = GameState.STARTED;
 
-    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
+    await this.publishMessageToExchange(payload, this.uuid);
   }
 
   private async handleCardsAreDistributed(
@@ -256,7 +264,7 @@ class EventManager {
     console.log("Game has ended!");
     this.gameService.gameState = GameState.ENDED;
 
-    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
+    await this.publishMessageToExchange(payload, this.uuid);
   }
 
   private handleNewPlayerWantsToJoin(
@@ -298,7 +306,7 @@ class EventManager {
         );
 
         if (isGameEnded != "") {
-          await this.publishMessage(isGameEnded, `game-events-${this.uuid}`);
+          await this.publishMessageToGameEvents(isGameEnded, this.uuid);
         }
 
         // Set the next player's isTheirTurn property to true
@@ -321,7 +329,7 @@ class EventManager {
     console.log(`New player ${uuid} approved to join`);
     // Do something with the approved player
 
-    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
+    await this.publishMessageToExchange(payload, this.uuid);
   }
 
   private handleNewViewerApprovedToSubscribe(
@@ -357,7 +365,7 @@ class EventManager {
           },
         };
 
-        await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
+        await this.publishMessageToExchange(message, this.uuid);
 
         console.log(`Player ${player.name} cannot play at this time.`);
 
@@ -383,8 +391,8 @@ class EventManager {
         };
         console.log("message", message);
 
-        await this.publishMessage(message, `game-events-${this.uuid}`);
-        await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
+        await this.publishMessageToGameEvents(message, this.uuid);
+        await this.publishMessageToExchange(message, this.uuid);
       } else {
         console.log("Invalid card played");
 
@@ -397,7 +405,7 @@ class EventManager {
           },
         };
 
-        await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
+        await this.publishMessageToExchange(message, this.uuid);
       }
     } else {
       console.log(`Player ${uuid} not found`);
@@ -419,7 +427,7 @@ class EventManager {
       event: Events.GameRestarted,
     };
 
-    await this.publishMessage(message, `game-events-exchange-q-${this.uuid}`);
+    await this.publishMessageToExchange(message, this.uuid);
 
     // this.start()
     //   .then(() => {
