@@ -32,6 +32,20 @@ class EventManager {
     this.gameService = new HeartsGameService();
   }
 
+  eventHandlers: { [key in Events]?: (payload: any) => Promise<void> } = {
+    [Events.NewPlayerWantsToJoin]: (payload) => this.handleNewPlayerWantsToJoin(payload),
+    [Events.NewViewerWantsToSubscribe]: (payload) => this.handleNewViewerWantsToSubscribe(payload),
+    [Events.PlayerPlayed]: (payload) => this.handlePlayerPlayed(payload),
+    [Events.NewPlayerApprovedToJoin]: (payload) => this.handleNewPlayerApprovedToJoin(payload),
+    [Events.NewViewerApprovedToSubscribe]: (payload) => this.handleNewViewerApprovedToSubscribe(payload),
+    [Events.CardsAreReadyToBeDistributed]: () => this.gameService.playerService.distributeCards(this.uuid),
+    [Events.PlayerAttemptsToPlay]: (payload) => this.handlePlayerAttemptsToPlay(payload),
+    [Events.GameEnded]: (payload) => this.handleGameEnded(payload),
+    [Events.GameStartRequested]: (payload) => this.handleGameStartRequested(payload),
+    [Events.GameStartApproved]: (payload) => this.handleGameStartApproved(payload),
+    [Events.CardsAreDistributed]: (payload) => this.handleCardsAreDistributed(payload),
+  };
+
   async start(): Promise<void> {
     const channel = await this.amqpService.start(this.uuid);
 
@@ -79,29 +93,20 @@ class EventManager {
   async handleExchangeEvent(message: any): Promise<void> {
     const { event, payload } = message;
 
-    const mergedPlayersMap = new Map<string, Player>();
+    const players = this.gameService.playerService.players;
+    const viewers = this.gameService.playerService.viewers;
 
-    // non-GameUpdated exchange events:
-    if (event == Events.GameMessageToPlayer) {
-      var gameMessageToPlayerPayload = payload as GameMessageToPlayerPayload;
+    const mergedPlayersMap = new Map(
+      [...players, ...viewers].map(player => [player.uuid, player])
+    );
 
-      for (const player of this.gameService.playerService.players) {
-        if (player.uuid == gameMessageToPlayerPayload.playerUuid) {
-          mergedPlayersMap.set(player.uuid, player);
-        }
-      }
+    if (event === Events.GameMessageToPlayer) {
+      const gameMessageToPlayerPayload = payload as GameMessageToPlayerPayload;
+      const player = players.find(p => p.uuid === gameMessageToPlayerPayload.playerUuid);
 
-    } else {
-      // Loop through each player and send the message to their queue
-
-      for (const player of this.gameService.playerService.players) {
+      if (player) {
+        mergedPlayersMap.clear();
         mergedPlayersMap.set(player.uuid, player);
-      }
-
-      for (const viewer of this.gameService.playerService.viewers) {
-        if (!mergedPlayersMap.has(viewer.uuid)) {
-          mergedPlayersMap.set(viewer.uuid, viewer);
-        }
       }
     }
 
@@ -158,56 +163,12 @@ class EventManager {
       return;
     }
 
-    switch (event) {
-      case Events.NewPlayerWantsToJoin:
-        this.handleNewPlayerWantsToJoin(payload as NewPlayerWantsToJoinPayload);
-        break;
-      case Events.NewViewerWantsToSubscribe:
-        this.handleNewViewerWantsToSubscribe(
-          payload as NewPlayerWantsToJoinPayload
-        );
-        break;
-      case Events.PlayerPlayed:
-        this.handlePlayerPlayed(payload as PlayerPlayedPayload);
-        break;
-      case Events.NewPlayerApprovedToJoin:
-        this.handleNewPlayerApprovedToJoin(
-          payload as NewPlayerApprovedToJoinPayload
-        );
-        break;
-      case Events.NewViewerApprovedToSubscribe:
-        this.handleNewViewerApprovedToSubscribe(
-          payload as NewViewerApprovedToSubscribePayload
-        );
-        break;
-      case Events.CardsAreReadyToBeDistributed:
-        console.log(
-          `It seems cards are ready to distribute. Adding players' cards`
-        );
-        this.gameService.playerService.distributeCards(this.uuid);
-        break;
-      case Events.CardsAreDistributed:
-        this.handleCardsAreDistributed(
-          payload as CardsAreDistributedPayload
-        );
-        break;
-      case Events.PlayerAttemptsToPlay:
-        await this.handlePlayerAttemptsToPlay(
-          payload as PlayerAttemptsToPlayPayload
-        );
-        break;
-      case Events.GameEnded:
-        this.handleGameEnded(payload as GameEndedPayload);
-        break;
-      case Events.GameStartRequested:
-        this.handleGameStartRequested(payload as GameStartRequestedPayload);
-        break;
-      case Events.GameStartApproved:
-        this.handleGameStartApproved(payload as GameStartApprovedPayload);
-        break;
-      default:
-        throw new Error(`Invalid event: ${event}`);
+    const handler = this.eventHandlers[event as Events];
+    if (!handler) {
+      throw new Error(`Invalid event: ${event}`);
     }
+
+    await handler.bind(this)(payload);
   }
 
   async publishMessageToExchange(payload: any, uuid: string): Promise<void> {
@@ -267,9 +228,9 @@ class EventManager {
     await this.publishMessageToExchange(payload, this.uuid);
   }
 
-  private handleNewPlayerWantsToJoin(
+  private async handleNewPlayerWantsToJoin(
     payload: NewPlayerWantsToJoinPayload
-  ): void {
+  ): Promise<void> {
     const { date, ip, uuid, playerName } = payload;
     if (this.gameService.playerService.players.length < 4) {
       this.gameService.playerService.addPlayer(playerName, uuid, this.uuid);
@@ -278,9 +239,9 @@ class EventManager {
     }
   }
 
-  private handleNewViewerWantsToSubscribe(
+  private async handleNewViewerWantsToSubscribe(
     payload: NewPlayerWantsToJoinPayload
-  ): void {
+  ): Promise<void> {
     const { date, ip, uuid, playerName } = payload;
     this.gameService.playerService.subscribeViewer(playerName, uuid, this.uuid);
   }
@@ -332,9 +293,9 @@ class EventManager {
     await this.publishMessageToExchange(payload, this.uuid);
   }
 
-  private handleNewViewerApprovedToSubscribe(
+  private async handleNewViewerApprovedToSubscribe(
     payload: NewViewerApprovedToSubscribePayload
-  ): void {
+  ): Promise<void> {
     const { uuid } = payload;
     console.log(`New viewer ${uuid} approved to subscribe`);
     // Do something with the approved player
