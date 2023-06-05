@@ -93,24 +93,12 @@ class EventManager {
   async handleExchangeEvent(message: any): Promise<void> {
     const { event, payload } = message;
 
-    const players = this.gameService.playerService.players;
-    const viewers = this.gameService.playerService.viewers;
-
-    const mergedPlayersMap = new Map(
-      [...players, ...viewers].map(player => [player.uuid, player])
-    );
-
+    let playerUuid = "";
     if (event === Events.GameMessageToPlayer) {
       const gameMessageToPlayerPayload = payload as GameMessageToPlayerPayload;
-      const player = players.find(p => p.uuid === gameMessageToPlayerPayload.playerUuid);
-
-      if (player) {
-        mergedPlayersMap.clear();
-        mergedPlayersMap.set(player.uuid, player);
-      }
+      playerUuid = gameMessageToPlayerPayload.playerUuid;
     }
-
-    const mergedPlayersArray = Array.from(mergedPlayersMap.values());
+    const mergedPlayersArray = this.gameService.GetPlayerUuidsToExchange(playerUuid);
 
     for (const player of mergedPlayersArray) {
       const playerUuid = player.uuid;

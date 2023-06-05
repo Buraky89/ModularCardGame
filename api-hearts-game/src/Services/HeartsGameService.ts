@@ -16,6 +16,27 @@ class HeartsGameService extends GameService {
     this.keyValueStore['heartsBroken'] = false;
   }
 
+  GetPlayerUuidsToExchange(playerUuid: string) {
+
+    const players = this.playerService.players;
+    const viewers = this.playerService.viewers;
+
+    const mergedPlayersMap = new Map(
+      [...players, ...viewers].map(player => [player.uuid, player])
+    );
+
+    if (playerUuid !== "") {
+      const player = players.find(p => p.uuid === playerUuid);
+
+      if (player) {
+        mergedPlayersMap.clear();
+        mergedPlayersMap.set(player.uuid, player);
+      }
+    }
+
+    return Array.from(mergedPlayersMap.values());
+  }
+
   calculatePoints(turnNumber: number, card: Card): number {
     if (card.cardType === CardType.HEARTS) {
       return 1;
