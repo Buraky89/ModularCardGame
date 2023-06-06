@@ -32,13 +32,16 @@ class EventManager {
     this.gameService = new HeartsGameService();
   }
 
+  // TODO: clear all playerService stuff. let this service do not know PlayerService.
+  // TODO: clear all player business if possible, this class I think does not have to know "player", but "uuid"...
+
   eventHandlers: { [key in Events]?: (payload: any) => Promise<void> } = {
     [Events.NewPlayerWantsToJoin]: (payload) => this.handleNewPlayerWantsToJoin(payload),
     [Events.NewViewerWantsToSubscribe]: (payload) => this.handleNewViewerWantsToSubscribe(payload),
     [Events.PlayerPlayed]: (payload) => this.handlePlayerPlayed(payload),
     [Events.NewPlayerApprovedToJoin]: (payload) => this.handleNewPlayerApprovedToJoin(payload),
     [Events.NewViewerApprovedToSubscribe]: (payload) => this.handleNewViewerApprovedToSubscribe(payload),
-    [Events.CardsAreReadyToBeDistributed]: () => this.gameService.playerService.distributeCards(this.uuid),
+    [Events.CardsAreReadyToBeDistributed]: () => this.gameService.distributeCards(this.uuid),
     [Events.PlayerAttemptsToPlay]: (payload) => this.handlePlayerAttemptsToPlay(payload),
     [Events.GameEnded]: (payload) => this.handleGameEnded(payload),
     [Events.GameStartRequested]: (payload) => this.handleGameStartRequested(payload),
@@ -49,8 +52,7 @@ class EventManager {
   async start(): Promise<void> {
     const channel = await this.amqpService.start(this.uuid);
 
-    // Pass channel object to PlayerService instance
-    await this.gameService.playerService.start(channel);
+    await this.gameService.startPlayerService(channel);
 
     await channel.consume(
       `game-events-${this.uuid}`,
@@ -206,7 +208,7 @@ class EventManager {
   private async handleCardsAreDistributed(
     payload: CardsAreDistributedPayload
   ): Promise<void> {
-    this.gameService.playerService.onCardsAreDistributed();
+    await this.gameService.onCardsAreDistributed();
   }
 
   private async handleGameEnded(payload: GameEndedPayload): Promise<void> {
@@ -231,7 +233,7 @@ class EventManager {
     payload: NewPlayerWantsToJoinPayload
   ): Promise<void> {
     const { date, ip, uuid, playerName } = payload;
-    this.gameService.playerService.subscribeViewer(playerName, uuid, this.uuid);
+    this.gameService.subscribeViewer(playerName, uuid, this.uuid);
   }
 
   async handlePlayerPlayed(payload: PlayerPlayedPayload): Promise<void> {

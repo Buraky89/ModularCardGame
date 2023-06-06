@@ -4,6 +4,7 @@ import Events from "../Common/Events";
 import { Card, CardType } from "../Common/Card";
 import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
+import { Channel } from "amqplib";
 
 class GameService {
   public playerService: PlayerService;
@@ -23,6 +24,31 @@ class GameService {
     this.turnNumber = 1;
     this.gameState = GameState.NOT_STARTED;
     this.playerService.restartAsClean();
+  }
+
+  public async distributeCards(eventManagerUuid: string): Promise<void> {
+    this.playerService.players.forEach((player) => {
+      player.setCards(this.playerService.cardService.getNextCards());
+    });
+
+    // Publish CardsAreDistributed event after distributing cards
+    await this.playerService.publishCardsAreDistributedEvent(eventManagerUuid);
+  }
+
+  public async startPlayerService(channel: Channel): Promise<void> {
+    await this.playerService.start(channel);
+  }
+
+  public async onCardsAreDistributed(): Promise<void> {
+    await this.playerService.onCardsAreDistributed();
+  }
+
+  async subscribeViewer(
+    playerName: string,
+    uuid: string,
+    eventManagerUuid: string
+  ): Promise<void> {
+    await this.playerService.subscribeViewer(playerName, uuid, eventManagerUuid);
   }
 
   isThisAValidCardToPlay(

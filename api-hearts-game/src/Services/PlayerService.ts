@@ -9,7 +9,7 @@ class PlayerService {
   public players: Player[] = [];
   public viewers: Player[] = [];
   public channel: Channel | null = null;
-  private cardService: CardService;
+  public cardService: CardService;
   public turnMutex: Mutex;
 
   constructor() {
