@@ -32,9 +32,6 @@ class EventManager {
     this.gameService = new HeartsGameService();
   }
 
-  // TODO: clear all playerService stuff. let this service do not know PlayerService.
-  // TODO: clear all player business if possible, this class I think does not have to know "player", but "uuid"...
-
   eventHandlers: { [key in Events]?: (payload: any) => Promise<void> } = {
     [Events.NewPlayerWantsToJoin]: (payload) => this.handleNewPlayerWantsToJoin(payload),
     [Events.NewViewerWantsToSubscribe]: (payload) => this.handleNewViewerWantsToSubscribe(payload),
@@ -178,18 +175,16 @@ class EventManager {
     payload: GameStartRequestedPayload
   ): Promise<void> {
     const { uuid } = payload;
-    const player = this.gameService.playerService.players.find(
-      (p) => p.uuid === uuid
-    );
+    const player = await this.gameService.findPlayer(uuid);
 
-    if (player && this.gameService.playerService.players.length == 4) {
+    if (player && await this.gameService.isPlayersStillNotMax() == true) {
       console.log("Game start requested by first player");
       const message = {
         event: Events.GameStartApproved,
         payload: {},
       };
       await this.publishMessageToGameEvents(message, this.uuid);
-    } else if (this.gameService.playerService.players.length < 4) {
+    } else if (await this.gameService.isPlayersStillNotMax() == true) {
       console.log("There are not enough players to start yet");
     } else {
       console.log(`Player ${uuid} cannot request game start`);
@@ -222,8 +217,8 @@ class EventManager {
     payload: NewPlayerWantsToJoinPayload
   ): Promise<void> {
     const { date, ip, uuid, playerName } = payload;
-    if (this.gameService.playerService.players.length < 4) {
-      this.gameService.playerService.addPlayer(playerName, uuid, this.uuid);
+    if (await this.gameService.isPlayersStillNotMax() == true) {
+      this.gameService.addPlayer(playerName, uuid, this.uuid);
     } else {
       console.log("Game has already maximum number of players!");
     }
@@ -239,16 +234,14 @@ class EventManager {
   async handlePlayerPlayed(payload: PlayerPlayedPayload): Promise<void> {
     const { uuid, selectedIndex } = payload;
 
-    const player = this.gameService.playerService.players.find(
-      (p) => p.uuid === uuid
-    );
+    const player = await this.gameService.findPlayer(uuid);
 
     if (player) {
       // Check if it's the player's turn before allowing them to play
       if (player.isTheirTurn) {
         // Acquire the mutex before playing and changing the turn
         const release =
-          await this.gameService.playerService.turnMutex.acquire();
+          await this.gameService.turnMutex();
 
         var isGameEnded = await this.gameService.playGame(
           player,
@@ -261,7 +254,7 @@ class EventManager {
         }
 
         // Set the next player's isTheirTurn property to true
-        await this.gameService.playerService.setWhoseTurn();
+        await this.gameService.setWhoseTurn();
 
         // Release the mutex when done
         release();
@@ -301,9 +294,7 @@ class EventManager {
 
     const { uuid, selectedIndex } = payload;
     console.log("payload", payload);
-    const player = this.gameService.playerService.players.find(
-      (p) => p.uuid === uuid
-    );
+    const player = await this.gameService.findPlayer(uuid);
 
     if (player) {
       if (!player.isTheirTurn) {

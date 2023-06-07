@@ -5,6 +5,7 @@ import { Card, CardType } from "../Common/Card";
 import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
 import { Channel } from "amqplib";
+import { MutexInterface } from "async-mutex";
 
 class GameService {
   public playerService: PlayerService;
@@ -41,6 +42,29 @@ class GameService {
 
   public async onCardsAreDistributed(): Promise<void> {
     await this.playerService.onCardsAreDistributed();
+  }
+
+  public async findPlayer(uuid: string): Promise<Player | undefined> {
+    const player = this.playerService.players.find(
+      (p) => p.uuid === uuid
+    );
+    return player;
+  }
+
+  public async isPlayersStillNotMax(): Promise<boolean> {
+    return this.playerService.players.length < 4;
+  }
+
+  public async setWhoseTurn(): Promise<void> {
+    return this.playerService.setWhoseTurn();
+  }
+
+  public async addPlayer(playerName: string, uuid: string, gameUuid: string): Promise<void> {
+    return this.playerService.addPlayer(playerName, uuid, gameUuid);
+  }
+
+  public async turnMutex(): Promise<MutexInterface.Releaser> {
+    return this.playerService.turnMutex.acquire();
   }
 
   async subscribeViewer(
