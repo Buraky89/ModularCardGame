@@ -170,8 +170,7 @@ class EventManager {
   ): Promise<void> {
     const { uuid } = payload;
     const player = await this.gameService.findPlayer(uuid);
-
-    if (player && await this.gameService.isPlayersStillNotMax() == true) {
+    if (player && await this.gameService.isPlayersStillNotMax() == false) {
       console.log("Game start requested by first player");
       const message = {
         event: Events.GameStartApproved,
