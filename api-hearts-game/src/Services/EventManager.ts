@@ -15,12 +15,6 @@ import {
 } from "../Common/Payloads";
 import { Player } from "../Common/Player";
 
-enum GameState {
-  NOT_STARTED,
-  STARTED,
-  ENDED,
-}
-
 class EventManager {
   public amqpService: AmqpService;
   public gameService: HeartsGameService;
@@ -79,7 +73,7 @@ class EventManager {
   }
 
   async handleMessage(msg: any): Promise<void> {
-    if (this.gameService.gameState == GameState.ENDED) {
+    if (this.gameService.isGameEnded()) {
       console.log("Game is ended, ignoring message");
       return;
     }
@@ -143,7 +137,7 @@ class EventManager {
     const { event, payload } = message;
 
     if (
-      this.gameService.gameState == GameState.ENDED &&
+      this.gameService.isGameEnded() &&
       event !== Events.GameEnded
     ) {
       console.log("Game is ended, ignoring event");
@@ -195,7 +189,7 @@ class EventManager {
     payload: GameStartApprovedPayload
   ): Promise<void> {
     console.log("Game start approved");
-    this.gameService.gameState = GameState.STARTED;
+    this.gameService.startGame();
 
     await this.publishMessageToExchange(payload, this.uuid);
   }
@@ -208,7 +202,7 @@ class EventManager {
 
   private async handleGameEnded(payload: GameEndedPayload): Promise<void> {
     console.log("Game has ended!");
-    this.gameService.gameState = GameState.ENDED;
+    this.gameService.endGame();
 
     await this.publishMessageToExchange(payload, this.uuid);
   }
@@ -287,7 +281,7 @@ class EventManager {
   private async handlePlayerAttemptsToPlay(
     payload: PlayerAttemptsToPlayPayload
   ): Promise<void> {
-    if (this.gameService.gameState == GameState.NOT_STARTED) {
+    if (this.gameService.isGameNotStarted()) {
       console.log("Game is not started yet. Cannot play.");
       return;
     }
@@ -359,7 +353,15 @@ class EventManager {
   }
 
   public isGameEnded(): boolean {
-    return this.gameService.gameState == GameState.ENDED;
+    return this.gameService.isGameEnded();
+  }
+
+  public isGameNotStarted(): boolean {
+    return this.gameService.isGameNotStarted();
+  }
+
+  public isGameStarted(): boolean {
+    return this.gameService.isGameStarted();
   }
 
   async restartGame(): Promise<any> {
@@ -370,14 +372,6 @@ class EventManager {
     };
 
     await this.publishMessageToExchange(message, this.uuid);
-
-    // this.start()
-    //   .then(() => {
-    //     console.log("GameService started");
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error starting GameService", error);
-    //   });
   }
 }
 

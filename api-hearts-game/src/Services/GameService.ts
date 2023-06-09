@@ -179,6 +179,26 @@ class GameService {
       gameState: this.gameState,
     };
   }
+
+  public isGameEnded(): boolean {
+    return this.gameState === GameState.ENDED;
+  }
+
+  public isGameNotStarted(): boolean {
+    return this.gameState === GameState.NOT_STARTED;
+  }
+
+  public isGameStarted(): boolean {
+    return this.gameState === GameState.STARTED;
+  }
+
+  public async startGame(): Promise<void> {
+    this.gameState = GameState.STARTED;
+  }
+
+  public async endGame(): Promise<void> {
+    this.gameState = GameState.ENDED;
+  }
 }
 
 export { GameService };
