@@ -19,13 +19,13 @@ class GeneralEventManager {
 
     await this.amqpService.start("general-exchange");
 
-    await channel.consume(
-      `game-events-general`,
-      this.handleMessage.bind(this),
-      {
-        noAck: true,
-      }
-    );
+    // await channel.consume(
+    //   `game-events-general`,
+    //   this.handleMessage.bind(this),
+    //   {
+    //     noAck: true,
+    //   }
+    // );
   }
 
   async stop(): Promise<void> {

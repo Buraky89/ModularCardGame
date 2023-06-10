@@ -13,6 +13,7 @@ import {
   CardsAreDistributedPayload,
   GameMessageToPlayerPayload,
 } from "../Common/Payloads";
+import { IAmqpService } from "../Interfaces/IAmqpService";
 
 interface ILogger {
   info(...message: any[]): void;
@@ -20,14 +21,14 @@ interface ILogger {
 }
 
 class EventManager {
-  public amqpService: AmqpService;
+  public amqpService: IAmqpService;
   public gameService: HeartsGameService;
   public uuid: string;
   public logger: ILogger;
 
-  constructor(uuid: string, logger: ILogger) {
+  constructor(uuid: string, amqpService: IAmqpService, logger: ILogger) {
     this.uuid = uuid;
-    this.amqpService = new AmqpService();
+    this.amqpService = amqpService;
     this.gameService = new HeartsGameService();
     this.logger = logger;
   }
@@ -47,25 +48,14 @@ class EventManager {
   };
 
   async start(): Promise<void> {
+    // TODO: Instead of sending the channel info to playerService, let the playerService have a callback method from EventManager. PlayerService knows too much about channels etc. now. Prevent that.
     const channel = await this.amqpService.start(this.uuid);
 
     await this.gameService.startPlayerService(channel);
 
-    await channel.consume(
-      `game-events-${this.uuid}`,
-      this.handleMessage.bind(this),
-      {
-        noAck: true,
-      }
-    );
 
-    await channel.consume(
-      `game-events-exchange-q-${this.uuid}`,
-      this.handleExchange.bind(this),
-      {
-        noAck: true,
-      }
-    );
+    await this.amqpService.subscribeQueue(this.handleMessage.bind(this));
+    await this.amqpService.subscribeExchangeQueue(this.handleExchange.bind(this));
   }
 
   async stop(): Promise<void> {
@@ -120,22 +110,14 @@ class EventManager {
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
     const playerQueue = `game-events-for-player-${playerUuid}-${this.uuid}`;
-    if (this.amqpService != null && this.amqpService.channel != null) {
-      await this.amqpService.channel
-        .assertQueue(playerQueue, { durable: false })
-        .then(() => {
-          const buffer = Buffer.from(JSON.stringify(messageToExchange));
-          if (this.amqpService.channel != null) {
-            this.logger.info(`Exchanging message to player ${playerUuid}`);
-            this.amqpService.channel.sendToQueue(playerQueue, buffer);
-          }
-        })
-        .catch((error) => {
-          this.logger.error(
-            `Error sending message to player ${playerUuid}:` +
-            error
-          );
-        });
+    const buffer = Buffer.from(JSON.stringify(messageToExchange));
+
+    try {
+      await this.amqpService.assertQueue(playerQueue, { durable: false });
+      this.logger.info(`Exchanging message to player ${playerUuid}`);
+      await this.amqpService.sendToQueue(playerQueue, buffer);
+    } catch (error) {
+      this.logger.error(`Error sending message to player ${playerUuid}: ${error}`);
     }
   }
 
