@@ -1,4 +1,5 @@
 import Events from "../Common/Events";
+import { WinstonLogger } from "../Common/WinstonLogger";
 import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
 
@@ -23,7 +24,8 @@ class RealmService {
   }
 
   async addEventManager(uuid: string): Promise<EventManager> {
-    const eventManager = new EventManager(uuid);
+    const logger = new WinstonLogger();
+    const eventManager = new EventManager(uuid, logger);
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();

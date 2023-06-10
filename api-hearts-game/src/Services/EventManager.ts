@@ -13,17 +13,23 @@ import {
   CardsAreDistributedPayload,
   GameMessageToPlayerPayload,
 } from "../Common/Payloads";
-import { Player } from "../Common/Player";
+
+interface ILogger {
+  info(...message: any[]): void;
+  error(...message: any[]): void;
+}
 
 class EventManager {
   public amqpService: AmqpService;
   public gameService: HeartsGameService;
   public uuid: string;
+  public logger: ILogger;
 
-  constructor(uuid: string) {
+  constructor(uuid: string, logger: ILogger) {
     this.uuid = uuid;
     this.amqpService = new AmqpService();
     this.gameService = new HeartsGameService();
+    this.logger = logger;
   }
 
   eventHandlers: { [key in Events]?: (payload: any) => Promise<void> } = {
@@ -68,18 +74,18 @@ class EventManager {
 
   async handleExchange(msg: any): Promise<void> {
     const message = JSON.parse(msg.content.toString());
-    console.log(`Received message: ${JSON.stringify(message)}`);
+    this.logger.info(`Received message: ${JSON.stringify(message)}`);
     this.handleExchangeEvent(message);
   }
 
   async handleMessage(msg: any): Promise<void> {
     if (this.gameService.isGameEnded()) {
-      console.log("Game is ended, ignoring message");
+      this.logger.info("Game is ended, ignoring message");
       return;
     }
 
     const message = JSON.parse(msg.content.toString());
-    console.log(`Received message: ${JSON.stringify(message)}`);
+    this.logger.info(`Received message: ${JSON.stringify(message)}`);
     await this.handleEvent(message);
   }
 
@@ -120,13 +126,13 @@ class EventManager {
         .then(() => {
           const buffer = Buffer.from(JSON.stringify(messageToExchange));
           if (this.amqpService.channel != null) {
-            console.log(`Exchanging message to player ${playerUuid}`);
+            this.logger.info(`Exchanging message to player ${playerUuid}`);
             this.amqpService.channel.sendToQueue(playerQueue, buffer);
           }
         })
         .catch((error) => {
-          console.error(
-            `Error sending message to player ${playerUuid}:`,
+          this.logger.error(
+            `Error sending message to player ${playerUuid}:` +
             error
           );
         });
@@ -140,7 +146,7 @@ class EventManager {
       this.gameService.isGameEnded() &&
       event !== Events.GameEnded
     ) {
-      console.log("Game is ended, ignoring event");
+      this.logger.info("Game is ended, ignoring event");
       return;
     }
 
@@ -171,23 +177,23 @@ class EventManager {
     const { uuid } = payload;
     const player = await this.gameService.findPlayer(uuid);
     if (player && await this.gameService.isPlayersStillNotMax() == false) {
-      console.log("Game start requested by first player");
+      this.logger.info("Game start requested by first player");
       const message = {
         event: Events.GameStartApproved,
         payload: {},
       };
       await this.publishMessageToGameEvents(message, this.uuid);
     } else if (await this.gameService.isPlayersStillNotMax() == true) {
-      console.log("There are not enough players to start yet");
+      this.logger.info("There are not enough players to start yet");
     } else {
-      console.log(`Player ${uuid} cannot request game start`);
+      this.logger.info(`Player ${uuid} cannot request game start`);
     }
   }
 
   private async handleGameStartApproved(
     payload: GameStartApprovedPayload
   ): Promise<void> {
-    console.log("Game start approved");
+    this.logger.info("Game start approved");
     this.gameService.startGame();
 
     await this.publishMessageToExchange(payload, this.uuid);
@@ -200,7 +206,7 @@ class EventManager {
   }
 
   private async handleGameEnded(payload: GameEndedPayload): Promise<void> {
-    console.log("Game has ended!");
+    this.logger.info("Game has ended!");
     this.gameService.endGame();
 
     await this.publishMessageToExchange(payload, this.uuid);
@@ -213,7 +219,7 @@ class EventManager {
     if (await this.gameService.isPlayersStillNotMax() == true) {
       this.gameService.addPlayer(playerName, uuid, this.uuid);
     } else {
-      console.log("Game has already maximum number of players!");
+      this.logger.info("Game has already maximum number of players!");
     }
   }
 
@@ -252,10 +258,10 @@ class EventManager {
         // Release the mutex when done
         release();
       } else {
-        console.log(`Player ${uuid} tried to play out of turn`);
+        this.logger.info(`Player ${uuid} tried to play out of turn`);
       }
     } else {
-      console.log(`Player ${uuid} not found`);
+      this.logger.info(`Player ${uuid} not found`);
     }
   }
 
@@ -263,7 +269,7 @@ class EventManager {
     payload: NewPlayerApprovedToJoinPayload
   ): Promise<void> {
     const { uuid } = payload;
-    console.log(`New player ${uuid} approved to join`);
+    this.logger.info(`New player ${uuid} approved to join`);
     // Do something with the approved player
 
     await this.publishMessageToExchange(payload, this.uuid);
@@ -273,7 +279,7 @@ class EventManager {
     payload: NewViewerApprovedToSubscribePayload
   ): Promise<void> {
     const { uuid } = payload;
-    console.log(`New viewer ${uuid} approved to subscribe`);
+    this.logger.info(`New viewer ${uuid} approved to subscribe`);
     // Do something with the approved player
   }
 
@@ -281,12 +287,12 @@ class EventManager {
     payload: PlayerAttemptsToPlayPayload
   ): Promise<void> {
     if (this.gameService.isGameNotStarted()) {
-      console.log("Game is not started yet. Cannot play.");
+      this.logger.info("Game is not started yet. Cannot play.");
       return;
     }
 
     const { uuid, selectedIndex } = payload;
-    console.log("payload", payload);
+    this.logger.info("payload", payload);
     const player = await this.gameService.findPlayer(uuid);
 
     if (player) {
@@ -302,7 +308,7 @@ class EventManager {
 
         await this.publishMessageToExchange(message, this.uuid);
 
-        console.log(`Player ${player.name} cannot play at this time.`);
+        this.logger.info(`Player ${player.name} cannot play at this time.`);
 
         return;
       }
@@ -324,12 +330,12 @@ class EventManager {
             selectedIndex,
           },
         };
-        console.log("message", message);
+        this.logger.info("message", message);
 
         await this.publishMessageToGameEvents(message, this.uuid);
         await this.publishMessageToExchange(message, this.uuid);
       } else {
-        console.log("Invalid card played");
+        this.logger.info("Invalid card played");
 
         const message = {
           event: Events.GameMessageToPlayer,
@@ -343,7 +349,7 @@ class EventManager {
         await this.publishMessageToExchange(message, this.uuid);
       }
     } else {
-      console.log(`Player ${uuid} not found`);
+      this.logger.info(`Player ${uuid} not found`);
     }
   }
 
