@@ -36,8 +36,8 @@ class GameService {
     await this.playerService.publishCardsAreDistributedEvent(eventManagerUuid);
   }
 
-  public async startPlayerService(channel: Channel): Promise<void> {
-    await this.playerService.start(channel);
+  public async startPlayerService(callback: (message: any) => void): Promise<void> {
+    await this.playerService.start(callback);
   }
 
   public async onCardsAreDistributed(): Promise<void> {

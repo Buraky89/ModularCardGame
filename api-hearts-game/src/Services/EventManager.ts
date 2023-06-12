@@ -48,10 +48,12 @@ class EventManager {
   };
 
   async start(): Promise<void> {
-    // TODO: Instead of sending the channel info to playerService, let the playerService have a callback method from EventManager. PlayerService knows too much about channels etc. now. Prevent that.
-    const channel = await this.amqpService.start(this.uuid);
+    await this.amqpService.start(this.uuid);
 
-    await this.gameService.startPlayerService(channel);
+    const callback = (message: any) => {
+      this.publishMessageToGameEvents(message, this.uuid);
+    };
+    await this.gameService.startPlayerService(callback);
 
 
     await this.amqpService.subscribeQueue(this.handleMessage.bind(this));

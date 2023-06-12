@@ -8,7 +8,7 @@ class AmqpService implements IAmqpService {
   private gameEventsQueue: string = "";
   private gameEventsExchangeQueue: string = "";
 
-  async start(uuid: string): Promise<Channel> {
+  async start(uuid: string): Promise<void> {
     this.gameEventsQueue = `game-events-${uuid}`;
     this.gameEventsExchangeQueue = `game-events-exchange-q-${uuid}`;
 
@@ -20,8 +20,6 @@ class AmqpService implements IAmqpService {
 
     this.channel.consume(this.gameEventsQueue, this.dispatchMessage.bind(this, this.gameEventsQueue));
     this.channel.consume(this.gameEventsExchangeQueue, this.dispatchMessage.bind(this, this.gameEventsExchangeQueue));
-
-    return this.channel;
   }
 
   async stop(): Promise<void> {

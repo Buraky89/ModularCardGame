@@ -1,6 +1,4 @@
-import { Channel } from "amqplib";
 import Events from "../Common/Events";
-import { v4 as uuidv4 } from "uuid";
 import { Player } from "../Common/Player";
 import { CardService } from "./CardService";
 import { Mutex } from "async-mutex";
@@ -8,13 +6,13 @@ import { Mutex } from "async-mutex";
 class PlayerService {
   public players: Player[] = [];
   public viewers: Player[] = [];
-  public channel: Channel | null = null;
   public cardService: CardService;
   public turnMutex: Mutex;
+  public callback: ((message: any) => void) | undefined;
 
   constructor() {
     this.cardService = new CardService();
-    this.turnMutex = new Mutex(); // Initialize the mutex
+    this.turnMutex = new Mutex();
   }
 
   restartAsClean() {
@@ -22,8 +20,8 @@ class PlayerService {
     this.cardService = new CardService();
   }
 
-  async start(channel: Channel): Promise<void> {
-    this.channel = channel;
+  async start(callback: (message: any) => void): Promise<void> {
+    this.callback = callback;
   }
 
   async addPlayer(
@@ -37,24 +35,24 @@ class PlayerService {
 
     var playerLengthIsMax = false;
     const player = new Player(playerName, uuid);
-    if (this.players.length == 1) {
+    if (this.players.length === 1) {
       player.isTheirTurn = true;
       player.isFirstPlayer = true;
     }
     this.players.push(player);
-    if (this.players.length == 4) playerLengthIsMax = true;
+    if (this.players.length === 4) playerLengthIsMax = true;
     console.log(`Player added: ${uuid}`);
 
     // Publish NewPlayerApprovedToJoin event
-    if (this.channel) {
+    if (this.callback) {
+      console.log("CALLBACK RUNNING... Events.NewPlayerApprovedToJoin");
       const message = {
         event: Events.NewPlayerApprovedToJoin,
         payload: {
           uuid,
         },
       };
-      const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel.publish("", `game-events-${eventManagerUuid}`, buffer);
+      this.callback(message);
     }
 
     if (playerLengthIsMax) {
@@ -62,12 +60,10 @@ class PlayerService {
       const message = {
         event: Events.CardsAreReadyToBeDistributed,
       };
-      const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel?.publish(
-        "",
-        `game-events-${eventManagerUuid}`,
-        buffer
-      );
+      if (this.callback) {
+        console.log("CALLBACK RUNNING... Events.CardsAreReadyToBeDistributed");
+        this.callback(message);
+      }
     }
   }
 
@@ -86,15 +82,15 @@ class PlayerService {
     console.log(`Viewer added: ${uuid}`);
 
     // Publish NewViewerApprovedToSubscribe event
-    if (this.channel) {
+    if (this.callback) {
       const message = {
         event: Events.NewViewerApprovedToSubscribe,
         payload: {
           uuid,
         },
       };
-      const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel.publish("", `game-events-${eventManagerUuid}`, buffer);
+      console.log("CALLBACK RUNNING... Events.NewViewerApprovedToSubscribe");
+      this.callback(message);
     }
   }
 
@@ -108,13 +104,13 @@ class PlayerService {
   }
 
   async publishCardsAreDistributedEvent(eventManagerUuid: string): Promise<void> {
-    if (this.channel) {
+    if (this.callback) {
       const message = {
         event: Events.CardsAreDistributed,
         payload: {},
       };
-      const buffer = Buffer.from(JSON.stringify(message));
-      await this.channel.publish("", `game-events-${eventManagerUuid}`, buffer);
+      console.log("CALLBACK RUNNING... Events.CardsAreDistributed");
+      this.callback(message);
     }
   }
 
