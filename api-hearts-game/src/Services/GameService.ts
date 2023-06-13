@@ -1,22 +1,18 @@
-import { AmqpService } from "./AmqpService";
 import { PlayerService } from "./PlayerService";
 import Events from "../Common/Events";
-import { Card, CardType } from "../Common/Card";
+import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
-import { Channel } from "amqplib";
 import { MutexInterface } from "async-mutex";
 
 class GameService {
   public playerService: PlayerService;
-  private amqpService: AmqpService;
   public playedDeck: Card[] = [];
   public turnNumber = 1;
   public gameState: GameState = GameState.NOT_STARTED;
 
   constructor() {
     this.playerService = new PlayerService();
-    this.amqpService = new AmqpService();
   }
 
   restartAsClean() {
