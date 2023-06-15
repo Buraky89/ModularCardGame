@@ -1,36 +1,38 @@
 import { Express, Request, Response, NextFunction, Router } from "express";
 import { authenticateToken, AuthenticatedRequest } from "./index"; // assuming app.ts
+import { errorHandler, AsyncWrapper } from "./middleware/errorHandling";
 import { Channel } from "amqplib";
 import { RealmService } from "./Services/RealmService";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import Events from "./Common/Events";
 
+const router = Router();
+
 export function registerRoutes(app: Express, channel: Channel, realmService: RealmService) {
-    app.get("/protected", authenticateToken, (req: Request, res: Response) => {
+    router.get("/protected", authenticateToken, (req: Request, res: Response) => {
         res.json({ message: "Welcome to the protected area!" });
     });
 
-    app.get("/", (req: Request, res: Response) => {
-        res.send("Hello, world!");
+    router.get("/", (req: Request, res: Response) => {
+        res.json({ message: "Hello, world!" });
     });
 
-    app.get(
+    router.get(
         "/players/:gameUuid/:uuid",
         authenticateToken,
-        async (req: AuthenticatedRequest, res) => {
+        AsyncWrapper(async (req: AuthenticatedRequest, res: Response) => {
             if (!req.user) {
                 return;
             }
-            const { uuid } = req.user;
+
+            const { uuid: userUuid } = req.user;
             const { gameUuid } = req.params;
-            try {
-                const data = await realmService.getGameData(gameUuid, uuid);
-                res.json(data);
-            } catch (error) {
-                res.status(404).send(error);
-            }
-        }
+
+            const data = await realmService.getGameData(gameUuid, userUuid);
+
+            res.json(data);
+        })
     );
 
     app.post(
@@ -218,3 +220,7 @@ export function registerRoutes(app: Express, channel: Channel, realmService: Rea
     });
 
 }
+
+router.use(errorHandler);
+
+export default router;
