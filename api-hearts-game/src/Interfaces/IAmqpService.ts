@@ -16,6 +16,12 @@ interface IAmqpService {
         callback: (msg: ConsumeMessage | null) => void,
         options?: any
     ): Promise<void>;
+    subscribePlayerExchangeQueue(
+        playerUuid: string,
+        gameUuid: string,
+        callback: (msg: ConsumeMessage | null) => void,
+        options?: any
+    ): Promise<void>;
     publish(
         exchange: string,
         routingKey: string,

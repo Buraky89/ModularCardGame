@@ -57,6 +57,16 @@ async function handleEvent(socket: any, playerUuid: string, message: any): Promi
   }
 }
 
+async function handlePlayerMessage(socket: any, playerUuid: string, gameUuid: string, msg: any): Promise<void> {
+  const message = JSON.parse(msg.content.toString());
+  console.log(`Received message for player exchange: ${JSON.stringify(message)}`);
+  await handlePlayerEvent(socket, playerUuid, gameUuid, message);
+}
+
+async function handlePlayerEvent(socket: any, playerUuid: string, gameUuid: string, message: any): Promise<void> {
+  socket.emit("gameEvent", message);
+  // TODO: channel.ack(message);
+}
 
 io.on("connection", (socket) => {
   console.log("User connected", socket.id);
@@ -95,16 +105,8 @@ io.on("connection", (socket) => {
     const { sid, preferred_username } = decoded as TokenPayload;
     const playerUuid = sid;
 
-    const queueName = `game-events-for-player-${playerUuid}-${gameUuid}`;
-    await channel.assertQueue(queueName, { durable: false });
-    channel.consume(queueName, (msg) => {
-      if (msg) {
-        const content = msg.content.toString();
-        const data = JSON.parse(content);
-        socket.emit("gameEvent", data);
-        channel.ack(msg);
-      }
-    });
+    var amqpService = realmService.generalEventManager?.amqpService!;
+    await amqpService.subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(this, socket, playerUuid, gameUuid));
   });
 
 

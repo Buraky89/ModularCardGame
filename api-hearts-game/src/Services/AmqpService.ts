@@ -8,6 +8,14 @@ class AmqpService implements IAmqpService {
   private gameEventsQueue: string = "";
   private gameEventsExchangeQueue: string = "";
 
+  async gameEventsPlayerExchangeQueue(playerUuid: string, gameUuid: string): Promise<string> {
+    const queueName = `game-events-for-player-${playerUuid}-${gameUuid}`;
+
+    await this.channel?.assertQueue(queueName, { durable: false });
+
+    return queueName;
+  }
+
   async start(uuid: string): Promise<void> {
     this.gameEventsQueue = `game-events-${uuid}`;
     this.gameEventsExchangeQueue = `game-events-exchange-q-${uuid}`;
@@ -100,6 +108,15 @@ class AmqpService implements IAmqpService {
     options?: any
   ): Promise<void> {
     return this.subscribe(this.gameEventsExchangeQueue, callback, options);
+  }
+
+  async subscribePlayerExchangeQueue(
+    playerUuid: string,
+    gameUuid: string,
+    callback: (msg: ConsumeMessage | null) => void,
+    options?: any
+  ): Promise<void> {
+    return this.subscribe(await this.gameEventsPlayerExchangeQueue(playerUuid, gameUuid), callback, options);
   }
 
   private dispatchMessage(queue: string, msg: ConsumeMessage | null): void {
