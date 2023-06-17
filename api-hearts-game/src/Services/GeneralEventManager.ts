@@ -15,17 +15,9 @@ class GeneralEventManager {
   }
 
   async start(): Promise<void> {
-    const channel = await this.amqpService.start("general");
+    await this.amqpService.start("general");
 
-    await this.amqpService.start("general-exchange");
-
-    // await channel.consume(
-    //   `game-events-general`,
-    //   this.handleMessage.bind(this),
-    //   {
-    //     noAck: true,
-    //   }
-    // );
+    await this.amqpService.subscribeQueue(this.handleMessage.bind(this));
   }
 
   async stop(): Promise<void> {
@@ -86,7 +78,7 @@ class GeneralEventManager {
 
         const buffer = Buffer.from(JSON.stringify(message));
         // Distribute the message using the UUID as the routing key
-        this.amqpService.publish("", `game-events-general-exchange`, buffer);
+        this.amqpService.publish("", `game-events-exchange-q-general`, buffer);
       });
     });
   }

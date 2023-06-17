@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { GeneralEventManager } from "./Services/GeneralEventManager";
 import { registerRoutes } from "./routes";
+import Events from "./Common/Events";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -31,6 +32,31 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
+
+
+async function handleMessage(socket: any, playerUuid: string, msg: any): Promise<void> {
+  const message = JSON.parse(msg.content.toString());
+  console.log(`Received message for exchange: ${JSON.stringify(message)}`);
+  await handleEvent(socket, playerUuid, message);
+}
+
+async function handleEvent(socket: any, playerUuid: string, message: any): Promise<void> {
+  const { event, payload } = message;
+
+  switch (event) {
+    case Events.GeneralUpdateMessageExchange:
+
+      if (JSON.stringify(payload).indexOf(playerUuid) > -1) {
+        socket.emit("generalEvent", message);
+        // TODO: channel.ack(msg);
+      }
+
+      break;
+    default:
+      throw new Error(`Invalid event: ${event}`);
+  }
+}
+
 
 io.on("connection", (socket) => {
   console.log("User connected", socket.id);
@@ -58,21 +84,9 @@ io.on("connection", (socket) => {
     const { sid, preferred_username } = decoded as TokenPayload;
     const playerUuid = sid;
 
-    const queueNameGeneralExchange = `game-events-general-exchange`;
-    channel.prefetch(1);
-    await channel.assertQueue(queueNameGeneralExchange, { durable: true });
-    channel.consume(queueNameGeneralExchange, (msg) => {
-      console.log("CONSUM", queueNameGeneralExchange, msg);
-      if (msg) {
-        const content = msg.content.toString();
-        const data = JSON.parse(content);
 
-        if (JSON.stringify(data).toString().indexOf(playerUuid) > -1) {
-          socket.emit("generalEvent", data);
-          channel.ack(msg);
-        }
-      }
-    });
+    var amqpService = realmService.generalEventManager?.amqpService!;
+    await amqpService.subscribeExchangeQueue(handleMessage.bind(this, socket, playerUuid));
   });
 
   socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {
