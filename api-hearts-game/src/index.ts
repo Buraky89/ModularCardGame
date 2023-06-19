@@ -160,11 +160,6 @@ export const authenticateToken = (
   next();
 };
 
-async function main() {
-  const connection = await connect("amqp://localhost");
-  await connection.createChannel();
-}
-
 const port = 3001;
 
 var realmService = new RealmService(new GeneralEventManager());
@@ -175,10 +170,7 @@ realmService
     server.listen(port, () => {
       console.log(`Server is listening on port ${port}.`);
 
-      main().catch((err) => console.error(err)).then(() => {
-        registerRoutes(app, realmService);
-      });
-
+      registerRoutes(app, realmService);
     });
   })
   .catch((error) => {
