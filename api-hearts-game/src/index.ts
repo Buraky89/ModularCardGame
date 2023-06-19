@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import { RealmService } from "./Services/RealmService";
-import { connect, Channel } from "amqplib";
+import { connect } from "amqplib";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
@@ -160,11 +160,9 @@ export const authenticateToken = (
   next();
 };
 
-let channel: Channel;
-
 async function main() {
   const connection = await connect("amqp://localhost");
-  channel = await connection.createChannel();
+  await connection.createChannel();
 }
 
 const port = 3001;
@@ -178,7 +176,7 @@ realmService
       console.log(`Server is listening on port ${port}.`);
 
       main().catch((err) => console.error(err)).then(() => {
-        registerRoutes(app, channel, realmService);
+        registerRoutes(app, realmService);
       });
 
     });

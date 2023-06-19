@@ -1,15 +1,25 @@
 import { Express, Request, Response, NextFunction, Router } from "express";
 import { authenticateToken, AuthenticatedRequest } from "./index"; // assuming app.ts
 import { errorHandler, AsyncWrapper } from "./middleware/errorHandling";
-import { Channel } from "amqplib";
 import { RealmService } from "./Services/RealmService";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import Events from "./Common/Events";
+import { EventManager } from "./Services/EventManager";
 
 const router = Router();
 
-export function registerRoutes(app: Express, channel: Channel, realmService: RealmService) {
+
+export function registerRoutes(app: Express, realmService: RealmService) {
+
+
+    function getEventManager(realmService: RealmService, gameUuid: string): EventManager {
+        var eventManagers = realmService.getEventManagers();
+        return eventManagers.filter((em) => {
+            if (em.uuid == gameUuid) return em;
+        })[0];
+    }
+
     router.get("/protected", authenticateToken, (req: Request, res: Response) => {
         res.json({ message: "Welcome to the protected area!" });
     });
@@ -53,8 +63,8 @@ export function registerRoutes(app: Express, channel: Channel, realmService: Rea
                 },
             };
             console.log("msggg", message);
-            const buffer = Buffer.from(JSON.stringify(message));
-            await channel.publish("", `game-events-${gameUuid}`, buffer);
+
+            getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
 
             res.send("OK");
         }
@@ -79,10 +89,9 @@ export function registerRoutes(app: Express, channel: Channel, realmService: Rea
                         playerName: username,
                     },
                 };
-                const buffer = Buffer.from(JSON.stringify(message));
 
                 try {
-                    await channel.publish("", `game-events-general`, buffer);
+                    await realmService.generalEventManager?.publishMessageToGameEvents(message);
                     res.status(200).json({ uuid, message: "Player subscribed general" });
                 } catch (err) {
                     console.error("Error publishing message", err);
@@ -119,10 +128,9 @@ export function registerRoutes(app: Express, channel: Channel, realmService: Rea
                         playerName: username,
                     },
                 };
-                const buffer = Buffer.from(JSON.stringify(message));
 
                 try {
-                    await channel.publish("", `game-events-${gameUuid}`, buffer);
+                    getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
                     res.status(200).json({ uuid, message: "Player subscribed the game" });
                 } catch (err) {
                     console.error("Error publishing message", err);
@@ -154,10 +162,9 @@ export function registerRoutes(app: Express, channel: Channel, realmService: Rea
                     playerName: username,
                 },
             };
-            const buffer = Buffer.from(JSON.stringify(message));
 
             try {
-                await channel.publish("", `game-events-${gameUuid}`, buffer);
+                getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
                 res.status(200).json({ uuid, message: "Player joined the game" });
             } catch (err) {
                 console.error("Error publishing message", err);
@@ -187,8 +194,7 @@ export function registerRoutes(app: Express, channel: Channel, realmService: Rea
                         uuid,
                     },
                 };
-                const buffer = Buffer.from(JSON.stringify(message));
-                await channel.publish("", `game-events-${gameUuid}`, buffer);
+                getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
                 res.send("OK");
             }
         }
@@ -205,10 +211,6 @@ export function registerRoutes(app: Express, channel: Channel, realmService: Rea
 
     app.post("/createGame", async (req: Request, res: Response) => {
         var eventManagerUuid = uuidv4(); // TODO: design the classes better so that run listen queue's as callbacks.
-
-        await channel.assertQueue(`game-events-${eventManagerUuid}`);
-
-        await channel.assertQueue(`game-events-exchange-q-${eventManagerUuid}`);
 
         var eventManager = await realmService.addEventManager(eventManagerUuid);
 

@@ -82,6 +82,15 @@ class GeneralEventManager {
       });
     });
   }
+
+  async publishMessage(payload: any, queue: string): Promise<void> {
+    const buffer = Buffer.from(JSON.stringify(payload));
+    await this.amqpService.publish("", queue, buffer);
+  }
+
+  async publishMessageToGameEvents(payload: any): Promise<void> {
+    await this.publishMessage(payload, `game-events-general`);
+  }
 }
 
 export { GeneralEventManager };
