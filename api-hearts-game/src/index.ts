@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import { RealmService } from "./Services/RealmService";
-import { connect } from "amqplib";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
