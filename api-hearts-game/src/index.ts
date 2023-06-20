@@ -61,27 +61,29 @@ async function handlePlayerEvent(socket: any, playerUuid: string, gameUuid: stri
   // TODO: channel.ack(message);
 }
 
+interface SidAndPreferredUserName {
+  sid: string;
+  preferred_username: string;
+}
+
+function decodeJwtToken(jwtToken: string): SidAndPreferredUserName {
+  return jwt.decode(jwtToken) as SidAndPreferredUserName;
+}
+
 io.on("connection", (socket) => {
   console.log("User connected", socket.id);
 
   socket.on("joinGeneralEventQueue", async ({ jwtToken }) => {
-    // TODO: use middleware instead
-    const decoded = jwt.decode(jwtToken);
-    const { sid, preferred_username } = decoded as TokenPayload;
-    const playerUuid = sid;
+    const playerUuid = decodeJwtToken(jwtToken).sid;
 
     await realmService.generalEventManager?.subscribeExchangeQueue(handleMessage.bind(this, socket, playerUuid));
   });
 
   socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {
-    // TODO: use middleware instead
-    const decoded = jwt.decode(jwtToken);
-    const { sid, preferred_username } = decoded as TokenPayload;
-    const playerUuid = sid;
+    const playerUuid = decodeJwtToken(jwtToken).sid;
 
     await realmService.generalEventManager?.subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(this, socket, playerUuid, gameUuid));
   });
-
 
   socket.on("disconnect", () => {
     console.log("User disconnected", socket.id);
@@ -111,25 +113,18 @@ export const authenticateToken = (
   const publicKey =
     "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkLRqxmPUDSjL39rbmIrJLXXd9WtlcRMZnylO2Nm7FjCYFdomrzc8zOc1kqIm6dWQZu7wOnNISQpzPQojp9bBLxRgx3bpT2jOEHeLkySVO8MP+rYunDAb989wm2HVqSCI70MnncC0eJrK06xN5M793jdS/SI4830qn59NJOBhXukmX63zmAYi42QQPv27PcA7T6PyY85vTTeDtT4kqa2e4j8sUtxU/b37nHv6TWzAt2Ia862RYMwHM+QTasZnp17+wurRsUciSGPOMedskmj2X3vyfT44cazjQMKmcOmfmoUqGz+YQi9vSYcwnGDVZuGHwC6q6b9L8dFTUR/ZimFxmwIDAQAB\n-----END PUBLIC KEY-----\n";
 
-  // TODO: uncomment when publishing
-  // jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
+  // jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, user) => {
   //   if (err) {
   //     return res.sendStatus(403);
   //   }
 
-  //   const { sid, preferred_username } = decoded as TokenPayload;
-  //   req.user = { uuid: sid, username: preferred_username, avatar: "" };
-  //   next();
-  // });
-
-  const decoded = jwt.decode(token);
+  const decoded = decodeJwtToken(token);
 
   if (!decoded) {
     return res.sendStatus(403);
   }
 
-  const { sid, preferred_username } = decoded as TokenPayload;
-  req.user = { uuid: sid, username: preferred_username, avatar: "" };
+  req.user = { uuid: decoded.sid, username: decoded.preferred_username, avatar: "" };
   next();
 };
 
