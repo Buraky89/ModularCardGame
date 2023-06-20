@@ -91,6 +91,18 @@ class GeneralEventManager {
   async publishMessageToGameEvents(payload: any): Promise<void> {
     await this.publishMessage(payload, `game-events-general`);
   }
+
+  async subscribePlayerExchangeQueue(
+    playerUuid: string, gameUuid: string, callback: (msg: any) => void,
+  ): Promise<void> {
+    return await this.amqpService.subscribePlayerExchangeQueue(playerUuid, gameUuid, callback);
+  }
+
+  async subscribeExchangeQueue(
+    callback: (msg: any) => void,
+  ): Promise<void> {
+    return await this.amqpService.subscribeExchangeQueue(callback);
+  }
 }
 
 export { GeneralEventManager };

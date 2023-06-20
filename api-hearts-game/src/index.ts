@@ -93,9 +93,7 @@ io.on("connection", (socket) => {
     const { sid, preferred_username } = decoded as TokenPayload;
     const playerUuid = sid;
 
-
-    var amqpService = realmService.generalEventManager?.amqpService!;
-    await amqpService.subscribeExchangeQueue(handleMessage.bind(this, socket, playerUuid));
+    await realmService.generalEventManager?.subscribeExchangeQueue(handleMessage.bind(this, socket, playerUuid));
   });
 
   socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {
@@ -104,8 +102,7 @@ io.on("connection", (socket) => {
     const { sid, preferred_username } = decoded as TokenPayload;
     const playerUuid = sid;
 
-    var amqpService = realmService.generalEventManager?.amqpService!;
-    await amqpService.subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(this, socket, playerUuid, gameUuid));
+    await realmService.generalEventManager?.subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(this, socket, playerUuid, gameUuid));
   });
 
 
