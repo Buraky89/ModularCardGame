@@ -17,12 +17,6 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-enum GameState {
-  NOT_STARTED,
-  STARTED,
-  ENDED,
-}
-
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
