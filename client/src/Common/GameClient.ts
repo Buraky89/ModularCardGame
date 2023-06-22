@@ -69,7 +69,7 @@ export class GameClient {
         });
       };
 
-      gameDispatcher.fetchGames(handleGameListData);
+      gameDispatcher.fetchGames(handleGameListData, savedJwtToken);
 
       await gameDispatcher.subscribeGeneral(savedJwtToken);
     }
@@ -204,7 +204,7 @@ export class GameClient {
             });
           };
 
-          gameDispatcher.fetchGames(handleGameListData);
+          gameDispatcher.fetchGames(handleGameListData, accessToken);
 
           await gameDispatcher.subscribeGeneral(accessToken);
           // Code to store the access token and redirect to the main application view
@@ -273,7 +273,7 @@ export class GameClient {
       });
     };
 
-    gameDispatcher.fetchGames(handleGameListData);
+    gameDispatcher.fetchGames(handleGameListData, this.stateManager.jwtToken);
   }
 
   public getStateManager(): StateManagerWrapper {

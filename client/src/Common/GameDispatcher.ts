@@ -211,8 +211,13 @@ export class GameDispatcher {
     }
   }
 
-  public fetchGames(callback: (gameList: string[]) => void): void {
-    fetch("http://localhost:3001/getGames")
+  public fetchGames(callback: (gameList: string[]) => void, token: string): void {
+    fetch("http://localhost:3001/getGames", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Network error: ${response.statusText}`);

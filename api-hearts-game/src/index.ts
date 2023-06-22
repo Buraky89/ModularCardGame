@@ -1,134 +1,24 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import bodyParser from "body-parser";
-import { RealmService } from "./Services/RealmService";
 import cors from "cors";
-import jwt from "jsonwebtoken";
-import { Server } from "socket.io";
 import { createServer } from "http";
+import dotenv from 'dotenv';
+import { authenticateToken } from './_jwtMiddleware';
+import { config } from './_config';
 import { GeneralEventManager } from "./Services/GeneralEventManager";
-import { registerRoutes } from "./routes";
-import Events from "./Common/Events";
+import { RealmService } from "./Services/RealmService";
+import { registerRoutes } from "./_routes";
 
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    uuid: string;
-    username: string;
-    avatar: string;
-  };
-}
+dotenv.config();
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*", // adjust this to your specific origin
-    methods: ["GET", "POST"],
-  },
-});
 
-
-async function handleMessage(socket: any, playerUuid: string, msg: any): Promise<void> {
-  const message = JSON.parse(msg.content.toString());
-  console.log(`Received message for exchange: ${JSON.stringify(message)}`);
-  await handleEvent(socket, playerUuid, message);
-}
-
-async function handleEvent(socket: any, playerUuid: string, message: any): Promise<void> {
-  const { event, payload } = message;
-
-  switch (event) {
-    case Events.GeneralUpdateMessageExchange:
-
-      if (JSON.stringify(payload).indexOf(playerUuid) > -1) {
-        socket.emit("generalEvent", message);
-        // TODO: channel.ack(msg);
-      }
-
-      break;
-    default:
-      throw new Error(`Invalid event: ${event}`);
-  }
-}
-
-async function handlePlayerMessage(socket: any, playerUuid: string, gameUuid: string, msg: any): Promise<void> {
-  const message = JSON.parse(msg.content.toString());
-  console.log(`Received message for player exchange: ${JSON.stringify(message)}`);
-  await handlePlayerEvent(socket, playerUuid, gameUuid, message);
-}
-
-async function handlePlayerEvent(socket: any, playerUuid: string, gameUuid: string, message: any): Promise<void> {
-  socket.emit("gameEvent", message);
-  // TODO: channel.ack(message);
-}
-
-interface SidAndPreferredUserName {
-  sid: string;
-  preferred_username: string;
-}
-
-function decodeJwtToken(jwtToken: string): SidAndPreferredUserName {
-  return jwt.decode(jwtToken) as SidAndPreferredUserName;
-}
-
-io.on("connection", (socket) => {
-  console.log("User connected", socket.id);
-
-  socket.on("joinGeneralEventQueue", async ({ jwtToken }) => {
-    const playerUuid = decodeJwtToken(jwtToken).sid;
-
-    await realmService.generalEventManager?.subscribeExchangeQueue(handleMessage.bind(this, socket, playerUuid));
-  });
-
-  socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {
-    const playerUuid = decodeJwtToken(jwtToken).sid;
-
-    await realmService.generalEventManager?.subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(this, socket, playerUuid, gameUuid));
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected", socket.id);
-  });
-});
-
-app.use(cors());
+app.use(cors(config.corsOptions));
 app.use(bodyParser.json());
+app.use(authenticateToken);
 
-interface TokenPayload {
-  sid: string;
-  preferred_username: string;
-}
-
-export const authenticateToken = (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (!token) {
-    return res.sendStatus(401);
-  }
-
-  const publicKey =
-    "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkLRqxmPUDSjL39rbmIrJLXXd9WtlcRMZnylO2Nm7FjCYFdomrzc8zOc1kqIm6dWQZu7wOnNISQpzPQojp9bBLxRgx3bpT2jOEHeLkySVO8MP+rYunDAb989wm2HVqSCI70MnncC0eJrK06xN5M793jdS/SI4830qn59NJOBhXukmX63zmAYi42QQPv27PcA7T6PyY85vTTeDtT4kqa2e4j8sUtxU/b37nHv6TWzAt2Ia862RYMwHM+QTasZnp17+wurRsUciSGPOMedskmj2X3vyfT44cazjQMKmcOmfmoUqGz+YQi9vSYcwnGDVZuGHwC6q6b9L8dFTUR/ZimFxmwIDAQAB\n-----END PUBLIC KEY-----\n";
-
-  // jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, user) => {
-  //   if (err) {
-  //     return res.sendStatus(403);
-  //   }
-
-  const decoded = decodeJwtToken(token);
-
-  if (!decoded) {
-    return res.sendStatus(403);
-  }
-
-  req.user = { uuid: decoded.sid, username: decoded.preferred_username, avatar: "" };
-  next();
-};
-
-const port = 3001;
+const port = config.port;
 
 var realmService = new RealmService(new GeneralEventManager());
 realmService
@@ -144,4 +34,5 @@ realmService
   .catch((error) => {
     console.error("Error starting RealmService", error);
   });
+export { authenticateToken };
 

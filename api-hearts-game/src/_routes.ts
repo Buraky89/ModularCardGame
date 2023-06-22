@@ -1,5 +1,5 @@
-import { Express, Request, Response, NextFunction, Router } from "express";
-import { authenticateToken, AuthenticatedRequest } from "./index"; // assuming app.ts
+import { Express, Request, Response, Router } from "express";
+import { authenticateToken, AuthenticatedRequest } from "./_jwtMiddleware"; // assuming app.ts
 import { errorHandler, AsyncWrapper } from "./middleware/errorHandling";
 import { RealmService } from "./Services/RealmService";
 import { v4 as uuidv4 } from "uuid";
