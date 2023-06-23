@@ -14,6 +14,7 @@ import {
   GameMessageToPlayerPayload,
 } from "../Common/Payloads";
 import { IAmqpService } from "../Interfaces/IAmqpService";
+import { IGameService } from "../Interfaces/IGameService";
 
 interface ILogger {
   info(...message: any[]): void;
@@ -22,14 +23,14 @@ interface ILogger {
 
 class EventManager {
   public amqpService: IAmqpService;
-  public gameService: HeartsGameService;
+  public gameService: IGameService;
   public uuid: string;
   public logger: ILogger;
 
-  constructor(uuid: string, amqpService: IAmqpService, logger: ILogger) {
+  constructor(uuid: string, amqpService: IAmqpService, gameService: IGameService, logger: ILogger) {
     this.uuid = uuid;
     this.amqpService = amqpService;
-    this.gameService = new HeartsGameService();
+    this.gameService = gameService;
     this.logger = logger;
   }
 

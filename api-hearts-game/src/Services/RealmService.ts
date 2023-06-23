@@ -3,6 +3,7 @@ import { WinstonLogger } from "../Common/WinstonLogger";
 import { AmqpService } from "./AmqpService";
 import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
+import { HeartsGameService } from "./HeartsGameService";
 
 enum GameState {
   NOT_STARTED,
@@ -27,7 +28,8 @@ class RealmService {
   async addEventManager(uuid: string): Promise<EventManager> {
     const logger = new WinstonLogger();
     const amqpService = new AmqpService();
-    const eventManager = new EventManager(uuid, amqpService, logger);
+    const heartsGameService = new HeartsGameService();
+    const eventManager = new EventManager(uuid, amqpService, heartsGameService, logger);
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();
@@ -82,7 +84,7 @@ class RealmService {
   }
 
   public isGameEnded(uuid: string): boolean {
-    return this.getEventManager(uuid).gameService.gameState == GameState.ENDED;
+    return this.getEventManager(uuid).gameService.isGameEnded();
   }
 
   async stop(uuid: string): Promise<void> {

@@ -4,8 +4,9 @@ import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
 import { MutexInterface } from "async-mutex";
+import { IGameService } from "../Interfaces/IGameService";
 
-class GameService {
+class GameService implements IGameService {
   public playerService: PlayerService;
   public playedDeck: Card[] = [];
   public turnNumber = 1;
@@ -73,7 +74,8 @@ class GameService {
 
   isThisAValidCardToPlay(
     player: Player,
-    selectedIndex: number
+    selectedIndex: number,
+    outputEvent?: { message: string }
   ): boolean {
     return true;
   }
