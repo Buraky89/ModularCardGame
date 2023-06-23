@@ -15,6 +15,9 @@ class GameService implements IGameService {
   constructor() {
     this.playerService = new PlayerService();
   }
+  GetPlayerUuidsToExchange(playerUuid: string): Player[] {
+    throw new Error("Method not implemented.");
+  }
 
   restartAsClean() {
     this.playerService.restartAsClean();
