@@ -62,6 +62,10 @@ class RealmService {
   async restartGame(uuid: string): Promise<any> {
     await this.getEventManager(uuid).restartGame();
   }
+
+  async start(): Promise<any> {
+
+  }
 }
 
 export { RealmService };
