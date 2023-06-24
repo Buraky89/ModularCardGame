@@ -1,4 +1,4 @@
-import { ConsumeMessage, Channel } from "amqplib";
+import { ConsumeMessage } from "amqplib";
 
 interface IAmqpService {
     start(eventManagerUuid: string): Promise<void>;

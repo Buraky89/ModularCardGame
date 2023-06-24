@@ -5,12 +5,6 @@ import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
 import { HeartsGameService } from "./HeartsGameService";
 
-enum GameState {
-  NOT_STARTED,
-  STARTED,
-  ENDED,
-}
-
 class RealmService {
   public generalEventManager?: GeneralEventManager;
   public eventMangers: EventManager[] = [];

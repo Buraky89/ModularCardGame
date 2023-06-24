@@ -1,7 +1,6 @@
 import { GameService } from "./GameService";
 import { HeartsPlayerService } from "./HeartsPlayerService"; // import HeartsPlayerService
 import { Card, CardType } from "../Common/Card";
-import GameState from "../Common/Enums";
 import { Player } from "../Common/Player";
 
 class HeartsGameService extends GameService {

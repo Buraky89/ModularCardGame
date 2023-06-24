@@ -1,5 +1,3 @@
-import { AmqpService } from "./AmqpService";
-import { HeartsGameService } from "./HeartsGameService";
 import Events from "../Common/Events";
 import {
   NewPlayerWantsToJoinPayload,

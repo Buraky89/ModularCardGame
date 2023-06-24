@@ -1,4 +1,3 @@
-import { response } from "express";
 import { Card, CardType, RepresentedCard } from "./Card";
 
 class Player {
