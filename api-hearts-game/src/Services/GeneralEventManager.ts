@@ -103,6 +103,24 @@ class GeneralEventManager {
   ): Promise<void> {
     return await this.amqpService.subscribeExchangeQueue(callback);
   }
+
+  async publishGeneralUpdateMessage(
+    eventManagerUuids: string[],
+  ): Promise<void> {
+    const message = {
+      event: Events.GeneralUpdateMessage,
+      payload: {
+        gameUuidList: eventManagerUuids
+      },
+    };
+    const buffer = Buffer.from(JSON.stringify(message));
+
+    try {
+      await this.amqpService.publish("", `game-events-general`, buffer);
+    } catch (err) {
+      console.error("Error publishing message", err);
+    }
+  }
 }
 
 export { GeneralEventManager };
