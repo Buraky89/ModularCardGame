@@ -51,20 +51,12 @@ class RealmService {
     return eventManager;
   }
 
-  async start(): Promise<void> {
-    //await this.getEventManager(uuid).start();
-  }
-
   async getGameData(eventManagerUuid: string, uuid: string): Promise<any> {
     return this.getEventManager(eventManagerUuid).gameService.getGameData(uuid);
   }
 
   public isGameEnded(uuid: string): boolean {
     return this.getEventManager(uuid).gameService.isGameEnded();
-  }
-
-  async stop(uuid: string): Promise<void> {
-    await this.getEventManager(uuid).amqpService.stop();
   }
 
   async restartGame(uuid: string): Promise<any> {
