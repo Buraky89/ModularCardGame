@@ -11,7 +11,7 @@ const router = Router();
 
 
 export function registerRoutes(app: Express, realmService: RealmService) {
-
+    app.use(authenticateToken);
 
     function getEventManager(realmService: RealmService, gameUuid: string): EventManager {
         var eventManagers = realmService.getEventManagers();
