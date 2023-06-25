@@ -26,7 +26,16 @@ export class GameClient {
 
   afterInit() {
     this.retainLogin();
-    this.realSocket = io("http://localhost:3001");
+    this.realSocket = io("http://localhost:3001", {
+      transportOptions: {
+        polling: {
+          extraHeaders: {
+            'Authorization': `Bearer ${this.getSavedToken()}`
+          }
+        }
+      }
+    });
+
 
     // real socket events
     this.realSocket?.on("connect", () => {
