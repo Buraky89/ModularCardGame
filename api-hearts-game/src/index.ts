@@ -7,11 +7,20 @@ import { config } from './_config';
 import { GeneralEventManager } from "./Services/GeneralEventManager";
 import { RealmService } from "./Services/RealmService";
 import { registerRoutes } from "./_routes";
+import { registerSocket } from "./_socket";
+import { Server } from "socket.io";
 
 dotenv.config();
 
 const app = express();
 const server = createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
 app.use(cors(config.corsOptions));
 app.use(bodyParser.json());
@@ -26,9 +35,8 @@ realmService
     server.listen(port, () => {
       console.log(`Server is listening on port ${port}.`);
 
-      // TODO: what to do next? currently the game creation is not transferred to the other chars. go to the old commits and find out where it's broken. fix it...
-      // TODO: game joining is also not working...
       registerRoutes(app, realmService);
+      registerSocket(io, realmService);
     });
   })
   .catch((error) => {
