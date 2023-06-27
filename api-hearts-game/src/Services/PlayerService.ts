@@ -61,7 +61,6 @@ class PlayerService {
         event: Events.CardsAreReadyToBeDistributed,
       };
       if (this.callback) {
-        console.log("CALLBACK RUNNING... Events.CardsAreReadyToBeDistributed");
         this.callback(message);
       }
     }
@@ -89,7 +88,6 @@ class PlayerService {
           uuid,
         },
       };
-      console.log("CALLBACK RUNNING... Events.NewViewerApprovedToSubscribe");
       this.callback(message);
     }
   }
