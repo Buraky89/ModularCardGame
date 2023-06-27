@@ -78,6 +78,7 @@ class GeneralEventManager {
 
         const buffer = Buffer.from(JSON.stringify(message));
         // Distribute the message using the UUID as the routing key
+        // TODO: move everything that knows a queue name out of Amqp classes to a new method
         this.amqpService.publish("", `game-events-exchange-q-general`, buffer);
       });
     });
@@ -89,6 +90,7 @@ class GeneralEventManager {
   }
 
   async publishMessageToGameEvents(payload: any): Promise<void> {
+    // TODO: move everything that knows a queue name out of Amqp classes to a new method
     await this.publishMessage(payload, `game-events-general`);
   }
 
@@ -116,6 +118,7 @@ class GeneralEventManager {
     const buffer = Buffer.from(JSON.stringify(message));
 
     try {
+      // TODO: move everything that knows a queue name out of Amqp classes to a new method
       await this.amqpService.publish("", `game-events-general`, buffer);
     } catch (err) {
       console.error("Error publishing message", err);
