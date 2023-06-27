@@ -30,6 +30,7 @@ interface IAmqpService {
     ): Promise<boolean>;
     assertQueue(queue: string, options?: any): Promise<void>;
     sendToQueue(queue: string, content: Buffer): Promise<boolean>;
+    sendToPlayerQueue(gameUuid: string, playerUuid: string, content: Buffer): Promise<boolean>;
 }
 
 export { IAmqpService };

@@ -110,13 +110,11 @@ class EventManager {
   }
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
-    const playerQueue = `game-events-for-player-${playerUuid}-${this.uuid}`;
     const buffer = Buffer.from(JSON.stringify(messageToExchange));
 
     try {
-      await this.amqpService.assertQueue(playerQueue, { durable: false });
       this.logger.info(`Exchanging message to player ${playerUuid}`);
-      await this.amqpService.sendToQueue(playerQueue, buffer);
+      await this.amqpService.sendToPlayerQueue(this.uuid, playerUuid, buffer);
     } catch (error) {
       this.logger.error(`Error sending message to player ${playerUuid}: ${error}`);
     }
