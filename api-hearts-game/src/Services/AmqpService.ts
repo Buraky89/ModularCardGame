@@ -44,16 +44,6 @@ class AmqpService implements IAmqpService {
     }
   }
 
-  async consume(
-    queue: string,
-    onMessage: (msg: ConsumeMessage | null) => void,
-    options?: any
-  ): Promise<void> {
-    if (this.channel) {
-      await this.channel.consume(queue, onMessage, options);
-    }
-  }
-
   async publish(
     exchange: string,
     routingKey: string,
