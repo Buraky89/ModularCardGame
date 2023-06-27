@@ -45,7 +45,6 @@ class PlayerService {
 
     // Publish NewPlayerApprovedToJoin event
     if (this.callback) {
-      console.log("CALLBACK RUNNING... Events.NewPlayerApprovedToJoin");
       const message = {
         event: Events.NewPlayerApprovedToJoin,
         payload: {
@@ -107,7 +106,6 @@ class PlayerService {
         event: Events.CardsAreDistributed,
         payload: {},
       };
-      console.log("CALLBACK RUNNING... Events.CardsAreDistributed");
       this.callback(message);
     }
   }

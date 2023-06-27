@@ -15,13 +15,11 @@ interface User {
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    console.log("header", authHeader);
     if (!token) {
         return res.sendStatus(401);
     }
 
     const publicKey = process.env.PUBLIC_KEY as string;
-    console.log("pKey", publicKey);
 
     jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, user) => {
         if (err && err.toString().indexOf("expired") === -1) {
