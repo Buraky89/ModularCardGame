@@ -1,4 +1,3 @@
-import Events from "../Common/Events";
 import { WinstonLogger } from "../Common/WinstonLogger";
 import { AmqpService } from "./AmqpService";
 import { EventManager } from "./EventManager";
