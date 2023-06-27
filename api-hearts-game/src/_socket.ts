@@ -9,7 +9,7 @@ interface TokenPayload {
 }
 
 export function registerSocket(io: Server, realmService: RealmService) {
-
+    // TODO: maybe use the jwt verification method in _jwtMiddleware
 
     async function handlePlayerMessage(socket: any, playerUuid: string, gameUuid: string, msg: any): Promise<void> {
         const message = JSON.parse(msg.content.toString());

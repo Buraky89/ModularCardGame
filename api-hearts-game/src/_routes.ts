@@ -64,6 +64,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
             };
             console.log("msggg", message);
 
+            // TODO: make a function in realmService maybe... use it directly. so no event manager knowledge is required for _routes.js
             getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
 
             res.send("OK");
@@ -91,6 +92,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                 };
 
                 try {
+                    // TODO: make a function in realmService maybe... use it directly. so no event manager knowledge is required for _routes.js
                     await realmService.generalEventManager?.publishMessageToGameEvents(message);
                     res.status(200).json({ uuid, message: "Player subscribed general" });
                 } catch (err) {
