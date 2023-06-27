@@ -8,6 +8,7 @@ class AmqpService implements IAmqpService {
   private gameEventsQueue: string = "";
   private gameEventsExchangeQueue: string = "";
 
+  // TODO: make a class for queue name methods maybe
   getPlayerQueueName(gameUuid: string, playerUuid: string) {
     return `game-events-for-player-${playerUuid}-${gameUuid}`;
   }
@@ -21,7 +22,9 @@ class AmqpService implements IAmqpService {
   }
 
   async start(uuid: string): Promise<void> {
+    // TODO: make a class for queue name methods maybe
     this.gameEventsQueue = `game-events-${uuid}`;
+    // TODO: make a class for queue name methods maybe
     this.gameEventsExchangeQueue = `game-events-exchange-q-${uuid}`;
 
     this.connection = await connect("amqp://localhost");
