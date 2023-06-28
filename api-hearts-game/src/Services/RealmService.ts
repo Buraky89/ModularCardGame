@@ -3,6 +3,7 @@ import { AmqpService } from "./AmqpService";
 import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
 import { HeartsGameService } from "./HeartsGameService";
+import { v4 as uuidv4 } from "uuid";
 
 class RealmService {
   public generalEventManager?: GeneralEventManager;
@@ -18,11 +19,13 @@ class RealmService {
     }
   }
 
-  async addEventManager(uuid: string): Promise<EventManager> {
+  async addEventManager(): Promise<EventManager> {
+    var eventManagerUuid = uuidv4();
+
     const logger = new WinstonLogger();
     const amqpService = new AmqpService();
     const heartsGameService = new HeartsGameService();
-    const eventManager = new EventManager(uuid, amqpService, heartsGameService, logger);
+    const eventManager = new EventManager(eventManagerUuid, amqpService, heartsGameService, logger);
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();

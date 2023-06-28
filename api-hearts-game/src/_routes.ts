@@ -2,7 +2,6 @@ import { Express, Request, Response, Router } from "express";
 import { authenticateToken, AuthenticatedRequest } from "./_jwtMiddleware"; // assuming app.ts
 import { errorHandler, AsyncWrapper } from "./middleware/errorHandling";
 import { RealmService } from "./Services/RealmService";
-import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import Events from "./Common/Events";
 
@@ -201,9 +200,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
     });
 
     app.post("/createGame", async (req: Request, res: Response) => {
-        var eventManagerUuid = uuidv4(); // TODO: design the classes better so that run listen queue's as callbacks.
-
-        var eventManager = await realmService.addEventManager(eventManagerUuid);
+        var eventManager = await realmService.addEventManager();
 
         res.json(eventManager.uuid);
     });
