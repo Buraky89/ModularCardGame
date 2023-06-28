@@ -65,6 +65,15 @@ class RealmService {
   async start(): Promise<any> {
 
   }
+
+  public async publishMessageToGameEvents(message: any, gameUuid: string) {
+    var eventManager = this.getEventManager(gameUuid);
+    return await eventManager.publishMessageToGameEvents(message, gameUuid);
+  }
+
+  public async publishMessageToGeneralEvents(message: any) {
+    return await this.generalEventManager?.publishMessageToGameEvents(message);
+  }
 }
 
 export { RealmService };

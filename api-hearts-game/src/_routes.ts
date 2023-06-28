@@ -5,20 +5,12 @@ import { RealmService } from "./Services/RealmService";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import Events from "./Common/Events";
-import { EventManager } from "./Services/EventManager";
 
 const router = Router();
 
 
 export function registerRoutes(app: Express, realmService: RealmService) {
     app.use(authenticateToken);
-
-    function getEventManager(realmService: RealmService, gameUuid: string): EventManager {
-        var eventManagers = realmService.getEventManagers();
-        return eventManagers.filter((em) => {
-            if (em.uuid == gameUuid) return em;
-        })[0];
-    }
 
     router.get("/protected", authenticateToken, (req: Request, res: Response) => {
         res.json({ message: "Welcome to the protected area!" });
@@ -63,8 +55,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                 },
             };
 
-            // TODO: make a function in realmService maybe... use it directly. so no event manager knowledge is required for _routes.js
-            getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
+            realmService.publishMessageToGameEvents(message, gameUuid);
 
             res.send("OK");
         }
@@ -91,8 +82,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                 };
 
                 try {
-                    // TODO: make a function in realmService maybe... use it directly. so no event manager knowledge is required for _routes.js
-                    await realmService.generalEventManager?.publishMessageToGameEvents(message);
+                    await realmService.publishMessageToGeneralEvents(message);
                     res.status(200).json({ uuid, message: "Player subscribed general" });
                 } catch (err) {
                     console.error("Error publishing message", err);
@@ -131,7 +121,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                 };
 
                 try {
-                    getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
+                    realmService.publishMessageToGameEvents(message, gameUuid);
                     res.status(200).json({ uuid, message: "Player subscribed the game" });
                 } catch (err) {
                     console.error("Error publishing message", err);
@@ -165,7 +155,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
             };
 
             try {
-                getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
+                realmService.publishMessageToGameEvents(message, gameUuid);
                 res.status(200).json({ uuid, message: "Player joined the game" });
             } catch (err) {
                 console.error("Error publishing message", err);
@@ -195,7 +185,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                         uuid,
                     },
                 };
-                getEventManager(realmService, gameUuid).publishMessageToGameEvents(message, gameUuid);
+                realmService.publishMessageToGameEvents(message, gameUuid);
                 res.send("OK");
             }
         }
