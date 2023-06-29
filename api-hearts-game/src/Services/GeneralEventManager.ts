@@ -76,22 +76,13 @@ class GeneralEventManager {
           },
         };
 
-        const buffer = Buffer.from(JSON.stringify(message));
-        // Distribute the message using the UUID as the routing key
-        // TODO: move everything that knows a queue name out of Amqp classes to a new method
-        this.amqpService.publish("", `game-events-exchange-q-general`, buffer);
+        this.amqpService.publishMessageToGeneralEventsExchange(message);
       });
     });
   }
 
-  async publishMessage(payload: any, queue: string): Promise<void> {
-    const buffer = Buffer.from(JSON.stringify(payload));
-    await this.amqpService.publish("", queue, buffer);
-  }
-
-  async publishMessageToGameEvents(payload: any): Promise<void> {
-    // TODO: move everything that knows a queue name out of Amqp classes to a new method
-    await this.publishMessage(payload, `game-events-general`);
+  async publishMessageToGeneralEvents(payload: any): Promise<void> {
+    await this.amqpService.publishMessageToGeneralEvents(payload);
   }
 
   async subscribePlayerExchangeQueue(
@@ -115,11 +106,9 @@ class GeneralEventManager {
         gameUuidList: eventManagerUuids
       },
     };
-    const buffer = Buffer.from(JSON.stringify(message));
 
     try {
-      // TODO: move everything that knows a queue name out of Amqp classes to a new method
-      await this.amqpService.publish("", `game-events-general`, buffer);
+      await this.amqpService.publishMessageToGeneralEvents(message);
     } catch (err) {
       console.error("Error publishing message", err);
     }

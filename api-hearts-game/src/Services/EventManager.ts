@@ -140,18 +140,11 @@ class EventManager {
   }
 
   async publishMessageToExchange(payload: any, uuid: string): Promise<void> {
-    // TODO: move everything that knows a queue name out of Amqp classes to a new method
-    await this.publishMessage(payload, `game-events-exchange-q-${this.uuid}`);
+    await this.amqpService.publishMessageToExchange(payload, uuid);
   }
 
   async publishMessageToGameEvents(payload: any, uuid: string): Promise<void> {
-    // TODO: move everything that knows a queue name out of Amqp classes to a new method
-    await this.publishMessage(payload, `game-events-${this.uuid}`);
-  }
-
-  async publishMessage(payload: any, queue: string): Promise<void> {
-    const buffer = Buffer.from(JSON.stringify(payload));
-    await this.amqpService.publish("", queue, buffer);
+    await this.amqpService.publishMessageToGameEvents(payload, uuid);
   }
 
   private async handleGameStartRequested(

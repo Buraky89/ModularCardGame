@@ -126,6 +126,27 @@ class AmqpService implements IAmqpService {
       subscribers.forEach((callback) => callback(msg));
     }
   }
+
+  public async publishMessageToExchange(payload: any, uuid: string): Promise<void> {
+    await this.publishMessage(payload, `game-events-exchange-q-${uuid}`);
+  }
+
+  public async publishMessageToGameEvents(payload: any, uuid: string): Promise<void> {
+    await this.publishMessage(payload, `game-events-${uuid}`);
+  }
+
+  public async publishMessageToGeneralEventsExchange(payload: any): Promise<void> {
+    await this.publishMessage(payload, `game-events-exchange-q-general`);
+  }
+
+  public async publishMessageToGeneralEvents(payload: any): Promise<void> {
+    await this.publishMessage(payload, `game-events-general`);
+  }
+
+  private async publishMessage(payload: any, queue: string): Promise<void> {
+    const buffer = Buffer.from(JSON.stringify(payload));
+    await this.publish("", queue, buffer);
+  }
 }
 
 export { AmqpService };

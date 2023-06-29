@@ -75,7 +75,7 @@ class RealmService {
   }
 
   public async publishMessageToGeneralEvents(message: any) {
-    return await this.generalEventManager?.publishMessageToGameEvents(message);
+    return await this.generalEventManager?.publishMessageToGeneralEvents(message);
   }
 }
 
