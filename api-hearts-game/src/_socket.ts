@@ -6,8 +6,6 @@ import { authenticateToken, AuthenticatedRequest, TokenPayload, toTokenPayload }
 
 
 export function registerSocket(io: Server, realmService: RealmService) {
-    // TODO: maybe use the jwt verification method in _jwtMiddleware
-
     async function handlePlayerMessage(socket: any, playerUuid: string, gameUuid: string, msg: any): Promise<void> {
         const message = JSON.parse(msg.content.toString());
         console.log(`Received message for player exchange: ${JSON.stringify(message)}`);
@@ -44,23 +42,6 @@ export function registerSocket(io: Server, realmService: RealmService) {
 
     io.on("connection", (socket) => {
         console.log("User connected", socket.id);
-
-        // TODO: add authentication
-        // socket.use(async (packet, next) => {
-        //   // const token = packet[1]?.token;
-        //   // if (!token) {
-        //   //   return next(new Error("Authentication error"));
-        //   // }
-        //   // ... (rest of the existing authenticateToken function)
-        //   // jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
-        //   //   if (err) {
-        //   //     return next(new Error("Authentication error"));
-        //   //   }
-        //   //   const { sid, preferred_username } = decoded as TokenPayload;
-        //   //   socket.user = { uuid: sid, username: preferred_username, avatar: "" };
-        //   //   next();
-        //   // });
-        // });
 
         socket.on("joinGeneralEventQueue", async ({ jwtToken }) => {
             const tokenPayload = toTokenPayload(jwtToken);
