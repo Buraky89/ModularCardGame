@@ -1,5 +1,6 @@
 import { connect, Connection, ConsumeMessage, Channel } from "amqplib";
 import { IAmqpService } from "../Interfaces/IAmqpService";
+import { QueueNameFactory } from './QueueNameFactory';
 
 class AmqpService implements IAmqpService {
   private connection: Connection | null = null;
@@ -8,13 +9,8 @@ class AmqpService implements IAmqpService {
   private gameEventsQueue: string = "";
   private gameEventsExchangeQueue: string = "";
 
-  // TODO: make a class for queue name methods maybe
-  getPlayerQueueName(gameUuid: string, playerUuid: string) {
-    return `game-events-for-player-${playerUuid}-${gameUuid}`;
-  }
-
   async gameEventsPlayerExchangeQueue(playerUuid: string, gameUuid: string): Promise<string> {
-    const queueName = this.getPlayerQueueName(gameUuid, playerUuid);
+    const queueName = QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid);
 
     await this.channel?.assertQueue(queueName, { durable: false });
 
@@ -22,10 +18,9 @@ class AmqpService implements IAmqpService {
   }
 
   async start(uuid: string): Promise<void> {
-    // TODO: make a class for queue name methods maybe
-    this.gameEventsQueue = `game-events-${uuid}`;
-    // TODO: make a class for queue name methods maybe
-    this.gameEventsExchangeQueue = `game-events-exchange-q-${uuid}`;
+    this.gameEventsQueue = QueueNameFactory.getGameEventsQueueName(uuid);
+    this.gameEventsExchangeQueue = QueueNameFactory.getGameEventsExchangeQueueName(uuid);
+
 
     this.connection = await connect("amqp://localhost");
     this.channel = await this.connection.createChannel();
@@ -66,7 +61,7 @@ class AmqpService implements IAmqpService {
   }
 
   async sendToPlayerQueue(gameUuid: string, playerUuid: string, content: Buffer): Promise<boolean> {
-    return await this.sendToQueue(this.getPlayerQueueName(gameUuid, playerUuid), content);
+    return await this.sendToQueue(QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid), content);
   }
 
   async subscribe(
@@ -128,19 +123,19 @@ class AmqpService implements IAmqpService {
   }
 
   public async publishMessageToExchange(payload: any, uuid: string): Promise<void> {
-    await this.publishMessage(payload, `game-events-exchange-q-${uuid}`);
+    await this.publishMessage(payload, QueueNameFactory.getGameEventsExchangeQueueName(uuid));
   }
 
   public async publishMessageToGameEvents(payload: any, uuid: string): Promise<void> {
-    await this.publishMessage(payload, `game-events-${uuid}`);
+    await this.publishMessage(payload, QueueNameFactory.getGameEventsQueueName(uuid));
   }
 
   public async publishMessageToGeneralEventsExchange(payload: any): Promise<void> {
-    await this.publishMessage(payload, `game-events-exchange-q-general`);
+    await this.publishMessage(payload, QueueNameFactory.getGeneralEventsExchangeQueueName());
   }
 
   public async publishMessageToGeneralEvents(payload: any): Promise<void> {
-    await this.publishMessage(payload, `game-events-general`);
+    await this.publishMessage(payload, QueueNameFactory.getGeneralEventsQueueName());
   }
 
   private async publishMessage(payload: any, queue: string): Promise<void> {
