@@ -2,11 +2,8 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import Events from "./Common/Events";
 import { RealmService } from "./Services/RealmService";
+import { authenticateToken, AuthenticatedRequest, TokenPayload, toTokenPayload } from "./_jwtMiddleware"; // assuming app.ts
 
-interface TokenPayload {
-    sid: string;
-    preferred_username: string;
-}
 
 export function registerSocket(io: Server, realmService: RealmService) {
     // TODO: maybe use the jwt verification method in _jwtMiddleware
@@ -66,19 +63,15 @@ export function registerSocket(io: Server, realmService: RealmService) {
         // });
 
         socket.on("joinGeneralEventQueue", async ({ jwtToken }) => {
-            // TODO: use middleware instead
-            const decoded = jwt.decode(jwtToken);
-            const { sid, preferred_username } = decoded as TokenPayload;
-            const playerUuid = sid;
+            const tokenPayload = toTokenPayload(jwtToken);
+            const playerUuid = tokenPayload.sid;
 
             await realmService.generalEventManager?.subscribeExchangeQueue(handleMessage.bind(null, socket, playerUuid));
         });
 
         socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {
-            // TODO: use middleware instead
-            const decoded = jwt.decode(jwtToken);
-            const { sid, preferred_username } = decoded as TokenPayload;
-            const playerUuid = sid;
+            const tokenPayload = toTokenPayload(jwtToken);
+            const playerUuid = tokenPayload.sid;
 
             await realmService.generalEventManager?.subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(null, socket, playerUuid, gameUuid));
         });

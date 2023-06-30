@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -6,11 +6,22 @@ dotenv.config();
 export interface AuthenticatedRequest extends Request {
     user?: User
 }
+
 interface User {
     uuid: string;
     username: string;
     avatar: string;
 };
+
+
+export interface TokenPayload {
+    sid: string;
+    preferred_username: string;
+}
+
+export const toTokenPayload = (jwtToken: string) => {
+    return jwt.decode(jwtToken) as TokenPayload;
+}
 
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
@@ -25,7 +36,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
         if (err && err.toString().indexOf("expired") === -1) {
             return res.sendStatus(403);
         }
-        const decoded = jwt.decode(token) as { sid: string; preferred_username: string };
+        const decoded = jwt.decode(token) as TokenPayload;
         if (!decoded) {
             return res.sendStatus(403);
         }
