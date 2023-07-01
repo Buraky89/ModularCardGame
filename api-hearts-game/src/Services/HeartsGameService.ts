@@ -1,16 +1,16 @@
 import { GameService } from "./GameService";
-import { HeartsPlayerService } from "./HeartsPlayerService"; // import HeartsPlayerService
 import { Card, CardType } from "../Common/Card";
 import { Player } from "../Common/Player";
+import { IPlayerService } from "../Interfaces/IPlayerService";
 
 class HeartsGameService extends GameService {
-  public playerService: HeartsPlayerService;
+  public playerService: IPlayerService;
 
   private keyValueStore: { [key: string]: any } = {};
 
-  constructor() {
+  constructor(playerService: IPlayerService) {
     super();
-    this.playerService = new HeartsPlayerService();
+    this.playerService = playerService;
     // Initialize heartsBroken value in the key-value store
     this.keyValueStore['heartsBroken'] = false;
   }

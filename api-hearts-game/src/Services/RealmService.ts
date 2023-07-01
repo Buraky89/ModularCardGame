@@ -4,6 +4,7 @@ import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
 import { HeartsGameService } from "./HeartsGameService";
 import { v4 as uuidv4 } from "uuid";
+import { HeartsPlayerService } from "./HeartsPlayerService";
 
 class RealmService {
   public generalEventManager?: GeneralEventManager;
@@ -24,7 +25,8 @@ class RealmService {
 
     const logger = new WinstonLogger();
     const amqpService = new AmqpService();
-    const heartsGameService = new HeartsGameService();
+    const heartsPlayerService = new HeartsPlayerService();
+    const heartsGameService = new HeartsGameService(heartsPlayerService);
     const eventManager = new EventManager(eventManagerUuid, amqpService, heartsGameService, logger);
     this.eventMangers.push(eventManager);
 

@@ -1,9 +1,10 @@
 import Events from "../Common/Events";
 import { Player } from "../Common/Player";
+import { IPlayerService } from "../Interfaces/IPlayerService";
 import { CardService } from "./CardService";
 import { Mutex } from "async-mutex";
 
-class PlayerService {
+class PlayerService implements IPlayerService {
   public players: Player[] = [];
   public viewers: Player[] = [];
   public cardService: CardService;
