@@ -329,22 +329,6 @@ class EventManager {
     }
   }
 
-  async getGameData(uuid: string): Promise<any> {
-    return this.gameService.getGameData(uuid);
-  }
-
-  public isGameEnded(): boolean {
-    return this.gameService.isGameEnded();
-  }
-
-  public isGameNotStarted(): boolean {
-    return this.gameService.isGameNotStarted();
-  }
-
-  public isGameStarted(): boolean {
-    return this.gameService.isGameStarted();
-  }
-
   async restartGame(): Promise<any> {
     this.gameService.restartAsClean();
 

@@ -20,10 +20,6 @@ class GeneralEventManager {
     await this.amqpService.subscribeQueue(this.handleMessage.bind(this));
   }
 
-  async stop(): Promise<void> {
-    await this.amqpService.stop();
-  }
-
   async handleMessage(msg: any): Promise<void> {
     const message = JSON.parse(msg.content.toString());
     console.log(`Received message: ${JSON.stringify(message)}`);
