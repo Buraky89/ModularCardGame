@@ -9,6 +9,8 @@ class AmqpService implements IAmqpService {
   private gameEventsQueue: string = "";
   private gameEventsExchangeQueue: string = "";
 
+  // TODO: gracefully close all the queues really good, when the process of the game ends.
+
   async gameEventsPlayerExchangeQueue(playerUuid: string, gameUuid: string): Promise<string> {
     const queueName = QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid);
 
@@ -33,6 +35,10 @@ class AmqpService implements IAmqpService {
   }
 
   async stop(): Promise<void> {
+    if (this.channel) {
+      await this.channel.close();
+      this.channel = null;
+    }
     if (this.connection) {
       await this.connection.close();
       this.connection = null;
