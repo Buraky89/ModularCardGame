@@ -5,10 +5,12 @@ import { GeneralEventManager } from "./GeneralEventManager";
 import { HeartsGameService } from "./HeartsGameService";
 import { v4 as uuidv4 } from "uuid";
 import { HeartsPlayerService } from "./HeartsPlayerService";
+import { IAmqpService } from "../Interfaces/IAmqpService";
 
 class RealmService {
   public generalEventManager?: GeneralEventManager;
   public eventMangers: EventManager[] = [];
+  public amqpService: IAmqpService;
 
   constructor(generalEventManager: GeneralEventManager, eventMangers?: EventManager[]) {
     if (eventMangers) {
@@ -18,16 +20,16 @@ class RealmService {
       this.generalEventManager = generalEventManager;
       this.generalEventManager.start();
     }
+    this.amqpService = new AmqpService();
   }
 
   async addEventManager(): Promise<EventManager> {
     var eventManagerUuid = uuidv4();
 
     const logger = new WinstonLogger();
-    const amqpService = new AmqpService();
     const heartsPlayerService = new HeartsPlayerService();
     const heartsGameService = new HeartsGameService(heartsPlayerService);
-    const eventManager = new EventManager(eventManagerUuid, amqpService, heartsGameService, logger);
+    const eventManager = new EventManager(eventManagerUuid, this.amqpService, heartsGameService, logger);
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();
@@ -78,6 +80,10 @@ class RealmService {
 
   public async publishMessageToGeneralEvents(message: any) {
     return await this.generalEventManager?.publishMessageToGeneralEvents(message);
+  }
+
+  public async stop(): Promise<void> {
+    this.amqpService.stop();
   }
 }
 

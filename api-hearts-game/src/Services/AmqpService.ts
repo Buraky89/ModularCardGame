@@ -9,8 +9,6 @@ class AmqpService implements IAmqpService {
   private gameEventsQueue: string = "";
   private gameEventsExchangeQueue: string = "";
 
-  // TODO: gracefully close all the queues really good, when the process of the game ends.
-
   async gameEventsPlayerExchangeQueue(playerUuid: string, gameUuid: string): Promise<string> {
     const queueName = QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid);
 
@@ -23,12 +21,11 @@ class AmqpService implements IAmqpService {
     this.gameEventsQueue = QueueNameFactory.getGameEventsQueueName(uuid);
     this.gameEventsExchangeQueue = QueueNameFactory.getGameEventsExchangeQueueName(uuid);
 
-
     this.connection = await connect("amqp://localhost");
     this.channel = await this.connection.createChannel();
 
-    await this.channel.assertQueue(this.gameEventsQueue);
-    await this.channel.assertQueue(this.gameEventsExchangeQueue);
+    await this.channel.assertQueue(this.gameEventsQueue, { exclusive: true });
+    await this.channel.assertQueue(this.gameEventsExchangeQueue, { exclusive: true });
 
     this.channel.consume(this.gameEventsQueue, this.dispatchMessage.bind(this, this.gameEventsQueue));
     this.channel.consume(this.gameEventsExchangeQueue, this.dispatchMessage.bind(this, this.gameEventsExchangeQueue));
