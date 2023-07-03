@@ -11,8 +11,14 @@ class RealmService {
   public generalEventManager?: GeneralEventManager;
   public eventMangers: EventManager[] = [];
   public amqpService: IAmqpService;
+  private heartsGameService: HeartsGameService;
+  private logger: WinstonLogger;
 
-  constructor(generalEventManager: GeneralEventManager, eventMangers?: EventManager[]) {
+  constructor(generalEventManager: GeneralEventManager,
+    heartsGameService: HeartsGameService,
+    logger: WinstonLogger,
+    eventMangers?: EventManager[]
+  ) {
     if (eventMangers) {
       this.eventMangers = eventMangers;
     }
@@ -21,15 +27,14 @@ class RealmService {
       this.generalEventManager.start();
     }
     this.amqpService = new AmqpService();
+    this.heartsGameService = heartsGameService;
+    this.logger = logger;
   }
 
   async addEventManager(): Promise<EventManager> {
     var eventManagerUuid = uuidv4();
 
-    const logger = new WinstonLogger();
-    const heartsPlayerService = new HeartsPlayerService();
-    const heartsGameService = new HeartsGameService(heartsPlayerService);
-    const eventManager = new EventManager(eventManagerUuid, this.amqpService, heartsGameService, logger);
+    const eventManager = new EventManager(eventManagerUuid, this.amqpService, this.heartsGameService, this.logger);
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();

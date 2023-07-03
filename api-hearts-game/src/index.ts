@@ -9,6 +9,9 @@ import { RealmService } from "./Services/RealmService";
 import { registerRoutes } from "./_routes";
 import { registerSocket } from "./_socket";
 import { Server } from "socket.io";
+import { HeartsPlayerService } from "./Services/HeartsPlayerService";
+import { HeartsGameService } from "./Services/HeartsGameService";
+import { WinstonLogger } from "./Common/WinstonLogger";
 
 dotenv.config();
 
@@ -27,7 +30,12 @@ app.use(bodyParser.json());
 
 const port = config.port;
 
-var realmService = new RealmService(new GeneralEventManager());
+const heartsPlayerService = new HeartsPlayerService();
+const heartsGameService = new HeartsGameService(heartsPlayerService);
+
+const logger = new WinstonLogger();
+
+var realmService = new RealmService(new GeneralEventManager(), heartsGameService, logger);
 realmService
   .start()
   .then(() => {
