@@ -1,16 +1,16 @@
-import { AmqpService } from "./AmqpService";
 import Events from "../Common/Events";
 import {
   NewPlayerWantsToJoinPayload,
   GeneralUpdateMessagePayload,
 } from "../Common/Payloads";
+import { IAmqpService } from "../Interfaces/IAmqpService";
 
 class GeneralEventManager {
-  public amqpService: AmqpService;
+  public amqpService: IAmqpService;
   public uuidList: string[]; // List to store the UUIDs
 
-  constructor() {
-    this.amqpService = new AmqpService();
+  constructor(amqpService: IAmqpService) {
+    this.amqpService = amqpService;
     this.uuidList = []; // Initialize the UUID list
   }
 

@@ -17,6 +17,7 @@ class RealmService {
   constructor(generalEventManager: GeneralEventManager,
     heartsGameService: HeartsGameService,
     logger: WinstonLogger,
+    amqpService: IAmqpService,
     eventMangers?: EventManager[]
   ) {
     if (eventMangers) {
@@ -26,7 +27,7 @@ class RealmService {
       this.generalEventManager = generalEventManager;
       this.generalEventManager.start();
     }
-    this.amqpService = new AmqpService();
+    this.amqpService = amqpService;
     this.heartsGameService = heartsGameService;
     this.logger = logger;
   }

@@ -12,6 +12,7 @@ import { Server } from "socket.io";
 import { HeartsPlayerService } from "./Services/HeartsPlayerService";
 import { HeartsGameService } from "./Services/HeartsGameService";
 import { WinstonLogger } from "./Common/WinstonLogger";
+import { AmqpService } from "./Services/AmqpService";
 
 dotenv.config();
 
@@ -35,7 +36,9 @@ const heartsGameService = new HeartsGameService(heartsPlayerService);
 
 const logger = new WinstonLogger();
 
-var realmService = new RealmService(new GeneralEventManager(), heartsGameService, logger);
+const amqpService = new AmqpService();
+
+var realmService = new RealmService(new GeneralEventManager(amqpService), heartsGameService, logger, amqpService);
 realmService
   .start()
   .then(() => {
