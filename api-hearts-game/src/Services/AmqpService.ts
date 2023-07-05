@@ -12,7 +12,7 @@ class AmqpService implements IAmqpService {
   async gameEventsPlayerExchangeQueue(playerUuid: string, gameUuid: string): Promise<string> {
     const queueName = QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid);
 
-    await this.channel?.assertQueue(queueName, { durable: false });
+    await this.channel?.assertQueue(queueName, { exclusive: true });
 
     return queueName;
   }
