@@ -15,6 +15,10 @@ export class QueueNameFactory {
         return `game-events-exchange-q-general`;
     }
 
+    static getGeneralEventsExchangeForPlayersQueueName(viewerUuid: string): string {
+        return `game-events-exchange-q-general-${viewerUuid}`;
+    }
+
     static getGeneralEventsQueueName(): string {
         return `game-events-general`;
     }

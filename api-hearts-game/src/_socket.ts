@@ -27,15 +27,10 @@ export function registerSocket(io: Server, realmService: RealmService) {
 
         switch (event) {
             case Events.GeneralUpdateMessageExchange:
-
-                if (JSON.stringify(payload).indexOf(playerUuid) > -1) {
-                    socket.emit("generalEvent", message);
-                    // TODO: channel.ack(msg);
-                }
-
+                socket.emit("generalEvent", message);
                 break;
             default:
-                throw new Error(`Invalid event: ${event}`);
+                throw new Error(`Invalid event: ${event}, message: ${message}`);
         }
     }
 
@@ -47,7 +42,7 @@ export function registerSocket(io: Server, realmService: RealmService) {
             const tokenPayload = toTokenPayload(jwtToken);
             const playerUuid = tokenPayload.sid;
 
-            await realmService.generalEventManager?.subscribeExchangeQueue(handleMessage.bind(null, socket, playerUuid));
+            await realmService.generalEventManager?.subscribeExchangeQueue(playerUuid, handleMessage.bind(null, socket, playerUuid));
         });
 
         socket.on("joinGameEventQueue", async ({ jwtToken, gameUuid }) => {

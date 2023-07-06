@@ -9,10 +9,16 @@ interface IAmqpService {
         options?: any
     ): Promise<void>;
     subscribeQueue(
+        gameUuid: string,
+        callback: (msg: ConsumeMessage | null) => void,
+        options?: any
+    ): Promise<void>;
+    subscribeGeneralQueue(
         callback: (msg: ConsumeMessage | null) => void,
         options?: any
     ): Promise<void>;
     subscribeExchangeQueue(
+        viewerUuid: string,
         callback: (msg: ConsumeMessage | null) => void,
         options?: any
     ): Promise<void>;
@@ -34,6 +40,7 @@ interface IAmqpService {
     publishMessageToExchange(payload: any, uuid: string): Promise<void>;
     publishMessageToGameEvents(payload: any, uuid: string): Promise<void>;
     publishMessageToGeneralEventsExchange(payload: any): Promise<void>;
+    publishMessageToGeneralEventsForPlayerExchange(viewerUuid: string, payload: any): Promise<void>;
     publishMessageToGeneralEvents(payload: any): Promise<void>;
 }
 

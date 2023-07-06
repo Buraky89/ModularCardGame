@@ -17,7 +17,7 @@ class GeneralEventManager {
   async start(): Promise<void> {
     await this.amqpService.start("general");
 
-    await this.amqpService.subscribeQueue(this.handleMessage.bind(this));
+    await this.amqpService.subscribeGeneralQueue(this.handleMessage.bind(this));
   }
 
   async handleMessage(msg: any): Promise<void> {
@@ -72,7 +72,7 @@ class GeneralEventManager {
           },
         };
 
-        this.amqpService.publishMessageToGeneralEventsExchange(message);
+        this.amqpService.publishMessageToGeneralEventsForPlayerExchange(viewerUuid, message);
       });
     });
   }
@@ -88,9 +88,12 @@ class GeneralEventManager {
   }
 
   async subscribeExchangeQueue(
+    viewerUuid: string,
     callback: (msg: any) => void,
   ): Promise<void> {
-    return await this.amqpService.subscribeExchangeQueue(callback);
+    console.log("BURDANMIGELİO");
+
+    return await this.amqpService.subscribeExchangeQueue(viewerUuid, callback);
   }
 
   async publishGeneralUpdateMessage(

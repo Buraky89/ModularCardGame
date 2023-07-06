@@ -38,6 +38,9 @@ const logger = new WinstonLogger();
 
 const amqpService = new AmqpService();
 
+// TODO: these for-player queues are still not closed when closing the program... game-events-for-player-4a1ef58d-db51-4325-90e9-4ac3f4605efd-178cde5a-0819-47c8-8e1b-59a6752fb3b1
+// TODO: player 1 does not get socket updates. dont know why... but always player 1.
+
 var realmService = new RealmService(new GeneralEventManager(amqpService), heartsGameService, logger, amqpService);
 realmService
   .start()

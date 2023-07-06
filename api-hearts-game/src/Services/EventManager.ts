@@ -55,8 +55,8 @@ class EventManager {
     await this.gameService.startPlayerService(callback);
 
 
-    await this.amqpService.subscribeQueue(this.handleMessage.bind(this));
-    await this.amqpService.subscribeExchangeQueue(this.handleExchange.bind(this));
+    await this.amqpService.subscribeQueue(this.uuid, this.handleMessage.bind(this));
+    await this.amqpService.subscribeGeneralQueue(this.handleExchange.bind(this));
   }
 
   async stop(): Promise<void> {
@@ -70,6 +70,7 @@ class EventManager {
   }
 
   async handleMessage(msg: any): Promise<void> {
+    console.log("HANDLEMESSAGE RUNNNNN;");
     if (this.gameService.isGameEnded()) {
       this.logger.info("Game is ended, ignoring message");
       return;
