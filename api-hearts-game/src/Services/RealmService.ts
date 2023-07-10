@@ -89,7 +89,7 @@ class RealmService {
   }
 
   public async stop(): Promise<void> {
-    this.amqpService.stop();
+    // this.amqpService.stop();
   }
 }
 

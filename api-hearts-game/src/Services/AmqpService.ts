@@ -5,20 +5,10 @@ import { QueueNameFactory } from './QueueNameFactory';
 class AmqpService implements IAmqpService {
   private connection: Connection | null = null;
   public channel: Channel | null = null;
-  private subscribers: { [key: string]: ((msg: ConsumeMessage | null) => void)[] } = {};
 
-  async gameEventsPlayerExchangeQueue(playerUuid: string, gameUuid: string): Promise<string> {
-    const queueName = QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid);
-
-    return queueName;
-  }
-
-  async start(uuid: string): Promise<void> {
+  async start(): Promise<void> {
     this.connection = await connect("amqp://localhost");
     this.channel = await this.connection.createChannel();
-
-    await this.subscribeQueue(uuid, this.dispatchMessage.bind(this, QueueNameFactory.getGameEventsQueueName(uuid)));
-    await this.subscribeExchange(uuid, this.dispatchMessage.bind(this, QueueNameFactory.getGameEventsExchangeQueueName(uuid)));
   }
 
   async stop(): Promise<void> {
@@ -43,13 +33,6 @@ class AmqpService implements IAmqpService {
       : false;
   }
 
-  async sendToQueue(queue: string, content: Buffer): Promise<boolean> {
-    return this.channel ? this.channel.sendToQueue(queue, content) : false;
-  }
-
-  async sendToPlayerQueue(gameUuid: string, playerUuid: string, content: Buffer): Promise<boolean> {
-    return await this.sendToQueue(QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid), content);
-  }
 
   async subscribe(
     queue: string,
@@ -65,15 +48,16 @@ class AmqpService implements IAmqpService {
       // Assert the queue before consuming from it
       await this.channel.assertQueue(queue, options);
 
-      // Add the callback to the subscribers list for the queue
-      if (!this.subscribers[queue]) {
-        this.subscribers[queue] = [];
-      }
-      this.subscribers[queue].push(callback);
-
       try {
         this.channel.consume(queue, (msg) => {
           callback(msg);
+          if (msg) {
+            try {
+              this.channel?.ack(msg);
+            } catch (error) {
+
+            }
+          }
         }, options);
         resolve();
       } catch (error) {
@@ -119,14 +103,7 @@ class AmqpService implements IAmqpService {
     callback: (msg: ConsumeMessage | null) => void,
     options?: any
   ): Promise<void> {
-    return this.subscribe(await this.gameEventsPlayerExchangeQueue(playerUuid, gameUuid), callback, options);
-  }
-
-  private dispatchMessage(queue: string, msg: ConsumeMessage | null): void {
-    const subscribers = this.subscribers[queue];
-    if (subscribers) {
-      subscribers.forEach((callback) => callback(msg));
-    }
+    return this.subscribe(QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid), callback, options);
   }
 
   public async publishMessageToExchange(payload: any, uuid: string): Promise<void> {
@@ -147,6 +124,10 @@ class AmqpService implements IAmqpService {
 
   public async publishMessageToGeneralEvents(payload: any): Promise<void> {
     await this.publishMessage(payload, QueueNameFactory.getGeneralEventsQueueName());
+  }
+
+  public async publishMessageToPlayerQueue(gameUuid: string, playerUuid: string, content: any): Promise<void> {
+    await this.publishMessage(content, QueueNameFactory.getPlayerQueueName(gameUuid, playerUuid));
   }
 
   private async publishMessage(payload: any, queue: string): Promise<void> {

@@ -15,8 +15,6 @@ class GeneralEventManager {
   }
 
   async start(): Promise<void> {
-    await this.amqpService.start("general");
-
     await this.amqpService.subscribeGeneralQueue(this.handleMessage.bind(this));
   }
 
@@ -79,12 +77,6 @@ class GeneralEventManager {
 
   async publishMessageToGeneralEvents(payload: any): Promise<void> {
     await this.amqpService.publishMessageToGeneralEvents(payload);
-  }
-
-  async subscribePlayerExchangeQueue(
-    playerUuid: string, gameUuid: string, callback: (msg: any) => void,
-  ): Promise<void> {
-    return await this.amqpService.subscribePlayerExchangeQueue(playerUuid, gameUuid, callback);
   }
 
   async subscribeExchangeQueue(

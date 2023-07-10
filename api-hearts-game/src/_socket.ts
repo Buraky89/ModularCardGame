@@ -49,7 +49,7 @@ export function registerSocket(io: Server, realmService: RealmService) {
             const tokenPayload = toTokenPayload(jwtToken);
             const playerUuid = tokenPayload.sid;
 
-            await realmService.generalEventManager?.subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(null, socket, playerUuid, gameUuid));
+            await realmService.getEventManager(gameUuid).subscribePlayerExchangeQueue(playerUuid, gameUuid, handlePlayerMessage.bind(null, socket, playerUuid, gameUuid));
         });
 
 

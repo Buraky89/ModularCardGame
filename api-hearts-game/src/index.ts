@@ -37,9 +37,8 @@ const heartsGameService = new HeartsGameService(heartsPlayerService);
 const logger = new WinstonLogger();
 
 const amqpService = new AmqpService();
+amqpService.start();
 
-// TODO: these for-player queues are still not closed when closing the program... game-events-for-player-4a1ef58d-db51-4325-90e9-4ac3f4605efd-178cde5a-0819-47c8-8e1b-59a6752fb3b1
-// TODO: player 1 does not get socket updates. dont know why... but always player 1.
 
 var realmService = new RealmService(new GeneralEventManager(amqpService), heartsGameService, logger, amqpService);
 realmService
@@ -56,6 +55,8 @@ realmService
   .catch((error) => {
     console.error("Error starting RealmService", error);
   });
+
+// TODO: player 1 does not get socket updates. dont know why... but always player 1.
 
 process.on('SIGINT', async () => {
   console.log('SIGINT signal received. Closing AMQP connection...');

@@ -47,8 +47,6 @@ class EventManager {
   };
 
   async start(): Promise<void> {
-    await this.amqpService.start(this.uuid);
-
     const callback = (message: any) => {
       this.publishMessageToGameEvents(message, this.uuid);
     };
@@ -56,7 +54,7 @@ class EventManager {
 
 
     await this.amqpService.subscribeQueue(this.uuid, this.handleMessage.bind(this));
-    await this.amqpService.subscribeGeneralQueue(this.handleExchange.bind(this));
+    await this.amqpService.subscribeExchange(this.uuid, this.handleExchange.bind(this));
   }
 
   async stop(): Promise<void> {
@@ -82,6 +80,7 @@ class EventManager {
   }
 
   async handleExchangeEvent(message: any): Promise<void> {
+    console.log("handleExchangeEventhandleExchangeEventhandleExchangeEventhandleExchangeEvent");
     const { event, payload } = message;
 
     let playerUuid = "";
@@ -92,6 +91,7 @@ class EventManager {
     const mergedPlayersArray = this.gameService.GetPlayerUuidsToExchange(playerUuid);
 
     for (const player of mergedPlayersArray) {
+      console.log("playerQueuena exchange ediyoz");
       const playerUuid = player.uuid;
       const gameState = await this.gameService.getGameData(playerUuid);
 
@@ -103,19 +103,19 @@ class EventManager {
             data: gameState,
           },
         };
+        console.log("this.exchangeToPlayerQueue messageToExchange ", player.uuid, messageToExchange);
         await this.exchangeToPlayerQueue(player.uuid, messageToExchange);
       } else {
+        console.log("this.exchangeToPlayerQueue message", player.uuid, message);
         await this.exchangeToPlayerQueue(player.uuid, message);
       }
     }
   }
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
-    const buffer = Buffer.from(JSON.stringify(messageToExchange));
-
     try {
       this.logger.info(`Exchanging message to player ${playerUuid}`);
-      await this.amqpService.sendToPlayerQueue(this.uuid, playerUuid, buffer);
+      await this.amqpService.publishMessageToPlayerQueue(this.uuid, playerUuid, messageToExchange);
     } catch (error) {
       this.logger.error(`Error sending message to player ${playerUuid}: ${error}`);
     }
@@ -138,6 +138,14 @@ class EventManager {
     }
 
     await handler.bind(this)(payload);
+  }
+
+  async subscribePlayerExchangeQueue(
+    viewerUuid: string,
+    gameUuid: string,
+    callback: (msg: any) => void,
+  ): Promise<void> {
+    return await this.amqpService.subscribePlayerExchangeQueue(viewerUuid, gameUuid, callback);
   }
 
   async publishMessageToExchange(payload: any, uuid: string): Promise<void> {
