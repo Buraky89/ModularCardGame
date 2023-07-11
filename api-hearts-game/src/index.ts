@@ -49,6 +49,31 @@ amqpService.start().then(() => {
         registerRoutes(app, realmService);
         registerSocket(io, realmService);
       });
+
+
+      process.on('SIGINT', async () => {
+        console.log('SIGINT signal received. Closing AMQP connection...');
+        await realmService.stop();
+        process.exit(0);
+      });
+
+      process.on('SIGTERM', async () => {
+        console.log('SIGTERM signal received. Closing AMQP connection...');
+        await realmService.stop();
+        process.exit(0);
+      });
+
+      process.on('uncaughtException', async (err) => {
+        console.error(`Uncaught Exception: ${err.stack || err}`);
+        await realmService.stop();
+        process.exit(1);
+      });
+
+      process.on('unhandledRejection', async (reason, promise) => {
+        console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+        await realmService.stop();
+        process.exit(1);
+      });
     })
     .catch((error) => {
       console.error("Error starting RealmService", error);
@@ -57,26 +82,3 @@ amqpService.start().then(() => {
 
 // TODO: player 1 does not get socket updates. dont know why... but always player 1.
 
-// process.on('SIGINT', async () => {
-//   console.log('SIGINT signal received. Closing AMQP connection...');
-//   await realmService.stop();
-//   process.exit(0);
-// });
-
-// process.on('SIGTERM', async () => {
-//   console.log('SIGTERM signal received. Closing AMQP connection...');
-//   await realmService.stop();
-//   process.exit(0);
-// });
-
-// process.on('uncaughtException', async (err) => {
-//   console.error(`Uncaught Exception: ${err.stack || err}`);
-//   await realmService.stop();
-//   process.exit(1);
-// });
-
-// process.on('unhandledRejection', async (reason, promise) => {
-//   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-//   await realmService.stop();
-//   process.exit(1);
-// });
