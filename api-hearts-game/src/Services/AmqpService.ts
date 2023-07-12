@@ -5,6 +5,7 @@ import { QueueNameFactory } from './QueueNameFactory';
 class AmqpService implements IAmqpService {
   private connection: Connection | null = null;
   public channel: Channel | null = null;
+  private queues: Set<string> = new Set();
 
   async start(): Promise<void> {
     this.connection = await connect("amqp://localhost");
@@ -13,6 +14,9 @@ class AmqpService implements IAmqpService {
 
   async stop(): Promise<void> {
     if (this.channel) {
+      await Promise.all(
+        Array.from(this.queues.values()).map(queue => this.channel!.deleteQueue(queue))
+      );
       await this.channel.close();
       this.channel = null;
     }
@@ -20,6 +24,14 @@ class AmqpService implements IAmqpService {
       await this.connection.close();
       this.connection = null;
     }
+  }
+
+  handleExit(signal: NodeJS.Signals) {
+    console.log(`Received ${signal}. Closing connections and deleting queues...`);
+    this.stop().then(() => {
+      console.log("All queues deleted, connections closed. Exiting now.");
+      process.exit(0);
+    });
   }
 
   async publish(
@@ -46,7 +58,9 @@ class AmqpService implements IAmqpService {
       }
 
       // Assert the queue before consuming from it
-      await this.channel.assertQueue(queue, options);
+      await this.channel.assertQueue(queue, { exclusive: true });
+
+      this.queues.add(queue);
 
       try {
         this.channel.consume(queue, (msg) => {
