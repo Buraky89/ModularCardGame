@@ -64,7 +64,7 @@ class EventManager {
   async handleExchange(msg: any): Promise<void> {
     const message = JSON.parse(msg.content.toString());
     this.logger.info(`Received message: ${JSON.stringify(message)}`);
-    this.handleExchangeEvent(message);
+    await this.handleExchangeEvent(message);
   }
 
   async handleMessage(msg: any): Promise<void> {
@@ -90,8 +90,9 @@ class EventManager {
     }
     const mergedPlayersArray = this.gameService.GetPlayerUuidsToExchange(playerUuid);
 
+    await this.delay(1000);
+
     for (const player of mergedPlayersArray) {
-      console.log("playerQueuena exchange ediyoz");
       const playerUuid = player.uuid;
       const gameState = await this.gameService.getGameData(playerUuid);
 
@@ -110,6 +111,10 @@ class EventManager {
         await this.exchangeToPlayerQueue(player.uuid, message);
       }
     }
+  }
+
+  async delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
