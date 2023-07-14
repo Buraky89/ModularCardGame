@@ -68,7 +68,6 @@ class EventManager {
   }
 
   async handleMessage(msg: any): Promise<void> {
-    console.log("HANDLEMESSAGE RUNNNNN;");
     if (this.gameService.isGameEnded()) {
       this.logger.info("Game is ended, ignoring message");
       return;
@@ -80,7 +79,6 @@ class EventManager {
   }
 
   async handleExchangeEvent(message: any): Promise<void> {
-    console.log("handleExchangeEventhandleExchangeEventhandleExchangeEventhandleExchangeEvent");
     const { event, payload } = message;
 
     let playerUuid = "";
@@ -104,10 +102,8 @@ class EventManager {
             data: gameState,
           },
         };
-        console.log("this.exchangeToPlayerQueue messageToExchange ", player.uuid, messageToExchange);
         await this.exchangeToPlayerQueue(player.uuid, messageToExchange);
       } else {
-        console.log("this.exchangeToPlayerQueue message", player.uuid, message);
         await this.exchangeToPlayerQueue(player.uuid, message);
       }
     }
