@@ -61,13 +61,11 @@ class Player {
   }
 
   updateDeck() {
-    console.log("update deck working");
     const representedDeck: RepresentedCard[] = [];
     for (const card of this._deck) {
       const representedCard = card.toRepresentedCard(true);
       representedDeck.push(representedCard);
     }
-    console.log("deck", representedDeck);
     this.deck = representedDeck;
   }
 
