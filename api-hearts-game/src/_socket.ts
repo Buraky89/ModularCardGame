@@ -1,8 +1,7 @@
 import { Server } from "socket.io";
-import jwt from "jsonwebtoken";
 import Events from "./Common/Events";
 import { RealmService } from "./Services/RealmService";
-import { authenticateToken, AuthenticatedRequest, TokenPayload, toTokenPayload } from "./_jwtMiddleware"; // assuming app.ts
+import { toTokenPayload } from "./_jwtMiddleware";
 
 
 export function registerSocket(io: Server, realmService: RealmService) {
@@ -14,7 +13,6 @@ export function registerSocket(io: Server, realmService: RealmService) {
     }
     async function handlePlayerEvent(socket: any, playerUuid: string, gameUuid: string, message: any): Promise<void> {
         socket.emit("gameEvent", message);
-        // TODO: channel.ack(message);
     }
 
     async function handleMessage(socket: any, playerUuid: string, msg: any): Promise<void> {
