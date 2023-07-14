@@ -8,7 +8,8 @@ import { authenticateToken, AuthenticatedRequest, TokenPayload, toTokenPayload }
 export function registerSocket(io: Server, realmService: RealmService) {
     async function handlePlayerMessage(socket: any, playerUuid: string, gameUuid: string, msg: any): Promise<void> {
         const message = JSON.parse(msg.content.toString());
-        console.log(`Received message for player exchange: ${JSON.stringify(message)}`);
+        const printableMessage = JSON.stringify(message);
+        console.log(`Received message for player exchange: ${printableMessage.length > 250 ? (printableMessage.substring(0, 250) + "...") : printableMessage}`);
         await handlePlayerEvent(socket, playerUuid, gameUuid, message);
     }
     async function handlePlayerEvent(socket: any, playerUuid: string, gameUuid: string, message: any): Promise<void> {
