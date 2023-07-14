@@ -1,54 +1,58 @@
 import { Player } from "./Player";
 
-interface NewPlayerWantsToJoinPayload {
+interface BaseEvent {
+  version: string;
+}
+
+interface NewPlayerWantsToJoinPayload extends BaseEvent {
   date: Date;
   ip: string;
   uuid: string;
   playerName: string;
 }
 
-interface GeneralUpdateMessagePayload {
+interface GeneralUpdateMessagePayload extends BaseEvent {
   gameUuidList: string[];
 }
 
-interface PlayerPlayedPayload {
+interface PlayerPlayedPayload extends BaseEvent {
   uuid: string;
   selectedIndex: number;
 }
 
-interface NewPlayerApprovedToJoinPayload {
+interface NewPlayerApprovedToJoinPayload extends BaseEvent {
   uuid: string;
   approvedAt: Date;
 }
 
-interface NewViewerApprovedToSubscribePayload {
+interface NewViewerApprovedToSubscribePayload extends BaseEvent {
   uuid: string;
   approvedAt: Date;
 }
 
-interface PlayerAttemptsToPlayPayload {
+interface PlayerAttemptsToPlayPayload extends BaseEvent {
   uuid: string;
   selectedIndex: number;
 }
 
-interface CardsAreDistributedPayload {
+interface CardsAreDistributedPayload extends BaseEvent {
 }
 
-interface GameMessageToPlayerPayload {
+interface GameMessageToPlayerPayload extends BaseEvent {
   uuid: string;
   playerUuid: string;
   message: string;
 }
 
-interface GameStartRequestedPayload {
+interface GameStartRequestedPayload extends BaseEvent {
   uuid: string;
 }
 
-interface GameStartApprovedPayload {
+interface GameStartApprovedPayload extends BaseEvent {
   uuid: string;
 }
 
-interface GameEndedPayload {
+interface GameEndedPayload extends BaseEvent {
   winner: Player;
   players: Player[];
 }
