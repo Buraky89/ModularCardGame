@@ -5,6 +5,7 @@ import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
 import { MutexInterface } from "async-mutex";
 import { IGameService } from "../Interfaces/IGameService";
+import { EventFactory } from "../Common/EventFactory";
 
 class GameService implements IGameService {
   public playerService: PlayerService;
@@ -145,17 +146,8 @@ class GameService implements IGameService {
       );
 
       console.log("Game has ended");
-      const players = this.playerService.players.map((p) => ({
-        name: p.name,
-        score: p.points,
-      }));
-      const message = {
-        event: Events.GameEnded,
-        payload: {
-          winner: this.playerService.getWinner(),
-          players,
-        },
-      };
+      const players = this.playerService.players;
+      const message = EventFactory.gameEnded(this.playerService.getWinner(), players);
 
       return message;
     } else {

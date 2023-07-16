@@ -1,4 +1,4 @@
-import Events from "../Common/Events";
+import { EventFactory } from "../Common/EventFactory";
 import { Player } from "../Common/Player";
 import { IPlayerService } from "../Interfaces/IPlayerService";
 import { CardService } from "./CardService";
@@ -46,20 +46,15 @@ class PlayerService implements IPlayerService {
 
     // Publish NewPlayerApprovedToJoin event
     if (this.callback) {
-      const message = {
-        event: Events.NewPlayerApprovedToJoin,
-        payload: {
-          uuid,
-        },
-      };
+      const message = EventFactory.newPlayerApprovedToJoin(uuid, new Date());
+
       this.callback(message);
     }
 
     if (playerLengthIsMax) {
       // Publish CardsAreReadyToBeDistributed event
-      const message = {
-        event: Events.CardsAreReadyToBeDistributed,
-      };
+      const message = EventFactory.cardsAreReadyToBeDistributed();
+
       if (this.callback) {
         this.callback(message);
       }
@@ -82,12 +77,8 @@ class PlayerService implements IPlayerService {
 
     // Publish NewViewerApprovedToSubscribe event
     if (this.callback) {
-      const message = {
-        event: Events.NewViewerApprovedToSubscribe,
-        payload: {
-          uuid,
-        },
-      };
+      const message = EventFactory.newViewerApprovedToSubscribe(uuid, new Date());
+
       this.callback(message);
     }
   }
@@ -103,10 +94,8 @@ class PlayerService implements IPlayerService {
 
   async publishCardsAreDistributedEvent(eventManagerUuid: string): Promise<void> {
     if (this.callback) {
-      const message = {
-        event: Events.CardsAreDistributed,
-        payload: {},
-      };
+      const message = EventFactory.cardsAreDistributed();
+
       this.callback(message);
     }
   }
@@ -130,16 +119,16 @@ class PlayerService implements IPlayerService {
     }
   }
 
-  getWinner(): Player | null {
+  getWinner(): Player {
     let maxPoints = -1;
-    let winner: Player | null = null;
+    let winner: Player;
     for (const player of this.players) {
       if (player.points > maxPoints) {
         maxPoints = player.points;
-        winner = player;
+        winner = player!;
       }
     }
-    return winner;
+    return winner!;
   }
 }
 

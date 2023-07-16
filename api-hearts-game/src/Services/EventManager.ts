@@ -1,3 +1,4 @@
+import { EventFactory } from "../Common/EventFactory";
 import Events from "../Common/Events";
 import {
   NewPlayerWantsToJoinPayload,
@@ -24,12 +25,14 @@ class EventManager {
   public gameService: IGameService;
   public uuid: string;
   public logger: ILogger;
+  public latestEventVersion: number;
 
   constructor(uuid: string, amqpService: IAmqpService, gameService: IGameService, logger: ILogger) {
     this.uuid = uuid;
     this.amqpService = amqpService;
     this.gameService = gameService;
     this.logger = logger;
+    this.latestEventVersion = 0;
   }
 
   eventHandlers: { [key in Events]?: (payload: any) => Promise<void> } = {
@@ -95,13 +98,8 @@ class EventManager {
       const gameState = await this.gameService.getGameData(playerUuid);
 
       if (event !== Events.GameMessageToPlayer) {
-        const messageToExchange = {
-          event: Events.GameUpdated,
-          payload: {
-            gameUuid: this.uuid,
-            data: gameState,
-          },
-        };
+        const messageToExchange = EventFactory.gameUpdated(this.uuid, gameState);
+
         await this.exchangeToPlayerQueue(player.uuid, messageToExchange);
       } else {
         await this.exchangeToPlayerQueue(player.uuid, message);
@@ -124,6 +122,16 @@ class EventManager {
 
   async handleEvent(message: any): Promise<void> {
     const { event, payload } = message;
+
+    // Here we check the version of incoming event.
+    // If it's not the next version, we ignore it.
+    if (payload.version !== this.latestEventVersion + 1) {
+      this.logger.info(`Ignoring event ${event}, expected version ${this.latestEventVersion + 1} but got ${payload.version}`);
+      return;
+    }
+
+    // Update the latest version to the one we just received
+    this.latestEventVersion = payload.version;
 
     if (
       this.gameService.isGameEnded() &&
@@ -164,10 +172,8 @@ class EventManager {
     const player = await this.gameService.findPlayer(uuid);
     if (player && await this.gameService.isPlayersStillNotMax() == false) {
       this.logger.info("Game start requested by first player");
-      const message = {
-        event: Events.GameStartApproved,
-        payload: {},
-      };
+      const message = EventFactory.gameStartApproved(this.uuid);
+
       await this.publishMessageToGameEvents(message, this.uuid);
     } else if (await this.gameService.isPlayersStillNotMax() == true) {
       this.logger.info("There are not enough players to start yet");
@@ -283,14 +289,7 @@ class EventManager {
 
     if (player) {
       if (!player.isTheirTurn) {
-        const message = {
-          event: Events.GameMessageToPlayer,
-          payload: {
-            uuid,
-            playerUuid: player.uuid,
-            message: `It is not your turn yet.`,
-          },
-        };
+        const message = EventFactory.gameMessageToPlayer(uuid, player.uuid, `It is not your turn yet.`);
 
         await this.publishMessageToExchange(message, this.uuid);
 
@@ -309,13 +308,8 @@ class EventManager {
         );
 
       if (isValidCard) {
-        const message = {
-          event: Events.PlayerPlayed,
-          payload: {
-            uuid,
-            selectedIndex,
-          },
-        };
+        const message = EventFactory.playerPlayed(uuid, selectedIndex);
+
         this.logger.info("message", message);
 
         await this.publishMessageToGameEvents(message, this.uuid);
@@ -323,14 +317,7 @@ class EventManager {
       } else {
         this.logger.info("Invalid card played");
 
-        const message = {
-          event: Events.GameMessageToPlayer,
-          payload: {
-            uuid,
-            playerUuid: player.uuid,
-            message: failureEvent.message,
-          },
-        };
+        const message = EventFactory.gameMessageToPlayer(uuid, player.uuid, failureEvent.message);
 
         await this.publishMessageToExchange(message, this.uuid);
       }
@@ -342,9 +329,7 @@ class EventManager {
   async restartGame(): Promise<any> {
     this.gameService.restartAsClean();
 
-    const message = {
-      event: Events.GameRestarted,
-    };
+    const message = EventFactory.gameRestarted();
 
     await this.publishMessageToExchange(message, this.uuid);
   }

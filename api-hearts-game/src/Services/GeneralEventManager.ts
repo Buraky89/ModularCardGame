@@ -1,3 +1,4 @@
+import { EventFactory } from "../Common/EventFactory";
 import Events from "../Common/Events";
 import {
   NewPlayerWantsToJoinPayload,
@@ -62,13 +63,7 @@ class GeneralEventManager {
     // Distribute a message for each UUID in the list
     this.uuidList.forEach((viewerUuid) => {
       gameUuidList.forEach((uuid) => {
-        const message = {
-          event: Events.GeneralUpdateMessageExchange,
-          payload: {
-            gameUuidList,
-            viewerUuid
-          },
-        };
+        const message = EventFactory.generalUpdateMessageExchange(gameUuidList, viewerUuid);
 
         this.amqpService.publishMessageToGeneralEventsForPlayerExchange(viewerUuid, message);
       });
@@ -91,12 +86,7 @@ class GeneralEventManager {
   async publishGeneralUpdateMessage(
     eventManagerUuids: string[],
   ): Promise<void> {
-    const message = {
-      event: Events.GeneralUpdateMessage,
-      payload: {
-        gameUuidList: eventManagerUuids
-      },
-    };
+    const message = EventFactory.generalUpdateMessage(eventManagerUuids);
 
     try {
       await this.amqpService.publishMessageToGeneralEvents(message);

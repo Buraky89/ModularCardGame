@@ -1,60 +1,62 @@
+import { BasePayload } from "./BasePayload";
 import { Player } from "./Player";
 
-interface BaseEvent {
-  version: string;
-}
-
-interface NewPlayerWantsToJoinPayload extends BaseEvent {
+interface NewPlayerWantsToJoinPayload extends BasePayload {
   date: Date;
   ip: string;
   uuid: string;
   playerName: string;
 }
 
-interface GeneralUpdateMessagePayload extends BaseEvent {
+interface GeneralUpdateMessagePayload extends BasePayload {
   gameUuidList: string[];
 }
 
-interface PlayerPlayedPayload extends BaseEvent {
+interface PlayerPlayedPayload extends BasePayload {
   uuid: string;
   selectedIndex: number;
 }
 
-interface NewPlayerApprovedToJoinPayload extends BaseEvent {
+interface NewPlayerApprovedToJoinPayload extends BasePayload {
   uuid: string;
   approvedAt: Date;
 }
 
-interface NewViewerApprovedToSubscribePayload extends BaseEvent {
+interface NewViewerApprovedToSubscribePayload extends BasePayload {
   uuid: string;
   approvedAt: Date;
 }
 
-interface PlayerAttemptsToPlayPayload extends BaseEvent {
+interface PlayerAttemptsToPlayPayload extends BasePayload {
   uuid: string;
   selectedIndex: number;
 }
 
-interface CardsAreDistributedPayload extends BaseEvent {
+interface CardsAreDistributedPayload extends BasePayload {
 }
 
-interface GameMessageToPlayerPayload extends BaseEvent {
+interface GameMessageToPlayerPayload extends BasePayload {
   uuid: string;
   playerUuid: string;
   message: string;
 }
 
-interface GameStartRequestedPayload extends BaseEvent {
+interface GameStartRequestedPayload extends BasePayload {
   uuid: string;
 }
 
-interface GameStartApprovedPayload extends BaseEvent {
+interface GameStartApprovedPayload extends BasePayload {
   uuid: string;
 }
 
-interface GameEndedPayload extends BaseEvent {
+interface GameEndedPayload extends BasePayload {
   winner: Player;
   players: Player[];
+}
+
+interface GeneralUpdateMessageExchangePayload extends BasePayload {
+  gameUuidList: string[];
+  viewerUuid: string;
 }
 
 export {
@@ -69,4 +71,5 @@ export {
   CardsAreDistributedPayload,
   GameMessageToPlayerPayload,
   GeneralUpdateMessagePayload,
+  GeneralUpdateMessageExchangePayload
 };

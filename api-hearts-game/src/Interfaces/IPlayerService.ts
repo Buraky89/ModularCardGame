@@ -35,7 +35,7 @@ interface IPlayerService {
 
     setWhoseTurn(): void;
 
-    getWinner(): Player | null;
+    getWinner(): Player;
 }
 
 export { IPlayerService };

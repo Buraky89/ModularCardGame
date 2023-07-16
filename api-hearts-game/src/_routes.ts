@@ -3,7 +3,7 @@ import { authenticateToken, AuthenticatedRequest } from "./_jwtMiddleware"; // a
 import { errorHandler, AsyncWrapper } from "./middleware/errorHandling";
 import { RealmService } from "./Services/RealmService";
 import path from "path";
-import Events from "./Common/Events";
+import { EventFactory } from "./Common/EventFactory";
 
 const router = Router();
 
@@ -35,7 +35,6 @@ export function registerRoutes(app: Express, realmService: RealmService) {
             res.json(data);
         })
     );
-
     app.post(
         "/players/:uuid/play",
         authenticateToken,
@@ -46,19 +45,14 @@ export function registerRoutes(app: Express, realmService: RealmService) {
             const { uuid } = req.user;
             const { cardIndex, gameUuid } = req.body;
 
-            const message = {
-                event: Events.PlayerAttemptsToPlay,
-                payload: {
-                    uuid,
-                    selectedIndex: cardIndex,
-                },
-            };
+            const message = EventFactory.playerAttemptsToPlay(uuid, cardIndex);
 
             realmService.publishMessageToGameEvents(message, gameUuid);
 
             res.send("OK");
         }
     );
+
 
     app.post(
         "/subscribe-general",
@@ -70,15 +64,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                 const date = new Date();
                 const ip = req.ip;
 
-                const message = {
-                    event: Events.NewViewerWantsToSubscribeGeneral,
-                    payload: {
-                        date,
-                        ip,
-                        uuid,
-                        playerName: username,
-                    },
-                };
+                const message = EventFactory.newViewerWantsToSubscribeGeneral(date, ip, uuid, username);
 
                 try {
                     await realmService.publishMessageToGeneralEvents(message);
@@ -109,15 +95,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                 const date = new Date();
                 const ip = req.ip;
 
-                const message = {
-                    event: Events.NewViewerWantsToSubscribe,
-                    payload: {
-                        date,
-                        ip,
-                        uuid,
-                        playerName: username,
-                    },
-                };
+                const message = EventFactory.newViewerWantsToSubscribe(date, ip, uuid, username);
 
                 try {
                     realmService.publishMessageToGameEvents(message, gameUuid);
@@ -143,15 +121,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
             const date = new Date();
             const ip = req.ip;
 
-            const message = {
-                event: Events.NewPlayerWantsToJoin,
-                payload: {
-                    date,
-                    ip,
-                    uuid,
-                    playerName: username,
-                },
-            };
+            const message = EventFactory.newPlayerWantsToJoin(date, ip, uuid, username);
 
             try {
                 realmService.publishMessageToGameEvents(message, gameUuid);
@@ -178,12 +148,7 @@ export function registerRoutes(app: Express, realmService: RealmService) {
                 realmService.restartGame(gameUuid);
                 res.send("OK");
             } else {
-                const message = {
-                    event: Events.GameStartRequested,
-                    payload: {
-                        uuid,
-                    },
-                };
+                const message = EventFactory.gameStartRequested(uuid);
                 realmService.publishMessageToGameEvents(message, gameUuid);
                 res.send("OK");
             }
