@@ -1,10 +1,8 @@
 import { WinstonLogger } from "../Common/WinstonLogger";
-import { AmqpService } from "./AmqpService";
 import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
 import { HeartsGameService } from "./HeartsGameService";
 import { v4 as uuidv4 } from "uuid";
-import { HeartsPlayerService } from "./HeartsPlayerService";
 import { IAmqpService } from "../Interfaces/IAmqpService";
 
 class RealmService {

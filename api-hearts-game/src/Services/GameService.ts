@@ -1,5 +1,4 @@
 import { PlayerService } from "./PlayerService";
-import Events from "../Common/Events";
 import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
