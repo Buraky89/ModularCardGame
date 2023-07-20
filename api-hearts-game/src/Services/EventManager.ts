@@ -121,7 +121,7 @@ class EventManager {
   }
 
   async handleEvent(message: any): Promise<void> {
-    const { event, payload } = message;
+    const { eventType: event, eventPayload: payload } = message;
 
     // Here we check the version of incoming event.
     // If it's not the next version, we ignore it.

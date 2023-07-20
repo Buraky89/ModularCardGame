@@ -12,7 +12,9 @@ export function registerSocket(io: Server, realmService: RealmService) {
         await handlePlayerEvent(socket, playerUuid, gameUuid, message);
     }
     async function handlePlayerEvent(socket: any, playerUuid: string, gameUuid: string, message: any): Promise<void> {
-        socket.emit("gameEvent", message);
+        const { eventType: event, eventPayload: payload } = message;
+
+        socket.emit("gameEvent", { event: event, payload: payload });
     }
 
     async function handleMessage(socket: any, playerUuid: string, msg: any): Promise<void> {
@@ -22,11 +24,11 @@ export function registerSocket(io: Server, realmService: RealmService) {
     }
 
     async function handleEvent(socket: any, playerUuid: string, message: any): Promise<void> {
-        const { event, payload } = message;
+        const { eventType: event, eventPayload: payload } = message;
 
         switch (event) {
             case Events.GeneralUpdateMessageExchange:
-                socket.emit("generalEvent", message);
+                socket.emit("generalEvent", { event: event, payload: payload });
                 break;
             default:
                 throw new Error(`Invalid event: ${event}, message: ${message}`);

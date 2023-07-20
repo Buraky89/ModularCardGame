@@ -26,7 +26,7 @@ class GeneralEventManager {
   }
 
   async handleEvent(message: any): Promise<void> {
-    const { event, payload } = message;
+    const { eventType: event, eventPayload: payload } = message;
 
     switch (event) {
       case Events.NewViewerWantsToSubscribeGeneral:
