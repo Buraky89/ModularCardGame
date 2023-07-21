@@ -121,17 +121,19 @@ class EventManager {
   }
 
   async handleEvent(message: any): Promise<void> {
-    const { eventType: event, eventPayload: payload } = message;
+    const { eventType: event, eventPayload: payload, eventVersion } = message;
 
     // Here we check the version of incoming event.
     // If it's not the next version, we ignore it.
-    if (payload.version !== this.latestEventVersion + 1) {
-      this.logger.info(`Ignoring event ${event}, expected version ${this.latestEventVersion + 1} but got ${payload.version}`);
+    if (eventVersion !== this.latestEventVersion + 1) {
+      this.logger.info(`Ignoring event ${event}, expected version ${this.latestEventVersion + 1} but got ${eventVersion}`);
       return;
+    } else {
+      this.logger.info(`Well, nice event: ${event}, expected version ${this.latestEventVersion + 1} and got ${eventVersion}`);
     }
 
     // Update the latest version to the one we just received
-    this.latestEventVersion = payload.version;
+    this.latestEventVersion = eventVersion;
 
     if (
       this.gameService.isGameEnded() &&
