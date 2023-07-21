@@ -3,7 +3,6 @@ import { PayloadFactory } from './PayloadFactory';
 import Events from './Events';
 import { Player } from './Player';
 import GameState from './Enums';
-import { BasePayload } from './BasePayload';
 
 export class EventFactory {
     static version: number = 1;
@@ -90,14 +89,14 @@ export class EventFactory {
         this.incrementVersion();
 
         const payload = PayloadFactory.gameEnded(winner, players);
-        return new Event(Events.GameEnded, {} as BasePayload, this.version);
+        return new Event(Events.GameEnded, payload, this.version);
     }
 
     static newViewerWantsToSubscribeGeneral(date: Date, ip: string, uuid: string, username: string): Event {
         this.incrementVersionForGeneralEvents();
 
         const payload = PayloadFactory.newPlayerWantsToJoin(date, ip, uuid, username);
-        return new Event(Events.NewViewerWantsToSubscribeGeneral, {} as BasePayload, this.version);
+        return new Event(Events.NewViewerWantsToSubscribeGeneral, payload, this.version);
     }
 
     static newViewerWantsToSubscribe(date: Date, ip: string, uuid: string, username: string): Event {
