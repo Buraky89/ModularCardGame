@@ -36,6 +36,7 @@ class EventManager {
   }
 
   eventHandlers: { [key in Events]?: (payload: any) => Promise<void> } = {
+    // TODO: Check this list again. Do not update the event versions in EventFactory for the event that does not exist here. (i.e. GameUpdated)
     [Events.NewPlayerWantsToJoin]: (payload) => this.handleNewPlayerWantsToJoin(payload),
     [Events.NewViewerWantsToSubscribe]: (payload) => this.handleNewViewerWantsToSubscribe(payload),
     [Events.PlayerPlayed]: (payload) => this.handlePlayerPlayed(payload),
@@ -127,6 +128,7 @@ class EventManager {
     // If it's not the next version, we ignore it.
     if (eventVersion !== this.latestEventVersion + 1) {
       this.logger.info(`Ignoring event ${event}, expected version ${this.latestEventVersion + 1} but got ${eventVersion}`);
+      // TODO: prevent being acknowledged at this point. afterwards, the event is going to be handled...
       return;
     } else {
       this.logger.info(`Well, nice event: ${event}, expected version ${this.latestEventVersion + 1} and got ${eventVersion}`);
