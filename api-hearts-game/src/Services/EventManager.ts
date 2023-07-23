@@ -83,7 +83,7 @@ class EventManager {
   }
 
   async handleExchangeEvent(message: any): Promise<void> {
-    const { event, payload } = message;
+    const { eventType: event, eventPayload: payload } = message;
 
     let playerUuid = "";
     if (event === Events.GameMessageToPlayer) {
