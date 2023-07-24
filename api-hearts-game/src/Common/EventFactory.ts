@@ -95,6 +95,11 @@ export class EventFactory {
         return new Event(Events.GameUpdated, payload, 0); // TODO: invent maybe a new series of version for this, instead of 0.
     }
 
+    static gameUpdatedEventCreationRequest(gameUuid: string): Event {
+        const payload = { gameUuid };
+        return new Event(Events.GameUpdatedEventCreationRequest, payload, this.incrementVersion());
+    }
+
     static gameRestarted(): Event {
         const payload = {};
         return new Event(Events.GameRestarted, payload, this.incrementVersion());

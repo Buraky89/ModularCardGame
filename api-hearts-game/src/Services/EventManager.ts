@@ -48,6 +48,7 @@ class EventManager {
     [Events.GameStartRequested]: (payload) => this.handleGameStartRequested(payload),
     [Events.GameStartApproved]: (payload) => this.handleGameStartApproved(payload),
     [Events.CardsAreDistributed]: (payload) => this.handleCardsAreDistributed(payload),
+    [Events.GameUpdatedEventCreationRequest]: (payload) => this.handleGameUpdatedEventCreationRequest(payload),
   };
 
   async start(): Promise<void> {
@@ -85,31 +86,15 @@ class EventManager {
   async handleExchangeEvent(message: any): Promise<void> {
     const { eventType: event, eventPayload: payload } = message;
 
-    let playerUuid = "";
+    if (event !== Events.GameMessageToPlayer) {
+      this.publishMessageToGameEvents(EventFactory.gameUpdatedEventCreationRequest(this.uuid), this.uuid)
+      return;
+    }
+
     if (event === Events.GameMessageToPlayer) {
       const gameMessageToPlayerPayload = payload as GameMessageToPlayerPayload;
-      playerUuid = gameMessageToPlayerPayload.playerUuid;
+      await this.exchangeToPlayerQueue(gameMessageToPlayerPayload.playerUuid, message);
     }
-    const mergedPlayersArray = this.gameService.GetPlayerUuidsToExchange(playerUuid);
-
-    await this.delay(1000);
-
-    for (const player of mergedPlayersArray) {
-      const playerUuid = player.uuid;
-      const gameState = await this.gameService.getGameData(playerUuid);
-
-      if (event !== Events.GameMessageToPlayer) {
-        const messageToExchange = EventFactory.gameUpdated(this.uuid, gameState);
-
-        await this.exchangeToPlayerQueue(player.uuid, messageToExchange);
-      } else {
-        await this.exchangeToPlayerQueue(player.uuid, message);
-      }
-    }
-  }
-
-  async delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
@@ -199,6 +184,21 @@ class EventManager {
     payload: CardsAreDistributedPayload
   ): Promise<void> {
     await this.gameService.onCardsAreDistributed();
+  }
+
+  private async handleGameUpdatedEventCreationRequest(
+    payload: GameStartRequestedPayload
+  ): Promise<void> {
+    const mergedPlayersArray = this.gameService.GetPlayerUuidsToExchange("");
+
+    for (const player of mergedPlayersArray) {
+      const playerUuid = player.uuid;
+      const gameState = await this.gameService.getGameData(playerUuid);
+
+      const messageToExchange = EventFactory.gameUpdated(this.uuid, gameState);
+
+      await this.exchangeToPlayerQueue(player.uuid, messageToExchange);
+    }
   }
 
   private async handleGameEnded(payload: GameEndedPayload): Promise<void> {
