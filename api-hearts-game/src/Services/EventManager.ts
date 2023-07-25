@@ -177,7 +177,7 @@ class EventManager {
     this.logger.info("Game start approved");
     this.gameService.startGame();
 
-    await this.publishMessageToExchange(payload, this.uuid);
+    this.publishMessageToGameEvents(EventFactory.gameUpdatedEventCreationRequest(this.uuid), this.uuid)
   }
 
   private async handleCardsAreDistributed(
@@ -205,7 +205,7 @@ class EventManager {
     this.logger.info("Game has ended!");
     this.gameService.endGame();
 
-    await this.publishMessageToExchange(payload, this.uuid);
+    this.publishMessageToGameEvents(EventFactory.gameUpdatedEventCreationRequest(this.uuid), this.uuid)
   }
 
   private async handleNewPlayerWantsToJoin(
@@ -268,7 +268,7 @@ class EventManager {
     this.logger.info(`New player ${uuid} approved to join`);
     // Do something with the approved player
 
-    await this.publishMessageToExchange(payload, this.uuid);
+    this.publishMessageToGameEvents(EventFactory.gameUpdatedEventCreationRequest(this.uuid), this.uuid)
   }
 
   private async handleNewViewerApprovedToSubscribe(
