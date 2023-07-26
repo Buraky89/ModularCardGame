@@ -80,7 +80,6 @@ amqpService.start().then(() => {
   });
 });
 
-// TODO: player 1 does not get socket updates. dont know why... but always player 1.
 /* TODO: fix (node:1025) UnhandledPromiseRejectionWarning: Error: connect ECONNREFUSED 127.0.0.1:5672
     at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1146:16)
     (Use `node --trace-warnings ...` to show where the warning was created)
