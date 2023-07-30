@@ -1,5 +1,6 @@
 import { EventFactory } from "../Common/EventFactory";
 import Events from "../Common/Events";
+import { Event } from "../Common/Event";
 import {
   NewPlayerWantsToJoinPayload,
   PlayerPlayedPayload,
@@ -49,6 +50,7 @@ class EventManager {
     [Events.GameStartApproved]: (payload) => this.handleGameStartApproved(payload),
     [Events.CardsAreDistributed]: (payload) => this.handleCardsAreDistributed(payload),
     [Events.GameUpdatedEventCreationRequest]: (payload) => this.handleGameUpdatedEventCreationRequest(payload),
+    [Events.GameMessageToPlayer]: (payload) => this.handleGameMessageToPlayerEvent(payload),
   };
 
   async start(): Promise<void> {
@@ -69,7 +71,8 @@ class EventManager {
   async handleExchange(msg: any): Promise<void> {
     const message = JSON.parse(msg.content.toString());
     this.logger.info(`Received message: ${JSON.stringify(message)}`);
-    await this.handleExchangeEvent(message);
+
+    await this.publishMessageToExchange(msg, this.uuid);
   }
 
   async handleMessage(msg: any): Promise<void> {
@@ -81,20 +84,17 @@ class EventManager {
     const message = JSON.parse(msg.content.toString());
     this.logger.info(`Received message: ${JSON.stringify(message)}`);
     await this.handleEvent(message);
+
+    if ((message as Event).eventType !== Events.GameUpdatedEventCreationRequest) {
+      await this.publishMessageToGameEvents(EventFactory.gameUpdatedEventCreationRequest(this.uuid), this.uuid)
+    }
+
   }
 
-  async handleExchangeEvent(message: any): Promise<void> {
-    const { eventType: event, eventPayload: payload } = message;
+  async handleGameMessageToPlayerEvent(message: any): Promise<void> {
+    const gameMessageToPlayerPayload = message as GameMessageToPlayerPayload;
 
-    if (event !== Events.GameMessageToPlayer) {
-      this.publishMessageToGameEvents(EventFactory.gameUpdatedEventCreationRequest(this.uuid), this.uuid)
-      return;
-    }
-
-    if (event === Events.GameMessageToPlayer) {
-      const gameMessageToPlayerPayload = payload as GameMessageToPlayerPayload;
-      await this.exchangeToPlayerQueue(gameMessageToPlayerPayload.playerUuid, message);
-    }
+    await this.exchangeToPlayerQueue(gameMessageToPlayerPayload.playerUuid, new Event(Events.GameMessageToPlayer, message, 0));
   }
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
@@ -150,7 +150,7 @@ class EventManager {
     await this.amqpService.publishMessageToExchange(payload, uuid);
   }
 
-  async publishMessageToGameEvents(payload: any, uuid: string): Promise<void> {
+  async publishMessageToGameEvents(payload: Event, uuid: string): Promise<void> {
     await this.amqpService.publishMessageToGameEvents(payload, uuid);
   }
 
@@ -293,9 +293,9 @@ class EventManager {
 
     if (player) {
       if (!player.isTheirTurn) {
-        const message = EventFactory.gameMessageToPlayer(uuid, player.uuid, `It is not your turn yet.`);
+        const message = EventFactory.gameMessageToPlayer(this.uuid, player.uuid, `It is not your turn yet.`);
 
-        await this.publishMessageToExchange(message, this.uuid);
+        await this.publishMessageToGameEvents(message, this.uuid);
 
         this.logger.info(`Player ${player.name} cannot play at this time.`);
 
@@ -317,13 +317,12 @@ class EventManager {
         this.logger.info("message", message);
 
         await this.publishMessageToGameEvents(message, this.uuid);
-        await this.publishMessageToExchange(message, this.uuid);
       } else {
         this.logger.info("Invalid card played");
 
         const message = EventFactory.gameMessageToPlayer(uuid, player.uuid, failureEvent.message);
 
-        await this.publishMessageToExchange(message, this.uuid);
+        await this.publishMessageToGameEvents(message, this.uuid);
       }
     } else {
       this.logger.info(`Player ${uuid} not found`);
@@ -334,8 +333,9 @@ class EventManager {
     this.gameService.restartAsClean();
 
     const message = EventFactory.gameRestarted();
+    // TODO: nothing is done with this event.
 
-    await this.publishMessageToExchange(message, this.uuid);
+    await this.publishMessageToGameEvents(message, this.uuid)
   }
 }
 
