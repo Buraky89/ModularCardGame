@@ -238,14 +238,14 @@ class EventManager {
         const release =
           await this.gameService.turnMutex();
 
-        var isGameEnded = await this.gameService.playGame(
+        var gameEndedInfo = await this.gameService.playGame(
           player,
           selectedIndex,
           this.uuid
         );
 
-        if (isGameEnded != "") {
-          await this.publishMessageToGameEvents(isGameEnded, this.uuid);
+        if (gameEndedInfo.ended == true) {
+          await this.publishMessageToGameEvents(EventFactory.gameEnded(gameEndedInfo.winner, gameEndedInfo.players), this.uuid);
         }
 
         // Set the next player's isTheirTurn property to true

@@ -13,7 +13,7 @@ export interface IGameService {
     subscribeViewer(playerName: string, uuid: string, gameUuid: string): void;
     findPlayer(uuid: string): Promise<Player | undefined>;
     turnMutex(): Promise<() => void>;
-    playGame(player: Player, selectedIndex: number, gameUuid: string): Promise<string>;
+    playGame(player: Player, selectedIndex: number, gameUuid: string): Promise<any>;
     setWhoseTurn(): Promise<void>;
     isThisAValidCardToPlay(player: Player, selectedIndex: number, outputEvent: { message: string }): boolean;
     isGameNotStarted(): boolean;

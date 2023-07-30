@@ -50,8 +50,8 @@ interface GameStartApprovedPayload extends BasePayload {
 }
 
 interface GameEndedPayload extends BasePayload {
-  winner: Player;
-  players: Player[];
+  winner: string;
+  players: string[];
 }
 
 interface GeneralUpdateMessageExchangePayload extends BasePayload {

@@ -83,7 +83,7 @@ export class PayloadFactory {
         };
     }
 
-    static gameEnded(winner: Player, players: Player[]): GameEndedPayload {
+    static gameEnded(winner: string, players: string[]): GameEndedPayload {
         return {
             winner,
             players,

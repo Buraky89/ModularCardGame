@@ -53,7 +53,7 @@ export class EventFactory {
 
     static gameMessageToPlayer(uuid: string, playerUuid: string, message: string): Event {
         const payload = PayloadFactory.gameMessageToPlayer(uuid, playerUuid, message);
-        return new Event(Events.GameMessageToPlayer, payload, 0); // TODO: invent maybe a new series of version for this, instead of 0.
+        return new Event(Events.GameMessageToPlayer, payload, this.incrementVersion());
     }
 
     static gameStartRequested(uuid: string): Event {
@@ -66,7 +66,7 @@ export class EventFactory {
         return new Event(Events.GameStartApproved, payload, this.incrementVersion());
     }
 
-    static gameEnded(winner: Player, players: Player[]): Event {
+    static gameEnded(winner: string, players: string[]): Event {
         const payload = PayloadFactory.gameEnded(winner, players);
         return new Event(Events.GameEnded, payload, this.incrementVersion());
     }

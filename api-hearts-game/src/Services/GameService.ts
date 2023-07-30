@@ -4,7 +4,6 @@ import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
 import { MutexInterface } from "async-mutex";
 import { IGameService } from "../Interfaces/IGameService";
-import { EventFactory } from "../Common/EventFactory";
 
 class GameService implements IGameService {
   public playerService: PlayerService;
@@ -94,13 +93,13 @@ class GameService implements IGameService {
   ): Promise<any> {
     if (this.gameState == GameState.ENDED) {
       console.log("Game is ended, cannot play game");
-      return;
+      return { "ended": false };
     }
 
     if (this.playerService.haveAnyPlayersCards()) {
       if (!player.isTheirTurn) {
         console.log(`It is not ${player.name}'s turn`);
-        return;
+        return { "ended": false };
       }
 
       console.log(`Turn ${this.turnNumber}:`);
@@ -146,11 +145,11 @@ class GameService implements IGameService {
 
       console.log("Game has ended");
       const players = this.playerService.players;
-      const message = EventFactory.gameEnded(this.playerService.getWinner(), players);
+      const message = { "ended": true, "winner": this.playerService.getWinner().name, "players": players.map(p => p.name) };
 
       return message;
     } else {
-      return "";
+      return { "ended": false };
     }
   }
 
