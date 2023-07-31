@@ -94,7 +94,7 @@ class EventManager {
   async handleGameMessageToPlayerEvent(message: any): Promise<void> {
     const gameMessageToPlayerPayload = message as GameMessageToPlayerPayload;
 
-    await this.exchangeToPlayerQueue(gameMessageToPlayerPayload.playerUuid, new Event(Events.GameMessageToPlayer, message, 0));
+    await this.exchangeToPlayerQueue(gameMessageToPlayerPayload.playerUuid, EventFactory.gameMessageToPlayerExchange(this.uuid, gameMessageToPlayerPayload.playerUuid, message));
   }
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {

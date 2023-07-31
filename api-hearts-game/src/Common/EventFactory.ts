@@ -56,6 +56,10 @@ export class EventFactory {
         return new Event(Events.GameMessageToPlayer, payload, this.incrementVersion());
     }
 
+    static gameMessageToPlayerExchange(uuid: string, playerUuid: string, message: string): Event {
+        return new Event(Events.GameMessageToPlayer, message, 0);
+    }
+
     static gameStartRequested(uuid: string): Event {
         const payload = PayloadFactory.gameStartRequested(uuid);
         return new Event(Events.GameStartRequested, payload, this.incrementVersion());
