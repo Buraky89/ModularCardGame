@@ -333,7 +333,6 @@ class EventManager {
     this.gameService.restartAsClean();
 
     const message = EventFactory.gameRestarted();
-    // TODO: nothing is done with this event.
 
     await this.publishMessageToGameEvents(message, this.uuid)
   }
