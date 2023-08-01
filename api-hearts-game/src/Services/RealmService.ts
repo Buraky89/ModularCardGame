@@ -1,19 +1,19 @@
 import { WinstonLogger } from "../Common/WinstonLogger";
 import { EventManager } from "./EventManager";
 import { GeneralEventManager } from "./GeneralEventManager";
-import { HeartsGameService } from "./HeartsGameService";
 import { v4 as uuidv4 } from "uuid";
 import { IAmqpService } from "../Interfaces/IAmqpService";
+import { IGameService } from "../Interfaces/IGameService";
 
 class RealmService {
   public generalEventManager?: GeneralEventManager;
   public eventMangers: EventManager[] = [];
   public amqpService: IAmqpService;
-  private heartsGameService: HeartsGameService;
+  private gameService: IGameService;
   private logger: WinstonLogger;
 
   constructor(generalEventManager: GeneralEventManager,
-    heartsGameService: HeartsGameService,
+    gameService: IGameService,
     logger: WinstonLogger,
     amqpService: IAmqpService,
     eventMangers?: EventManager[]
@@ -26,14 +26,14 @@ class RealmService {
       this.generalEventManager.start();
     }
     this.amqpService = amqpService;
-    this.heartsGameService = heartsGameService;
+    this.gameService = gameService;
     this.logger = logger;
   }
 
   async addEventManager(): Promise<EventManager> {
     var eventManagerUuid = uuidv4();
 
-    const eventManager = new EventManager(eventManagerUuid, this.amqpService, this.heartsGameService, this.logger);
+    const eventManager = new EventManager(eventManagerUuid, this.amqpService, this.gameService, this.logger);
     this.eventMangers.push(eventManager);
 
     await this.getEventManager(eventManager.uuid).start();
