@@ -1,18 +1,18 @@
-import { PlayerService } from "./PlayerService";
 import { Card } from "../Common/Card";
 import { Player } from "../Common/Player";
 import GameState from "../Common/Enums";
 import { MutexInterface } from "async-mutex";
 import { IGameService } from "../Interfaces/IGameService";
+import { IPlayerService } from "../Interfaces/IPlayerService";
 
 class GameService implements IGameService {
-  public playerService: PlayerService;
+  public playerService: IPlayerService;
   public playedDeck: Card[] = [];
   public turnNumber = 1;
   public gameState: GameState = GameState.NOT_STARTED;
 
-  constructor() {
-    this.playerService = new PlayerService();
+  constructor(playerService: IPlayerService) {
+    this.playerService = playerService;
   }
   GetPlayerUuidsToExchange(playerUuid: string): Player[] {
     throw new Error("Method not implemented.");
