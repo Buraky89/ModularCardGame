@@ -9,7 +9,7 @@ class HeartsGameService extends GameService {
   private keyValueStore: { [key: string]: any } = {};
 
   constructor(playerService: IPlayerService) {
-    super();
+    super(playerService);
     this.playerService = playerService;
     // Initialize heartsBroken value in the key-value store
     this.keyValueStore['heartsBroken'] = false;
