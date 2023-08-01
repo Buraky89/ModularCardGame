@@ -15,7 +15,23 @@ class GameService implements IGameService {
     this.playerService = playerService;
   }
   GetPlayerUuidsToExchange(playerUuid: string): Player[] {
-    throw new Error("Method not implemented.");
+    const players = this.playerService.players;
+    const viewers = this.playerService.viewers;
+
+    const mergedPlayersMap = new Map(
+      [...players, ...viewers].map(player => [player.uuid, player])
+    );
+
+    if (playerUuid !== "") {
+      const player = players.find(p => p.uuid === playerUuid);
+
+      if (player) {
+        mergedPlayersMap.clear();
+        mergedPlayersMap.set(player.uuid, player);
+      }
+    }
+
+    return Array.from(mergedPlayersMap.values());
   }
 
   restartAsClean() {
