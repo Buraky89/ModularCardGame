@@ -78,8 +78,6 @@ class GeneralEventManager {
     viewerUuid: string,
     callback: (msg: any) => void,
   ): Promise<void> {
-    console.log("BURDANMIGELİO");
-
     return await this.amqpService.subscribeExchangeQueue(viewerUuid, callback);
   }
 

@@ -33,7 +33,6 @@ class HeartsPlayerService extends PlayerService {
       for (let card of deck) {
         if (card.cardType === CardType.CLUBS && card.score === 2) {
           // If so, set this player as the first player and break the loop
-          console.log("setting the first player with club 2", player);
           player.setFirstPlayer(true);
           firstPlayer = player;
           break;
