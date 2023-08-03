@@ -76,16 +76,19 @@ class EventManager {
   }
 
   async handleMessage(msg: any): Promise<void> {
-    if (this.gameService.isGameEnded()) {
+    var message = JSON.parse(msg.content.toString());
+    var isGameUpdatedEventCreationRequest = ((message as Event).eventType == Events.GameUpdatedEventCreationRequest);
+    var isGameUpdatedEvent = (message as Event).eventType == Events.GameUpdated;
+
+    if (this.gameService.isGameEnded() && !isGameUpdatedEventCreationRequest && !isGameUpdatedEvent) {
       this.logger.info("Game is ended, ignoring message");
       return;
     }
 
-    const message = JSON.parse(msg.content.toString());
     this.logger.info(`Received message: ${JSON.stringify(message)}`);
     await this.handleEvent(message);
 
-    if ((message as Event).eventType !== Events.GameUpdatedEventCreationRequest) {
+    if (!isGameUpdatedEventCreationRequest) {
       await this.publishMessageToGameEvents(EventFactory.gameUpdatedEventCreationRequest(this.uuid), this.uuid)
     }
 
@@ -124,9 +127,10 @@ class EventManager {
 
     if (
       this.gameService.isGameEnded() &&
-      event !== Events.GameEnded
+      event !== Events.GameEnded &&
+      event !== Events.GameUpdatedEventCreationRequest
     ) {
-      this.logger.info("Game is ended, ignoring event");
+      this.logger.info("Game is ended, ignoring event:", event);
       return;
     }
 
