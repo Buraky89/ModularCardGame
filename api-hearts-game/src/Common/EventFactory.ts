@@ -109,4 +109,9 @@ export class EventFactory {
         return new Event(Events.GameRestarted, payload, this.incrementVersion());
     }
 
+    static gameRestartedExchange(): Event {
+        const payload = {};
+        return new Event(Events.GameRestarted, payload, 0);
+    }
+
 }

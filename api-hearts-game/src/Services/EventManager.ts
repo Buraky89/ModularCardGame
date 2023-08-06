@@ -51,6 +51,7 @@ class EventManager {
     [Events.CardsAreDistributed]: (payload) => this.handleCardsAreDistributed(payload),
     [Events.GameUpdatedEventCreationRequest]: (payload) => this.handleGameUpdatedEventCreationRequest(payload),
     [Events.GameMessageToPlayer]: (payload) => this.handleGameMessageToPlayerEvent(payload),
+    [Events.GameRestarted]: (payload) => this.handleGameRestarted(payload),
   };
 
   async start(): Promise<void> {
@@ -98,6 +99,13 @@ class EventManager {
     const gameMessageToPlayerPayload = message as GameMessageToPlayerPayload;
 
     await this.exchangeToPlayerQueue(gameMessageToPlayerPayload.playerUuid, EventFactory.gameMessageToPlayerExchange(this.uuid, gameMessageToPlayerPayload.playerUuid, message));
+  }
+
+  async handleGameRestarted(message: any): Promise<void> {
+    const mergedPlayersArray = this.gameService.GetPlayerUuidsToExchange("");
+    for (const player of mergedPlayersArray) {
+      await this.exchangeToPlayerQueue(player.uuid, EventFactory.gameRestartedExchange());
+    }
   }
 
   async exchangeToPlayerQueue(playerUuid: string, messageToExchange: any) {
@@ -334,6 +342,7 @@ class EventManager {
   }
 
   async restartGame(): Promise<any> {
+    // TODO: at the time that GameEnded is exchanged, the players are already gone. find a way... i.e. Invent a new payload for it, include the players in the payload.
     this.gameService.restartAsClean();
 
     const message = EventFactory.gameRestarted();
