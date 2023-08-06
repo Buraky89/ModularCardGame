@@ -5,8 +5,8 @@ import { Player } from './Player';
 import GameState from './Enums';
 
 export class EventFactory {
-    static version: number = 0;
-    static versionForGeneralEvents: number = 0;
+    static version: number = 1;
+    static versionForGeneralEvents: number = 1;
 
     static incrementVersion() {
         return this.version++;
